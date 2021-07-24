@@ -1,41 +1,42 @@
+
+#pragma once
+/*--------------------------------------------------------------------------------
+
+	Name:
+		main.h
+
+	Description:
+		Header for root of code functionality
+
+--------------------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------------------
+Compiler Directives
+--------------------------------------------------------------------------------*/
 #pragma once
 
-
+/*--------------------------------------------------------------------------------
+Constants
+--------------------------------------------------------------------------------*/
 #define WINDOWS true
 
-bool main_init
+/*--------------------------------------------------------------------------------
+Enums
+--------------------------------------------------------------------------------*/
+typedef bool sim_stat;
+enum
+	{
+	SIM_STAT_FAIL		= 0,
+	SIM_STAT_END		= SIM_STAT_FAIL,
+	SIM_STAT_RUNNING	= 1
+	};
+
+
+/*--------------------------------------------------------------------------------
+Declarations
+--------------------------------------------------------------------------------*/
+int main
 (
-	char* i_window_name,
-	/* name of window           */
-	SDL_Window** o_window,
-	/* created window           */
-	SDL_Renderer** o_renderer,
-	SDL_Surface** o_surface
-	/* created surface on window*/
-
-);
-
-bool main_close
-(
-	SDL_Window** io_window,
-	/* main window to be destroyed  */
-	SDL_Renderer** io_surface
-	/* main surface to be destroyed */
-
-);
-
-bool game_loop
-(
-	SDL_Window** io_window,
-	/* main window to be destroyed  */
-	SDL_Renderer** io_renderer,
-	/* main surface to be destroyed */
-	SDL_Texture* i_images[],
-	int             i_image_count
-);
-
-
-int main(
-	int argc,
-	char* argv[]
+	int					argc,				/* argument count					*/
+	char			   *argv[]				/* arguments                        */
 );

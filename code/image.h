@@ -1,17 +1,36 @@
-bool load_all_images
+#pragma once
+/*--------------------------------------------------------------------------------
+
+	Name:
+		image.h
+
+	Description:
+		Header for image operations
+
+--------------------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------------------
+Includes
+--------------------------------------------------------------------------------*/
+
+/*------------------------------------------------
+External Libraries
+------------------------------------------------*/
+#include <SDL_image.h>
+#include <stdio.h>
+
+/*------------------------------------------------
+Project Headers
+------------------------------------------------*/
+#include "main.h"
+
+/*--------------------------------------------------------------------------------
+Declarations
+--------------------------------------------------------------------------------*/
+
+sim_stat load_all_images
 (
-    SDL_Renderer** i_renderer,
-    SDL_Texture* i_images[],
-    int             i_image_count
-);
-
-
-bool load_image
-(
-    char* i_image_name,
-    /* name of image to load           */
-    SDL_Renderer** i_renderer,
-    SDL_Texture** o_image
-    /* created image                   */
-
+	SDL_Renderer	  **i_renderer,			/* image renderer					*/
+	SDL_Texture		   *i_images[],			/* array of images					*/
+	int					i_image_count		/* count of images					*/
 );
