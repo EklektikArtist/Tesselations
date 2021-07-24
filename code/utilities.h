@@ -1,11 +1,11 @@
 #pragma once
 /*--------------------------------------------------------------------------------
 
-	Name:
-		utilities.h
+    Name:
+        utilities.h
 
-	Description:
-		Header for utility operations
+    Description:
+        Header for utility operations
 
 --------------------------------------------------------------------------------*/
 
@@ -20,6 +20,6 @@ void debug_info
 
 bool check_or_error
 (
-	bool				test,				/* condition to test				*/
-	const char		   *msg 				/* message to print on fail			*/
+    bool                i_test,             /* condition to test                */
+    const char         *i_msg               /* message to print on fail         */
 );

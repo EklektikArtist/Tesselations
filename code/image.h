@@ -1,11 +1,11 @@
 #pragma once
 /*--------------------------------------------------------------------------------
 
-	Name:
-		image.h
+    Name:
+        image.h
 
-	Description:
-		Header for image operations
+    Description:
+        Header for image operations
 
 --------------------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ Declarations
 
 sim_stat load_all_images
 (
-	SDL_Renderer	  **i_renderer,			/* image renderer					*/
-	SDL_Texture		   *i_images[],			/* array of images					*/
-	int					i_image_count		/* count of images					*/
+    SDL_Renderer      **i_renderer,         /* image renderer                   */
+    SDL_Texture        *i_images[],         /* array of images                  */
+    int                 i_image_count       /* count of images                  */
 );

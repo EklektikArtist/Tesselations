@@ -1,10 +1,10 @@
 /*--------------------------------------------------------------------------------
 
-	Name:
-		utilities.cpp
+    Name:
+        utilities.cpp
 
-	Description:
-		Utility handling
+    Description:
+        Utility handling
 
 --------------------------------------------------------------------------------*/
 
@@ -31,71 +31,71 @@ Procedures
 
 /*--------------------------------------------------------------------------------
 
-	Name:
-		check_or_error
+    Name:
+        check_or_error
 
-	Description:
-		Check the test case and print an error message if it fails
+    Description:
+        Check the test case and print an error message if it fails
 
 --------------------------------------------------------------------------------*/
 bool check_or_error
 (
-	bool				test,				/* condition to test				*/
-	const char		   *msg 				/* message to print on fail			*/
+    bool                i_test,             /* condition to test                */
+    const char         *i_msg               /* message to print on fail         */
 )
-	{
-	/*------------------------------------------------
-	If test fails, print the error message
-	------------------------------------------------*/
-	if( !test )
-		{
-		printf( "%s. SDL Error: %s\n\n", msg, SDL_GetError() );
-		}
+    {
+    /*------------------------------------------------
+    If test fails, print the error message
+    ------------------------------------------------*/
+    if( !i_test )
+        {
+        printf( "%s. SDL Error: %s\n\n", i_msg, SDL_GetError() );
+        }
 
-	/*------------------------------------------------
-	Return
-	------------------------------------------------*/
-	return( test );
+    /*------------------------------------------------
+    Return
+    ------------------------------------------------*/
+    return( i_test );
 
-	}	/* check_or_error() */
+    }    /* check_or_error() */
 
 
 /*--------------------------------------------------------------------------------
 
-	Name:
-		debug_info
+    Name:
+        debug_info
 
-	Description:
-		Print out high level debug information
+    Description:
+        Print out high level debug information
 
 --------------------------------------------------------------------------------*/
 void debug_info
 (
-	void
+    void
 )
-	{
-	/*------------------------------------------------
-	Local Variables
-	------------------------------------------------*/
-	int					driver_cnt;			/* count of render drivers          */
-	int					driver_i;			/* drivers iterator					*/	
-	SDL_RendererInfo	info;				/* driver information               */
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    int                 driver_cnt;         /* count of render drivers          */
+    int                 driver_i;           /* drivers iterator                 */    
+    SDL_RendererInfo    info;               /* driver information               */
 
-	/*------------------------------------------------
-	Initialization
-	------------------------------------------------*/
-	driver_cnt = SDL_GetNumRenderDrivers();
+    /*------------------------------------------------
+    Initialization
+    ------------------------------------------------*/
+    driver_cnt = SDL_GetNumRenderDrivers();
 
-	/*------------------------------------------------
-	Print out all the driver information
-	------------------------------------------------*/
-	printf( "Render Drivers\n" );
-	for( driver_i = 0; driver_i < driver_cnt; driver_i++ )
-		{
-		if( SDL_GetRenderDriverInfo( driver_i, &info ) == 0 )
-			{
-			printf( "  -%s\n", info.name );
-			}
-		}
+    /*------------------------------------------------
+    Print out all the driver information
+    ------------------------------------------------*/
+    printf( "Render Drivers\n" );
+    for( driver_i = 0; driver_i < driver_cnt; driver_i++ )
+        {
+        if( SDL_GetRenderDriverInfo( driver_i, &info ) == 0 )
+            {
+            printf( "  -%s\n", info.name );
+            }
+        }
 
-	}	/* debug_info() */
+    }    /* debug_info() */
