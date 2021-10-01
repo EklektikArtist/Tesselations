@@ -2,10 +2,10 @@
 /*--------------------------------------------------------------------------------
 
     Name:
-        image.h
+        font.h
 
     Description:
-        Header for image operations
+        Header for font operations
 
 --------------------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ Includes
 /*------------------------------------------------
 External Libraries
 ------------------------------------------------*/
-#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 /*------------------------------------------------
 Project Headers
@@ -27,7 +27,7 @@ Project Headers
 Declarations
 --------------------------------------------------------------------------------*/
 
-void load_all_images
+void load_all_fonts
 (
     main_data           *io_sim_data         /* simulation data                  */
 );

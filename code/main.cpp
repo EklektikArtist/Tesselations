@@ -17,9 +17,12 @@ External Libraries
 ------------------------------------------------*/
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <stdio.h>
+#include <string>
 
-#include "mpi.h"        //not in use yet, but leave to make sure complation works
-#include "neat.h"       //not in use yet, but leave to make sure complation works
+#include "mpi.h"        //not in use yet, but leave to make sure compilation works
+#include "neat.h"       //not in use yet, but leave to make sure compilation works
 
 /*------------------------------------------------
 File Header
@@ -29,33 +32,38 @@ File Header
 /*------------------------------------------------
 Project Headers
 ------------------------------------------------*/
+#include "font.h"
 #include "image.h"
 #include "utilities.h"
+
+/*------------------------------------------------
+Class Headers
+------------------------------------------------*/
+#include "cls_textbox.h"
 
 /*--------------------------------------------------------------------------------
 Declarations
 --------------------------------------------------------------------------------*/
 
-static sim_stat main_init
+static void main_init
 (
     char               *i_window_name,      /* name of window                   */
-    SDL_Window        **o_window,           /* created window                   */
-    SDL_Renderer      **o_renderer          /* created renderer for window      */
+    main_data          *io_sim_data         /* simulation data                  */
 );
 
-static bool main_loop
+static void main_loop
 (
-    SDL_Texture        *i_images[],         /* image array to be used           */
-    int                 i_image_count,      /* number of available images       */
-    SDL_Window        **io_window,          /* main window to be used           */
-    SDL_Renderer      **io_renderer         /* main renderer to be used         */
+    main_data          *io_sim_data         /* simulation data                  */
 );
 
 static void main_close
 (
-    SDL_Window        **io_window,          /* main window to be destroyed      */
-    SDL_Renderer      **io_renderer         /* main surface to be destroyed     */
+    main_data          *io_sim_data         /* simulation data                  */
+);
 
+void init_sim_data
+(
+    main_data          *io_sim_data         /* simulation data                  */
 );
 
 /*--------------------------------------------------------------------------------
@@ -79,20 +87,9 @@ int main
 )
     {
     /*------------------------------------------------
-    Local Constants
-    ------------------------------------------------*/
-    const int           MAX_IMAGES = 5;
-
-    /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
-    int                 i;                  /* argument count                   */
-    SDL_Texture        *main_images[ MAX_IMAGES ];
-                                            /* array of images for sim          */
-    int                 main_image_count;   /* count of images in use           */
-    SDL_Renderer       *main_renderer;      /* primary renderer                 */
-    SDL_Window         *main_window;        /* primary window                   */
-    sim_stat            running;            /* simulation status                */
+    main_data            main_sim_data;      /* simulation data                  */
 
     /*------------------------------------------------
     Print out startup status info
@@ -102,36 +99,38 @@ int main
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    for( i = 0; i < MAX_IMAGES; i++ )
-        {
-        main_images[ i ] = NULL;
-        }
-    main_image_count = 0;
-    main_renderer = NULL;
-    main_window = NULL;
-    running = SIM_STAT_RUNNING;
+    init_sim_data( &main_sim_data );
 
     /*------------------------------------------------
     Initialize Environment
     ------------------------------------------------*/
-    running = main_init( "Tesselations", &main_window, &main_renderer );
-    check_or_error( running, "Initialization Failed" );
+    main_init( "Tesselations", &main_sim_data );
+    check_or_error( main_sim_data.sim_data.running, "Initialization Failed" );
 
     /*------------------------------------------------
-    Load Media
+    Load Images
     ------------------------------------------------*/
-    running = load_all_images( &main_renderer, main_images, main_image_count );
-    check_or_error( running, "Failed to get all images" );
+    load_all_images( &main_sim_data );
+    check_or_error( main_sim_data.sim_data.running, "Failed to get all images" );
 
+    /*------------------------------------------------
+    Load Fonts
+    ------------------------------------------------*/
+    load_all_fonts( &main_sim_data );
+    check_or_error( main_sim_data.sim_data.running, "Failed to get all images" );
+
+    main_sim_data.hub_info.hubs[ 0 ].init();
+    main_sim_data.hub_info.hub_count = 1;
+    main_sim_data.hub_info.selected_hub = 0;
     /*------------------------------------------------
     Run Simulation
     ------------------------------------------------*/
-    main_loop( main_images, main_image_count, &main_window, &main_renderer );
+    main_loop( &main_sim_data );
 
     /*------------------------------------------------
     Clean up Environment
     ------------------------------------------------*/
-    main_close( &main_window, &main_renderer );
+    main_close( &main_sim_data );
 
     /*------------------------------------------------
     Exit
@@ -144,6 +143,44 @@ int main
 /*--------------------------------------------------------------------------------
 
     Name:
+        init_sim_data
+
+    Description:
+        Primary Initializer
+
+--------------------------------------------------------------------------------*/
+
+void init_sim_data
+(
+    main_data           *io_sim_data         /* simulation data                  */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    int                 i;                  /* argument count                   */
+
+    for( i = 0; i < MAX_IMAGES; i++ )
+        {
+        io_sim_data->resources.textures.images[ i ] = NULL;
+        }
+    io_sim_data->resources.textures.image_count = 0;
+
+    for( i = 0; i < MAX_FONTS; i++ )
+        {
+        io_sim_data->resources.fonts.fonts[ i ] = NULL;
+        }
+    io_sim_data->resources.fonts.font_count = 0;
+
+    io_sim_data->sim_data.renderer = NULL;
+    io_sim_data->sim_data.window = NULL;
+    io_sim_data->sim_data.running = SIM_STAT_RUNNING;
+
+    }    /* init_sim_data */
+
+/*--------------------------------------------------------------------------------
+
+    Name:
         main_init
 
     Description:
@@ -151,57 +188,43 @@ int main
 
 --------------------------------------------------------------------------------*/
 
-sim_stat main_init
+void main_init
 (
     char               *i_window_name,      /* name of window                   */
-    SDL_Window        **o_window,           /* created window                   */
-    SDL_Renderer      **o_renderer          /* created renderer for window      */
+    main_data           *io_sim_data         /* simulation data                  */
 )
     {
-    /*------------------------------------------------
-    Local Constants
-    ------------------------------------------------*/
-    const int SCREEN_WIDTH  = 800;          /* initial width of screen          */
-    const int SCREEN_HEIGHT = 500;          /* initial height of screen         */
-
-    /*------------------------------------------------
-    Local Variables
-    ------------------------------------------------*/
-    sim_stat            running;            /* simulation status                */
-
-    /*------------------------------------------------
-    Initialization
-    ------------------------------------------------*/
-    running = SIM_STAT_RUNNING;
-
     /*------------------------------------------------
     Initialize SDL
     - Video Output
     ------------------------------------------------*/
-    running = ( SDL_Init( SDL_INIT_VIDEO ) == 0 );
-    check_or_error( running, "SDL Failed to initialize" );
+    io_sim_data->sim_data.running = ( SDL_Init( SDL_INIT_VIDEO ) == 0 );
+    check_or_error( io_sim_data->sim_data.running, "SDL Failed to initialize", EH_SDL );
 
     /*------------------------------------------------
     Initialize PNG Handling
     ------------------------------------------------*/
-    IMG_Init( IMG_INIT_PNG );
-
+    int imgFlags = IMG_INIT_PNG;
+    io_sim_data->sim_data.running = ( IMG_Init( imgFlags ) & imgFlags );
+    check_or_error( io_sim_data->sim_data.running, "SDL_image could not initialize!", EH_SDL_IMG );
+    
+    /*------------------------------------------------
+    Initialize Font Handling
+    ------------------------------------------------*/
+    io_sim_data->sim_data.running = ( TTF_Init()!=-1 );
+    check_or_error( io_sim_data->sim_data.running, "SDL_TTF could not initialize!", EH_SDL_TTF );
+    
     /*------------------------------------------------
     Create the main window
     ------------------------------------------------*/
-    *o_window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
-    running = check_or_error( *o_window != NULL, "Could not create window" );
+    io_sim_data->sim_data.window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
+    io_sim_data->sim_data.running = check_or_error( io_sim_data->sim_data.window != NULL, "Could not create window", EH_SDL );
 
     /*------------------------------------------------
     Create the main renderer
     ------------------------------------------------*/
-    *o_renderer = SDL_CreateRenderer( *o_window, -1, SDL_RENDERER_SOFTWARE );
-    running = check_or_error( *o_renderer != NULL, "Could not create renderer" );
-
-    /*------------------------------------------------
-    Return running status
-    ------------------------------------------------*/
-    return( running );
+    io_sim_data->sim_data.renderer = SDL_CreateRenderer( io_sim_data->sim_data.window, -1, SDL_RENDERER_SOFTWARE );
+    io_sim_data->sim_data.running = check_or_error( io_sim_data->sim_data.renderer != NULL, "Could not create renderer", EH_SDL );
 
     }    /* main_init */
 
@@ -216,35 +239,27 @@ sim_stat main_init
 
 --------------------------------------------------------------------------------*/
 
-bool main_loop
+void main_loop
 (
-    SDL_Texture        *i_images[],         /* image array to be used           */
-    int                 i_image_count,      /* number of available images       */
-    SDL_Window        **io_window,          /* main window to be used           */
-    SDL_Renderer      **io_renderer         /* main renderer to be used         */
+    main_data           *io_sim_data         /* simulation data                  */
 )
     {
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
     SDL_Event           event;              /* SDL event information            */
-    sim_stat            running;            /* simulation status                */
-
-    /*------------------------------------------------
-    Initialization
-    ------------------------------------------------*/
-    running = SIM_STAT_RUNNING;
-
+    Hub *sel_hub = &io_sim_data->hub_info.hubs[ io_sim_data->hub_info.selected_hub ];
     /*------------------------------------------------
     Display the test image
     ------------------------------------------------*/
-    SDL_RenderCopy( *io_renderer, i_images[ 0 ], NULL, NULL );
-    SDL_RenderPresent( *io_renderer );
+    SDL_RenderCopy( io_sim_data->sim_data.renderer, io_sim_data->resources.textures.images[ 0 ], NULL, NULL );
+    sel_hub->render( &io_sim_data->resources, &io_sim_data->sim_data );
+    SDL_RenderPresent( io_sim_data->sim_data.renderer );
 
     /*------------------------------------------------
     Event Loop
     ------------------------------------------------*/
-    while( running )
+    while( io_sim_data->sim_data.running )
         {
         /*--------------------------------------------
         Get latest events
@@ -259,17 +274,39 @@ bool main_loop
                 /*------------------------------------
                 Flag the loop to end
                 ------------------------------------*/
-                running = SIM_STAT_END;
+                io_sim_data->sim_data.running = SIM_STAT_END;
+                }
+            else if( event.type == SDL_KEYDOWN )
+                {
+                /*------------------------------------
+                Forward the key event to the sprite
+                ------------------------------------*/
+                sel_hub->handle_key( event.key.keysym.sym );
+                
+                /*------------------------------------
+                Clear the screen
+                ------------------------------------*/
+                SDL_RenderCopy( io_sim_data->sim_data.renderer, io_sim_data->resources.textures.images[ 0 ], NULL, NULL );
+
+                /*------------------------------------
+                Create the sprite retangle
+                ------------------------------------*/
+                sel_hub->render( &io_sim_data->resources, &io_sim_data->sim_data );
+
+                /*------------------------------------
+                Refresh the screen
+                ------------------------------------*/
+                SDL_RenderSetClipRect( io_sim_data->sim_data.renderer, NULL);    
+                SDL_RenderPresent( io_sim_data->sim_data.renderer );
                 }
             }
+            
 
         /*--------------------------------------------
         Limit farme rate
         --------------------------------------------*/
         SDL_Delay( 16 );
         }
-
-    return( true );
 
     }    /* main_loop */
 
@@ -286,22 +323,20 @@ bool main_loop
 
 void main_close
 (
-    SDL_Window        **io_window,          /* main window to be destroyed      */
-    SDL_Renderer      **io_renderer         /* main surface to be destroyed     */
-
+    main_data           *io_sim_data         /* simulation data                  */
 )
     {
     /*------------------------------------------------
     Destroy Renderer
     ------------------------------------------------*/
-    SDL_DestroyRenderer( *io_renderer );
-    *io_renderer = NULL;
+    SDL_DestroyRenderer( io_sim_data->sim_data.renderer );
+    io_sim_data->sim_data.renderer = NULL;
 
     /*------------------------------------------------
     Destroy Window
     ------------------------------------------------*/
-    SDL_DestroyWindow( *io_window );
-    *io_window = NULL;
+    SDL_DestroyWindow( io_sim_data->sim_data.window );
+    io_sim_data->sim_data.window = NULL;
 
     /*------------------------------------------------
     Quit SDL subsystems

@@ -1,10 +1,10 @@
 /*--------------------------------------------------------------------------------
 
     Name:
-        image.cpp
+        ttf.cpp
 
     Description:
-        Image handling
+        Font handling
 
 --------------------------------------------------------------------------------*/
 
@@ -15,13 +15,13 @@ Includes
 /*------------------------------------------------
 External Libraries
 ------------------------------------------------*/
-#include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <stdio.h>
 
 /*------------------------------------------------
 File Header
 ------------------------------------------------*/
-#include "image.h"
+#include "font.h"
 
 /*------------------------------------------------
 Project Headers
@@ -33,11 +33,11 @@ Project Headers
 Declarations
 --------------------------------------------------------------------------------*/
 
-static bool load_image
+static bool load_font
 (
-    char               *i_image_name,       /* name of image to load            */
-    SDL_Renderer       *i_renderer,         /* image renderer                   */
-    SDL_Texture       **o_image             /* created image                    */
+    char               *i_font_name,        /* name of font to load            */
+    int                 i_font_sz,          /* font size                       */
+    TTF_Font          **o_font              /* created font                    */
 );
 
 /*--------------------------------------------------------------------------------
@@ -47,43 +47,43 @@ Procedures
 /*--------------------------------------------------------------------------------
 
     Name:
-        load_all_images
+        load_all_fonts
 
     Description:
-        Load all the images for the sim
+        Load all the fonts for the sim
 
 --------------------------------------------------------------------------------*/
 
-void load_all_images
+void load_all_fonts
 (
     main_data           *io_sim_data         /* simulation data                  */
 )
     {
     /*------------------------------------------------
-    Load the background image
+    Load the background font
     ------------------------------------------------*/
-    io_sim_data->sim_data.running = load_image( "Background.png", io_sim_data->sim_data.renderer, &io_sim_data->resources.textures.images[ io_sim_data->resources.textures.image_count ] );
-    io_sim_data->resources.textures.image_count++;
-    check_or_error( io_sim_data->sim_data.running, "Failed to load background image" );
+    io_sim_data->sim_data.running = load_font( "Consolas.ttf", 14, &io_sim_data->resources.fonts.fonts[ io_sim_data->resources.fonts.font_count ] );
+    io_sim_data->resources.fonts.font_count++;
+    check_or_error( io_sim_data->sim_data.running, "Failed to primary font" );
 
-    }   /* load_all_images() */
+    }   /* load_all_fonts() */
 
 
 /*--------------------------------------------------------------------------------
 
     Name:
-        load_image
+        load_font
 
     Description:
-        Load a specified image
+        Load a specified font
 
 --------------------------------------------------------------------------------*/
 
-static bool load_image
+static bool load_font
 (
-    char               *i_image_name,       /* name of image to load            */
-    SDL_Renderer       *i_renderer,         /* image renderer                   */
-    SDL_Texture       **o_image             /* created image                    */
+    char               *i_font_name,        /* name of font to load            */
+    int                 i_font_sz,          /* font size                       */
+    TTF_Font          **o_font              /* created font                    */
 )
     {
     /*------------------------------------------------
@@ -94,44 +94,37 @@ static bool load_image
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
-    char               *img_loc;            /* full image path                  */
-    char               *img_path;           /* image location                   */
+    char               *font_loc;           /* full font path                  */
+    char               *font_path;          /* font location                   */
     sim_stat_t8         running;            /* simulation status                */
-    SDL_Surface        *tmp_surface;        /* temporary surface                */
-
+    
     /*------------------------------------------------
     Load the proper path for the current OS
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        img_path = "T:/tesselations/images";
+        font_path = "T:/tesselations/fonts";
         }
     else
         {
-        img_path = "../images";
+        font_path = "../fonts";
         }
+    
+    /*------------------------------------------------
+    Create the full font path
+    ------------------------------------------------*/
+    font_loc = (char *)malloc( MAX_STR_SIZE );
+    snprintf( font_loc, MAX_STR_SIZE, "%s/%s", font_path, i_font_name );
 
     /*------------------------------------------------
-    Create the full image path
+    Load the font
     ------------------------------------------------*/
-    img_loc = (char *)malloc( MAX_STR_SIZE );
-    snprintf( img_loc, MAX_STR_SIZE, "%s/%s", img_path, i_image_name );
-
-    /*------------------------------------------------
-    Load the image
-    ------------------------------------------------*/
-    tmp_surface = IMG_Load( img_loc );
-    running = check_or_error( tmp_surface != NULL, "Could not load image", EH_SDL_IMG );
-
-    /*------------------------------------------------
-    Convert the image surface to a texture
-    ------------------------------------------------*/
-    *o_image = SDL_CreateTextureFromSurface( i_renderer, tmp_surface );
-    running = check_or_error( *o_image != NULL, "Could not convert image to texture", EH_SDL );
+    *o_font = TTF_OpenFont( font_loc, i_font_sz );
+    running = check_or_error( o_font != NULL, "Could not load font", EH_SDL_TTF );
 
     /*------------------------------------------------
     Return the simulator status
     ------------------------------------------------*/
     return( running );
 
-    }   /* load_image() */
+    }   /* load_font() */

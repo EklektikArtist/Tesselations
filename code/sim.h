@@ -1,4 +1,3 @@
-
 #pragma once
 /*--------------------------------------------------------------------------------
 
@@ -18,39 +17,30 @@ External Libraries
 /*------------------------------------------------
 Project Headers
 ------------------------------------------------*/
-#include "resources.h"
-#include "cls_hub.h"
-#include "sim.h"
+
 
 /*--------------------------------------------------------------------------------
 Constants
 --------------------------------------------------------------------------------*/
-#define             WINDOWS                 true
-#define             MAX_HUBS                5
+
+/*--------------------------------------------------------------------------------
+Enums
+--------------------------------------------------------------------------------*/
+typedef int sim_stat_t8;
+enum
+    {
+    SIM_STAT_FAIL       = 0,
+    SIM_STAT_END        = SIM_STAT_FAIL,
+    SIM_STAT_RUNNING    = 1
+    };
 
 /*--------------------------------------------------------------------------------
 Types
 --------------------------------------------------------------------------------*/
 
-struct hub_data
+struct sim_data
     {
-    Hub                 hubs[ MAX_HUBS ];   /* array of hubs for sim            */
-    int                 hub_count;          /* count of hubs in use             */
-    int                 selected_hub;       /* index of currently selected hub  */
+    SDL_Renderer       *renderer;           /* primary renderer                 */
+    SDL_Window         *window;             /* primary window                   */
+    sim_stat_t8         running;            /* simulation status                */
     };
-
-struct main_data
-    {
-    sim_data            sim_data;
-    hub_data            hub_info;           /* hub data                         */
-    resource_data       resources;
-    };
-
-/*--------------------------------------------------------------------------------
-Declarations
---------------------------------------------------------------------------------*/
-int main
-(
-    int                 argc,                   /* argument count               */
-    char               *argv[]                  /* arguments                    */
-);
