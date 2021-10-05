@@ -56,15 +56,15 @@ Procedures
 
 void load_all_images
 (
-    main_data           *io_sim_data         /* simulation data                  */
+    main_data           *io_main_data       /* main data                        */
 )
     {
     /*------------------------------------------------
     Load the background image
     ------------------------------------------------*/
-    io_sim_data->sim_data.running = load_image( "Background.png", io_sim_data->sim_data.renderer, &io_sim_data->resources.textures.images[ io_sim_data->resources.textures.image_count ] );
-    io_sim_data->resources.textures.image_count++;
-    check_or_error( io_sim_data->sim_data.running, "Failed to load background image" );
+    io_main_data->sim_data.running = load_image( "Background.png", io_main_data->sim_data.renderer, &io_main_data->textures.images[ io_main_data->textures.image_count ] );
+    io_main_data->textures.image_count++;
+    check_or_error( io_main_data->sim_data.running, "Failed to load background image" );
 
     }   /* load_all_images() */
 

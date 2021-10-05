@@ -29,5 +29,5 @@ Declarations
 
 void load_all_fonts
 (
-    main_data           *io_sim_data         /* simulation data                  */
+    main_data           *io_main_data       /* main data                        */
 );

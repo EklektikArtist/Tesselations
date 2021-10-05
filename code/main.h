@@ -41,9 +41,10 @@ struct hub_data
 
 struct main_data
     {
-    sim_data            sim_data;
+    sim_data            sim_data;           /* simulator data                   */
     hub_data            hub_info;           /* hub data                         */
-    resource_data       resources;
+    texture_data        textures;           /* texture data                     */
+    font_data           fonts;              /* font data                        */
     };
 
 /*--------------------------------------------------------------------------------
@@ -51,6 +52,6 @@ Declarations
 --------------------------------------------------------------------------------*/
 int main
 (
-    int                 argc,                   /* argument count               */
-    char               *argv[]                  /* arguments                    */
+    int                 argc,               /* argument count                   */
+    char               *argv[]              /* arguments                        */
 );

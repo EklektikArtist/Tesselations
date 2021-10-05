@@ -2,10 +2,10 @@
 /*--------------------------------------------------------------------------------
 
     Name:
-        main.h
+        resources.h
 
     Description:
-        Header for root of code functionality
+        Header for resource functionality
 
 --------------------------------------------------------------------------------*/
 
@@ -37,10 +37,4 @@ struct font_data
     TTF_Font           *fonts[ MAX_FONTS ];
                                             /* array of fonts for sim           */
     int                 font_count;         /* count of fonts in use            */
-    };
-
-struct resource_data
-    {
-    texture_data textures;
-    font_data fonts;
     };

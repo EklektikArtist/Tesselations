@@ -162,15 +162,15 @@ void init_sim_data
 
     for( i = 0; i < MAX_IMAGES; i++ )
         {
-        io_sim_data->resources.textures.images[ i ] = NULL;
+        io_sim_data->textures.images[ i ] = NULL;
         }
-    io_sim_data->resources.textures.image_count = 0;
+    io_sim_data->textures.image_count = 0;
 
     for( i = 0; i < MAX_FONTS; i++ )
         {
-        io_sim_data->resources.fonts.fonts[ i ] = NULL;
+        io_sim_data->fonts.fonts[ i ] = NULL;
         }
-    io_sim_data->resources.fonts.font_count = 0;
+    io_sim_data->fonts.font_count = 0;
 
     io_sim_data->sim_data.renderer = NULL;
     io_sim_data->sim_data.window = NULL;
@@ -252,8 +252,8 @@ void main_loop
     /*------------------------------------------------
     Display the test image
     ------------------------------------------------*/
-    SDL_RenderCopy( io_sim_data->sim_data.renderer, io_sim_data->resources.textures.images[ 0 ], NULL, NULL );
-    sel_hub->render( &io_sim_data->resources, &io_sim_data->sim_data );
+    SDL_RenderCopy( io_sim_data->sim_data.renderer, io_sim_data->textures.images[ 0 ], NULL, NULL );
+    sel_hub->render( &io_sim_data->fonts, &io_sim_data->sim_data );
     SDL_RenderPresent( io_sim_data->sim_data.renderer );
 
     /*------------------------------------------------
@@ -286,12 +286,12 @@ void main_loop
                 /*------------------------------------
                 Clear the screen
                 ------------------------------------*/
-                SDL_RenderCopy( io_sim_data->sim_data.renderer, io_sim_data->resources.textures.images[ 0 ], NULL, NULL );
+                SDL_RenderCopy( io_sim_data->sim_data.renderer, io_sim_data->textures.images[ 0 ], NULL, NULL );
 
                 /*------------------------------------
                 Create the sprite retangle
                 ------------------------------------*/
-                sel_hub->render( &io_sim_data->resources, &io_sim_data->sim_data );
+                sel_hub->render( &io_sim_data->fonts, &io_sim_data->sim_data );
 
                 /*------------------------------------
                 Refresh the screen

@@ -1,67 +1,113 @@
 #pragma once
+/*--------------------------------------------------------------------------------
 
+    Name:
+        cls_textbox.h
+
+    Description:
+        Header for textbox class
+
+--------------------------------------------------------------------------------*/
+
+/*------------------------------------------------
+External Libraries
+------------------------------------------------*/
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
+
+/*------------------------------------------------
+Project Headers
+------------------------------------------------*/
 #include "sdl_rect.h"
 #include "cls_position.h"
 #include "sim.h"
 #include "resources.h"
 
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        TextBox
+
+    Description:
+        An area with text
+
+    Note:
+        References from https://gamedev.stackexchange.com/questions/140294/what-is-the-most-efficient-way-to-render-a-textbox-in-c-sdl2
+
+--------------------------------------------------------------------------------*/
+
 class TextBox
     {
  
-//https://gamedev.stackexchange.com/questions/140294/what-is-the-most-efficient-way-to-render-a-textbox-in-c-sdl2
-SDL_Rect textbox;
-SDL_Texture* gTextOutput = NULL;
-SDL_Rect clip;
-SDL_Color color;
-std::string text;
-
+    /*------------------------------------------------
+    Class Variables
+    ------------------------------------------------*/
+    SDL_Rect            textbox;             /* box containing the text         */
+    SDL_Color           color;               /* textbox color                   */
+    std::string         text;                /* textbox contents                */
     
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        init
+
+    Description:
+        Initializes a position object
+
+    ----------------------------------------------------------------------------*/
+
     public: void init 
     (
-    std::string textstr, int xpos, int ypos, int width, int fsize
+    std::string         i_textstr,          /* textbox string                   */
+    int                 i_xpos,             /* x position                       */
+    int                 i_ypos,             /* y position                       */
+    int                 i_width,            /* width                            */
+    int                 i_fsize             /* height/font size                 */
     )
         {
-        text = textstr;
-        textbox.x = xpos;
-        textbox.y = ypos;
-        textbox.w = width;
-        textbox.h = fsize;
+        text = i_textstr;
+        textbox.x = i_xpos;
+        textbox.y = i_ypos;
+        textbox.w = i_width;
+        textbox.h = i_fsize;
         color = { 255, 255, 255, 0xFF };
         }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Sets the position of the textbox
+
+    ----------------------------------------------------------------------------*/
 
     public: void set_pos 
     (
-    Position * new_pos
+    Position           *i_new_pos           /* new position                     */
     )
         {
-        textbox.x = new_pos->get_x();
-        textbox.y = new_pos->get_y();
+        textbox.x = i_new_pos->get_x();
+        textbox.y = i_new_pos->get_y();
         }
-        
-    public: void updt
-    (
-    void
-    )
-        {
-        if( true )
-            {
-            return;
-            }
-        }
+    
 
-    public: SDL_Rect get_textbox
-    (
-    void
-    )
-        {
-        return textbox;
-        }
-        
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_text
+
+    Description:
+        Returns the text of the textbox
+
+    ----------------------------------------------------------------------------*/        
 
     public: std::string get_text
     (
@@ -70,42 +116,57 @@ std::string text;
         {
         return text;
         }
-        
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_text
+
+    Description:
+        Set the text of the textbox
+
+    ----------------------------------------------------------------------------*/
+       
     public: void set_text
     (
-    std::string newstr
+    std::string         i_new_str           /* new string                       */
     )
         {
-        text = newstr;
-        }
-          
-    public: SDL_Color get_color
-    (
-    void
-    )
-        {
-        return color;
-        }
+        text = i_new_str;
+        }    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        init
+
+    Description:
+        Renders the textbox on screen
+
+    ----------------------------------------------------------------------------*/
 
     public: void render
     (
-    resource_data           *io_resource_data,         /* simulation data                  */
-    sim_data                *io_sim_data
+    font_data               *i_font_data,   /* font data                        */
+    sim_data                *io_sim_data    /* simulation data                  */
     )
         {       
-        SDL_Texture* gTextOutput = NULL;
-        //SDL_RenderSetClipRect( io_sim_data->renderer, &textbox );
+        /*--------------------------------------------
+        Local Variables
+        --------------------------------------------*/
+        SDL_Texture* gTextOutput = NULL;    /* texture to which the textbox     */
+                                            /*  should be rendered              */
 
-            SDL_Surface* gTextSurface = TTF_RenderText_Solid( io_resource_data->fonts.fonts[ 0 ], text.c_str(), color );
-            if (gTextSurface != NULL)
-            {
-                gTextOutput = SDL_CreateTextureFromSurface(io_sim_data->renderer, gTextSurface);
-                }
-            if (gTextOutput == NULL)
-            {
-                throw "Unable to render texture! SDL ERROR: ";
-            }
+        SDL_Surface* gTextSurface = TTF_RenderText_Solid( i_font_data->fonts[ 0 ], text.c_str(), color );
+        check_or_error( gTextSurface != NULL, "Could not render textbox", EH_SDL );
 
+        gTextOutput = SDL_CreateTextureFromSurface( io_sim_data->renderer, gTextSurface );
+        check_or_error( gTextOutput != NULL, "Could not render surface to texture", EH_SDL );
+        
+        /*--------------------------------------------
+        Render the texture to the screen
+        --------------------------------------------*/   
         SDL_RenderCopy(io_sim_data->renderer, gTextOutput, NULL, &textbox );
         }
 };

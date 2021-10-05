@@ -56,15 +56,15 @@ Procedures
 
 void load_all_fonts
 (
-    main_data           *io_sim_data         /* simulation data                  */
+    main_data           *io_main_data        /* main data                        */
 )
     {
     /*------------------------------------------------
     Load the background font
     ------------------------------------------------*/
-    io_sim_data->sim_data.running = load_font( "Consolas.ttf", 14, &io_sim_data->resources.fonts.fonts[ io_sim_data->resources.fonts.font_count ] );
-    io_sim_data->resources.fonts.font_count++;
-    check_or_error( io_sim_data->sim_data.running, "Failed to primary font" );
+    io_main_data->sim_data.running = load_font( "Consolas.ttf", 14, &io_main_data->fonts.fonts[ io_main_data->fonts.font_count ] );
+    io_main_data->fonts.font_count++;
+    check_or_error( io_main_data->sim_data.running, "Failed to primary font" );
 
     }   /* load_all_fonts() */
 
@@ -81,9 +81,9 @@ void load_all_fonts
 
 static bool load_font
 (
-    char               *i_font_name,        /* name of font to load            */
-    int                 i_font_sz,          /* font size                       */
-    TTF_Font          **o_font              /* created font                    */
+    char               *i_font_name,        /* name of font to load             */
+    int                 i_font_sz,          /* font size                        */
+    TTF_Font          **o_font              /* created font                     */
 )
     {
     /*------------------------------------------------
@@ -94,8 +94,8 @@ static bool load_font
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
-    char               *font_loc;           /* full font path                  */
-    char               *font_path;          /* font location                   */
+    char               *font_loc;           /* full font path                   */
+    char               *font_path;          /* font location                    */
     sim_stat_t8         running;            /* simulation status                */
     
     /*------------------------------------------------

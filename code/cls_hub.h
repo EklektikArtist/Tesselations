@@ -5,9 +5,7 @@
 #include "resources.h"
 #include "sim.h"
 class Hub
-    {
-    //public pygame.sprite.Sprite
-    
+    {    
     int speedx;
     int speedy;
     
@@ -73,11 +71,11 @@ class Hub
 
     public: void render
     (
-    resource_data           *io_resource_data,         /* simulation data                  */
-    sim_data                *io_sim_data
+    font_data               *i_font_data,   /* font data                        */
+    sim_data                *io_sim_data    /* simulation data                  */
     )
         {
         sprite.render( io_sim_data );
-        text_pos.render( io_resource_data, io_sim_data );
+        text_pos.render( i_font_data, io_sim_data );
         }
 };
