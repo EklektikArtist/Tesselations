@@ -1,17 +1,56 @@
 #pragma once
+/*--------------------------------------------------------------------------------
+
+    Name:
+        cls_hub.h
+
+    Description:
+        Header for hub class
+
+--------------------------------------------------------------------------------*/
+
+/*------------------------------------------------
+Project Headers
+------------------------------------------------*/
 #include "cls_circle.h"
 #include "cls_textbox.h"
 #include "cls_position.h"
 #include "resources.h"
 #include "sim.h"
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        Hub
+
+    Description:
+        The central node for a tesselation
+
+--------------------------------------------------------------------------------*/
+
 class Hub
-    {    
-    int speedx;
-    int speedy;
+    {  
+
+    /*------------------------------------------------
+    Class Variables
+    ------------------------------------------------*/  
+    int                 speedx;             /* speed in the x direction         */
+    int                 speedy;             /* speed in the y direction         */
     
-    Circle sprite;
-    TextBox text_pos;
+    Circle              sprite;             /* sprite                           */
+    TextBox             text_pos;           /* textbox                          */
     
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        init
+
+    Description:
+        Initializes a hub object
+
+    ----------------------------------------------------------------------------*/
 
     public: void init 
     (
@@ -21,6 +60,17 @@ class Hub
         sprite.init( 0, 0, 5 );
         text_pos.init( sprite.get_pos()->stringify(), sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 100, 12 );
         }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        update
+
+    Description:
+        Syncronizes the hubs information
+
+    ----------------------------------------------------------------------------*/
+
     public: void update 
     (
     void
@@ -29,10 +79,20 @@ class Hub
         text_pos.set_text( sprite.get_pos()->stringify() );
         text_pos.set_pos( sprite.get_pos() );
         }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_key
+
+    Description:
+        Responds to a keypress
+
+    ----------------------------------------------------------------------------*/
         
     public: void handle_key
     (
-    SDL_Keycode key_press
+    SDL_Keycode         key_press           /* key pressed                      */
     )
         {
         speedx = 0;
@@ -61,6 +121,16 @@ class Hub
         update();
         }
 
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_sprite
+
+    Description:
+        Returns the hub's sprite
+
+    ----------------------------------------------------------------------------*/
+
     public: Circle get_sprite
     (
     void
@@ -69,13 +139,23 @@ class Hub
         return sprite;
         }
 
+    /*----------------------------------------------------------------------------
+
+    Name:
+        render
+
+    Description:
+        Renders the hub on screen
+
+    ----------------------------------------------------------------------------*/
+
     public: void render
     (
-    font_data               *i_font_data,   /* font data                        */
-    sim_data                *io_sim_data    /* simulation data                  */
+    resource_data      *i_resource_data,    /* resource data                    */
+    sim_data           *io_sim_data         /* simulation data                  */
     )
         {
         sprite.render( io_sim_data );
-        text_pos.render( i_font_data, io_sim_data );
+        text_pos.render( i_resource_data, io_sim_data );
         }
 };

@@ -62,8 +62,8 @@ void load_all_images
     /*------------------------------------------------
     Load the background image
     ------------------------------------------------*/
-    io_main_data->sim_data.running = load_image( "Background.png", io_main_data->sim_data.renderer, &io_main_data->textures.images[ io_main_data->textures.image_count ] );
-    io_main_data->textures.image_count++;
+    io_main_data->sim_data.running = load_image( "Background.png", io_main_data->sim_data.renderer, &io_main_data->resources.images[ io_main_data->resources.image_count ] );
+    io_main_data->resources.image_count++;
     check_or_error( io_main_data->sim_data.running, "Failed to load background image" );
 
     }   /* load_all_images() */

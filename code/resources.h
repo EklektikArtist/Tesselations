@@ -25,15 +25,11 @@ Project Headers
 Types
 --------------------------------------------------------------------------------*/
 
-struct texture_data
+struct resource_data
     {
     SDL_Texture        *images[ MAX_IMAGES ];
                                             /* array of images for sim          */
     int                 image_count;        /* count of images in use           */
-    };
-
-struct font_data
-    {
     TTF_Font           *fonts[ MAX_FONTS ];
                                             /* array of fonts for sim           */
     int                 font_count;         /* count of fonts in use            */

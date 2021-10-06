@@ -43,8 +43,7 @@ struct main_data
     {
     sim_data            sim_data;           /* simulator data                   */
     hub_data            hub_info;           /* hub data                         */
-    texture_data        textures;           /* texture data                     */
-    font_data           fonts;              /* font data                        */
+    resource_data       resources;          /* resource data                    */
     };
 
 /*--------------------------------------------------------------------------------

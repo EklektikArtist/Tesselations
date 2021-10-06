@@ -148,8 +148,8 @@ class TextBox
 
     public: void render
     (
-    font_data               *i_font_data,   /* font data                        */
-    sim_data                *io_sim_data    /* simulation data                  */
+    resource_data      *i_resource_data,    /* resource data                    */
+    sim_data           *io_sim_data         /* simulation data                  */
     )
         {       
         /*--------------------------------------------
@@ -158,7 +158,7 @@ class TextBox
         SDL_Texture* gTextOutput = NULL;    /* texture to which the textbox     */
                                             /*  should be rendered              */
 
-        SDL_Surface* gTextSurface = TTF_RenderText_Solid( i_font_data->fonts[ 0 ], text.c_str(), color );
+        SDL_Surface* gTextSurface = TTF_RenderText_Solid( i_resource_data->fonts[ 0 ], text.c_str(), color );
         check_or_error( gTextSurface != NULL, "Could not render textbox", EH_SDL );
 
         gTextOutput = SDL_CreateTextureFromSurface( io_sim_data->renderer, gTextSurface );
