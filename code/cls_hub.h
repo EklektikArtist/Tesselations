@@ -10,6 +10,11 @@
 --------------------------------------------------------------------------------*/
 
 /*------------------------------------------------
+External Headers
+------------------------------------------------*/
+#include       "SDL_timer.h"
+
+/*------------------------------------------------
 Project Headers
 ------------------------------------------------*/
 #include "cls_circle.h"
@@ -18,6 +23,11 @@ Project Headers
 #include "resources.h"
 #include "sim.h"
 
+/*------------------------------------------------
+Local Constants
+------------------------------------------------*/
+#define             PX_PER_TICK             .1
+                                            /* pixels per tick                  */
 
 /*--------------------------------------------------------------------------------
 
@@ -35,11 +45,12 @@ class Hub
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/  
+    int                 drag;               /* resistance to speed              */
     int                 speedx;             /* speed in the x direction         */
     int                 speedy;             /* speed in the y direction         */
-    
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
+    Uint32              last_update;        /* last update time                 */
     
 
     /*----------------------------------------------------------------------------
@@ -58,7 +69,11 @@ class Hub
     )
         {
         sprite.init( 0, 0, 5 );
+        drag = 2;
         text_pos.init( sprite.get_pos()->stringify(), sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 100, 12 );
+        last_update = 0;
+        speedx = 0;
+        speedy = 0;
         }
 
     /*----------------------------------------------------------------------------
@@ -76,8 +91,98 @@ class Hub
     void
     )
         {
+        /*------------------------------------------------
+        Local Variables
+        ------------------------------------------------*/
+        Uint32          this_update;        /* current time                     */
+
+        this_update = SDL_GetTicks();
+
+        sprite.get_pos()->shift_x( speedx * PX_PER_TICK * ( this_update - last_update ) );
+        sprite.get_pos()->shift_y( speedy * PX_PER_TICK * ( this_update - last_update ));
         text_pos.set_text( sprite.get_pos()->stringify() );
         text_pos.set_pos( sprite.get_pos() );
+        
+        handle_drag();
+
+        last_update = this_update;
+        }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_drag
+
+    Description:
+        Adjust the speed in response to the drag on the hub
+
+    ----------------------------------------------------------------------------*/
+
+    public: void handle_drag
+    (
+    void
+    )
+        {
+        /*------------------------------------------------
+        Return early if the hub is stationary
+        ------------------------------------------------*/
+        if( ( speedx == 0 )
+         && ( speedy == 0 ) )
+            {
+            return;
+            }
+
+        /*------------------------------------------------
+        Adjust the x speed
+        ------------------------------------------------*/
+        if( speedx > 0 )
+            {
+            if (speedx - drag >= 0 )
+                {
+                speedx -= drag;
+                }
+            else
+                {
+                speedx = 0;
+                }
+            }
+        else if( speedx < 0 )
+            {
+            if (speedx + drag <= 0 )
+                {
+                speedx += drag;
+                }
+            else
+                {
+                speedx = 0;
+                }
+            }
+        
+        /*------------------------------------------------
+        Adjust the y speed
+        ------------------------------------------------*/
+        if( speedy > 0 )
+            {
+            if (speedy - drag >= 0 )
+                {
+                speedy -= drag;
+                }
+            else
+                {
+                speedy = 0;
+                }
+            }
+        else if( speedy < 0 )
+            {
+            if (speedy + drag <= 0 )
+                {
+                speedy += drag;
+                }
+            else
+                {
+                speedy = 0;
+                }
+            }
         }
 
     /*----------------------------------------------------------------------------
@@ -95,30 +200,24 @@ class Hub
     SDL_Keycode         key_press           /* key pressed                      */
     )
         {
-        speedx = 0;
-        speedy = 0;
         switch( key_press )
             {
             case SDLK_UP:
-                speedy = -8;
+                speedy = -100;
                 break;
 
             case SDLK_DOWN:
-                speedy = 8;        
+                speedy = 100;        
                 break;
 
             case SDLK_LEFT:
-                speedx = -8;
+                speedx = -100;
                 break;
 
             case SDLK_RIGHT:
-                speedx = 8;
+                speedx = 100;
                 break;
             }
-        
-        sprite.get_pos()->shift_x( speedx );
-        sprite.get_pos()->shift_y( speedy );
-        update();
         }
 
     /*----------------------------------------------------------------------------
