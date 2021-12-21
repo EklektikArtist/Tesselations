@@ -155,18 +155,28 @@ class TextBox
         /*--------------------------------------------
         Local Variables
         --------------------------------------------*/
-        SDL_Texture* gTextOutput = NULL;    /* texture to which the textbox     */
-                                            /*  should be rendered              */
-
-        SDL_Surface* gTextSurface = TTF_RenderText_Solid( i_resource_data->fonts[ 0 ], text.c_str(), color );
+	    SDL_Texture        *gTextOutput;         /* texture to which the textbox     */
+	                                             /*  should be rendered              */
+	    SDL_Surface        *gTextSurface;		 /* surface on which to render the   */
+												 /*  textbox                         */
+        gTextSurface = TTF_RenderText_Solid( i_resource_data->fonts[ 0 ], text.c_str(), color );
         check_or_error( gTextSurface != NULL, "Could not render textbox", EH_SDL );
 
         gTextOutput = SDL_CreateTextureFromSurface( io_sim_data->renderer, gTextSurface );
         check_or_error( gTextOutput != NULL, "Could not render surface to texture", EH_SDL );
         
         /*--------------------------------------------
-        Render the texture to the screen
+        Render the texture to the screen 
         --------------------------------------------*/   
-        SDL_RenderCopy(io_sim_data->renderer, gTextOutput, NULL, &textbox );
+        SDL_RenderCopy( io_sim_data->renderer, gTextOutput, NULL, &textbox );
+
+        /*--------------------------------------------
+        Free Memory
+        --------------------------------------------*/
+        SDL_FreeSurface( gTextSurface );
+        gTextSurface = NULL;
+
+        SDL_DestroyTexture( gTextOutput );
+        gTextOutput = NULL;
         }
 };
