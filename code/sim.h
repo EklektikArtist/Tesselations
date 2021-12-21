@@ -34,4 +34,5 @@ struct sim_data
     SDL_Renderer       *renderer;           /* primary renderer                 */
     SDL_Window         *window;             /* primary window                   */
     sim_stat_t8         running;            /* simulation status                */
+    Uint32              last_update;        /* last update of sim state         */
     };

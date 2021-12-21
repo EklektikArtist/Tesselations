@@ -103,7 +103,7 @@ static bool load_font
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        font_path = "T:/tesselations/fonts";
+        font_path = "C:/Users/infof/Documents/Git/Tesselations/fonts";
         }
     else
         {

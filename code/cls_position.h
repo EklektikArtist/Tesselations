@@ -143,6 +143,41 @@ class Position
     /*----------------------------------------------------------------------------
 
     Name:
+        set_x_buff
+
+    Description:
+        Updates the x value if the new position is valid
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_x_buff
+    (
+    int                 i_xp,               /* x position                       */
+    int                 i_x_buff            /* x buffer                         */
+    )
+        {
+        /*--------------------------------------------
+        If the new position is past the edge of the
+        screen, set the position to the closest edge
+        --------------------------------------------*/
+        if( i_xp >= SCREEN_WIDTH - i_x_buff)
+            {
+            x = SCREEN_WIDTH - i_x_buff;
+            }
+        else if( i_xp <= 0 )
+            {
+            x = 0;
+            } 
+        else
+            {
+            x = i_xp;
+            }
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
         set_y
 
     Description:
@@ -177,6 +212,41 @@ class Position
     /*----------------------------------------------------------------------------
 
     Name:
+        set_y_buff
+
+    Description:
+        Updates the y value if the new position is valid
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_y_buff
+    (
+    int                 i_yp,               /* y position                       */
+    int                 i_y_buff            /* y buffer                         */
+    )
+        {
+        /*--------------------------------------------
+        If the new position is past the edge of the
+        screen, set the position to the closest edge
+        --------------------------------------------*/
+        if( i_yp >= SCREEN_HEIGHT - i_y_buff )
+            {
+            y = SCREEN_HEIGHT - i_y_buff;
+            }
+        else if( i_yp <= 0 )
+            {
+            y = 0;
+            }            
+        else
+            {
+            y = i_yp;
+            }
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
         shift_x
 
     Description:
@@ -190,6 +260,26 @@ class Position
     )
         {
         set_x( x + i_x_offset );
+        }
+          
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        shift_x_buff
+
+    Description:
+        Shifts the x value by a given amount
+
+    ----------------------------------------------------------------------------*/
+
+    public: void shift_x_buff
+    (
+    int                 i_x_offset,         /* x offset                         */
+    int                 i_x_buff            /* x buffer                         */
+    )
+        {
+        set_x_buff( x + i_x_offset, i_x_buff );
         }
     
 
@@ -209,6 +299,26 @@ class Position
     )
         {
         set_y( y + i_y_offset );
+        }
+          
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        shift_y_buf
+
+    Description:
+        Shifts the y value by a given amount
+
+    ----------------------------------------------------------------------------*/
+
+    public: void shift_y_buff
+    (
+    int                 i_y_offset,         /* y offset                         */
+    int                 i_y_buff            /* y buffer                         */
+    )
+        {
+        set_y_buff( y + i_y_offset, i_y_buff );
         }
     
 

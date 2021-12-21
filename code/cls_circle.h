@@ -14,6 +14,7 @@ Project Headers
 ------------------------------------------------*/
 #include "cls_position.h"
 #include "sim.h"
+#include "cls_color.h"
 
 
 /*--------------------------------------------------------------------------------
@@ -33,8 +34,8 @@ class Circle
     ------------------------------------------------*/
     Position            pos;                /* position                         */
     int                 radius;             /* radius                           */
+    Color               color;              /* color                            */
     
-
     /*----------------------------------------------------------------------------
 
     Name:
@@ -113,6 +114,7 @@ class Circle
         {
         pos.init( i_xp, i_yp );
         radius = i_rad;
+        set_color( 0xFF, 0x00, 0x00, 0xFF );
         }
           
     
@@ -147,11 +149,33 @@ class Circle
         /*--------------------------------------------
         Set the color
         --------------------------------------------*/
-        SDL_SetRenderDrawColor( io_sim_data->renderer, 0xFF, 0x00, 0x00, 0xFF );  
+        SDL_SetRenderDrawColor( io_sim_data->renderer, color.get_red(), color.get_green() , color.get_blue() , color.get_alpha() );
 
         /*--------------------------------------------
         Render the circle to the screen
         --------------------------------------------*/      
         SDL_RenderFillRect( io_sim_data->renderer, &bbox );
+        }
+          
+    
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_color
+
+    Description:
+        Set the color of the circle
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_color 
+    (
+    Uint8               i_red,             /* red                               */
+    Uint8               i_green,           /* green                             */
+    Uint8               i_blue,            /* blue                              */ 
+    Uint8               i_alpha            /* alpha                             */
+    )
+        {
+        color.set_color( i_red, i_green, i_blue, i_alpha );
         }
     };

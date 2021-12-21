@@ -104,7 +104,7 @@ static bool load_image
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        img_path = "T:/tesselations/images";
+        img_path = "C:/Users/infof/Documents/Git/Tesselations/images";
         }
     else
         {

@@ -26,8 +26,8 @@ Project Headers
 /*------------------------------------------------
 Local Constants
 ------------------------------------------------*/
-#define             PX_PER_TICK             .1
-                                            /* pixels per tick                  */
+#define             PX_PER_SEC             650
+                                            /* pixels per second                */
 
 /*--------------------------------------------------------------------------------
 
@@ -45,12 +45,11 @@ class Hub
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/  
-    int                 drag;               /* resistance to speed              */
+    float               drag_ratio;         /* resistance to speed              */
     int                 speedx;             /* speed in the x direction         */
     int                 speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
-    Uint32              last_update;        /* last update time                 */
     
 
     /*----------------------------------------------------------------------------
@@ -68,10 +67,9 @@ class Hub
     void
     )
         {
-        sprite.init( 0, 0, 5 );
-        drag = 2;
+        sprite.init( 0, 0, 50 );
+        drag_ratio = .01f;
         text_pos.init( sprite.get_pos()->stringify(), sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 100, 12 );
-        last_update = 0;
         speedx = 0;
         speedy = 0;
         }
@@ -88,24 +86,15 @@ class Hub
 
     public: void update 
     (
-    void
+    float timestep
     )
         {
-        /*------------------------------------------------
-        Local Variables
-        ------------------------------------------------*/
-        Uint32          this_update;        /* current time                     */
-
-        this_update = SDL_GetTicks();
-
-        sprite.get_pos()->shift_x( speedx * PX_PER_TICK * ( this_update - last_update ) );
-        sprite.get_pos()->shift_y( speedy * PX_PER_TICK * ( this_update - last_update ));
+        sprite.get_pos()->shift_x_buff( speedx * timestep, sprite.get_radius() );
+        sprite.get_pos()->shift_y_buff( speedy * timestep, sprite.get_radius() );
         text_pos.set_text( sprite.get_pos()->stringify() );
         text_pos.set_pos( sprite.get_pos() );
         
-        handle_drag();
-
-        last_update = this_update;
+        handle_drag( timestep);
         }
 
     /*----------------------------------------------------------------------------
@@ -120,9 +109,12 @@ class Hub
 
     public: void handle_drag
     (
-    void
+        float timestep
     )
         {
+        float dragx;
+        float dragy;
+
         /*------------------------------------------------
         Return early if the hub is stationary
         ------------------------------------------------*/
@@ -132,58 +124,34 @@ class Hub
             return;
             }
 
+        dragx = (speedx * drag_ratio * timestep );
+        dragy = ( speedy * drag_ratio * timestep );
+
         /*------------------------------------------------
         Adjust the x speed
         ------------------------------------------------*/
-        if( speedx > 0 )
+        if ( abs(speedx - dragx ) >= 0 )
             {
-            if (speedx - drag >= 0 )
-                {
-                speedx -= drag;
-                }
-            else
-                {
-                speedx = 0;
-                }
+            speedx -= dragx;
             }
-        else if( speedx < 0 )
+        else
             {
-            if (speedx + drag <= 0 )
-                {
-                speedx += drag;
-                }
-            else
-                {
-                speedx = 0;
-                }
+            speedx = 0;
             }
         
         /*------------------------------------------------
         Adjust the y speed
         ------------------------------------------------*/
-        if( speedy > 0 )
+        if ( abs(speedy - dragy ) >= 0 )
             {
-            if (speedy - drag >= 0 )
-                {
-                speedy -= drag;
-                }
-            else
-                {
-                speedy = 0;
-                }
+            speedy -= dragy;
             }
-        else if( speedy < 0 )
+        else
             {
-            if (speedy + drag <= 0 )
-                {
-                speedy += drag;
-                }
-            else
-                {
-                speedy = 0;
-                }
+            speedy = 0;
             }
         }
+
 
     /*----------------------------------------------------------------------------
 
@@ -203,19 +171,19 @@ class Hub
         switch( key_press )
             {
             case SDLK_UP:
-                speedy = -100;
+                speedy = -50;
                 break;
 
             case SDLK_DOWN:
-                speedy = 100;        
+                speedy = 50;        
                 break;
 
             case SDLK_LEFT:
-                speedx = -100;
+                speedx = -50;
                 break;
 
             case SDLK_RIGHT:
-                speedx = 100;
+                speedx = 50;
                 break;
             }
         }
@@ -230,12 +198,12 @@ class Hub
 
     ----------------------------------------------------------------------------*/
 
-    public: Circle get_sprite
+    public: Circle* get_sprite
     (
     void
     )
         {
-        return sprite;
+        return &sprite;
         }
 
     /*----------------------------------------------------------------------------
