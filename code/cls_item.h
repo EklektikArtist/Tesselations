@@ -13,6 +13,7 @@
 Project Headers
 ------------------------------------------------*/
 #include "cls_circle.h"
+//#include "cls_hub.h"
 
 /*--------------------------------------------------------------------------------
 
@@ -86,5 +87,24 @@ class Item
     )
         {
         sprite.render( io_sim_data );
+        }
+
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_collision
+
+    Description:
+        Respond to a collision event
+
+    ----------------------------------------------------------------------------*/
+
+    public: void handle_collision
+    (
+        //Hub             *hub                /* hub collided with                */
+    )
+        {
+        
         }
 };

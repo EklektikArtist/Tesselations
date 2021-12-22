@@ -91,7 +91,7 @@ class TextBox
 
     public: void set_pos 
     (
-    Position           *i_new_pos           /* new position                     */
+    Position const     *i_new_pos           /* new position                     */
     )
         {
         textbox.x = i_new_pos->get_x();

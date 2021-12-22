@@ -125,8 +125,7 @@ int main
     main_sim_data.hub_info.hubs[ 0 ].init();
     main_sim_data.hub_info.hubs[ 1 ].init();
     main_sim_data.hub_info.hubs[ 1 ].get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
-    main_sim_data.hub_info.hubs[ 1 ].get_sprite()->get_pos()->set_x( 100 );
-    main_sim_data.hub_info.hubs[ 1 ].get_sprite()->get_pos()->set_y( 100 );
+    main_sim_data.hub_info.hubs[ 1 ].get_sprite()->set_pos( 100, 100 );
 
     main_sim_data.hub_info.hub_count = 2;
     main_sim_data.hub_info.selected_hub = 0;
@@ -135,8 +134,7 @@ int main
     Set up items
     ------------------------------------------------*/
     main_sim_data.item_info.items[ 0 ].init();
-    main_sim_data.item_info.items[ 0 ].get_sprite()->get_pos()->set_x( 200 );
-    main_sim_data.item_info.items[ 0 ].get_sprite()->get_pos()->set_y( 200 );
+    main_sim_data.item_info.items[ 0 ].get_sprite()->set_pos( 200, 200 );
 
     main_sim_data.item_info.item_count = 1;
 
@@ -271,6 +269,8 @@ void main_loop
     float               time_step;          /* seconds since last update        */
     Uint32              this_update;        /* current time                     */
     Uint8               i;                  /* loop counter                     */
+    bool                collision;          /* collision detected?              */
+    Uint8               j;                  /* loop counter                     */
         
     /*------------------------------------------------
     Initialization
@@ -306,7 +306,7 @@ void main_loop
         --------------------------------------------*/
         for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
             {
-            io_main_data->hub_info.hubs[ i ].update( time_step );
+            io_main_data->hub_info.hubs[ i ].move( time_step );
             io_main_data->hub_info.hubs[ i ].render( &io_main_data->resources, &io_main_data->sim_data );
             }
 
@@ -316,6 +316,44 @@ void main_loop
         for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
             {
             io_main_data->item_info.items[ i ].render( &io_main_data->sim_data );
+            }
+
+        /*--------------------------------------------
+        Check Tess <-> Tess Collisions
+        --------------------------------------------*/
+        for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+            {
+            for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
+                {
+                collision = false;
+                if( i == j )
+                    {
+                    continue;
+                    }
+
+                collision = SDL_HasIntersection( io_main_data->hub_info.hubs[ i ].get_sprite()->get_bbox(),
+                                                 io_main_data->hub_info.hubs[ j ].get_sprite()->get_bbox() );
+                if( collision )
+                    {
+                    io_main_data->hub_info.hubs[ i ].handle_collision( &io_main_data->hub_info.hubs[ i ] );
+                    }
+                }
+            }
+        
+        for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+            {
+            for( j = 0; j < io_main_data->item_info.item_count; j++ )
+                {
+                collision = false;
+
+                collision = SDL_HasIntersection( io_main_data->hub_info.hubs[ i ].get_sprite()->get_bbox(),
+                                                 io_main_data->item_info.items[ j ].get_sprite()->get_bbox() );
+                if( collision )
+                    {
+                    io_main_data->hub_info.hubs[ i ].handle_collision( &io_main_data->item_info.items[ j ] );
+                    io_main_data->item_info.items[ j ].handle_collision(  );
+                    }
+                }
             }
 
         /*--------------------------------------------

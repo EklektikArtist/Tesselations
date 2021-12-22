@@ -20,6 +20,7 @@ Project Headers
 #include "cls_circle.h"
 #include "cls_textbox.h"
 #include "cls_position.h"
+#include "cls_item.h"
 #include "resources.h"
 #include "sim.h"
 
@@ -84,18 +85,56 @@ class Hub
 
     ----------------------------------------------------------------------------*/
 
-    public: void update 
+    public: void move
     (
     float timestep
     )
         {
-        sprite.get_pos()->shift_x_buff( speedx * timestep, sprite.get_radius() );
-        sprite.get_pos()->shift_y_buff( speedy * timestep, sprite.get_radius() );
+        sprite.shift_pos_buff( speedx * timestep, speedy * timestep, sprite.get_radius() );
         text_pos.set_text( sprite.get_pos()->stringify() );
         text_pos.set_pos( sprite.get_pos() );
         
-        handle_drag( timestep);
+        handle_drag( timestep );
         }
+
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_collision
+
+    Description:
+        Respond to a collision event
+
+    ----------------------------------------------------------------------------*/
+
+    public: void handle_collision
+    (
+        Hub             *hub                /* hub collided with                */
+    )
+        {
+
+        }
+
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_collision
+
+    Description:
+        Respond to a collision event
+
+    ----------------------------------------------------------------------------*/
+
+    public: void handle_collision
+    (
+        Item            *item               /* item collided with               */
+    )
+        {
+
+        }
+
 
     /*----------------------------------------------------------------------------
 

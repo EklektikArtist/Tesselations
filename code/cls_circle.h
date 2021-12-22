@@ -35,6 +35,26 @@ class Circle
     Position            pos;                /* position                         */
     int                 radius;             /* radius                           */
     Color               color;              /* color                            */
+    SDL_Rect            bbox;               /* box in which to draw the circle  */
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_bbox
+
+    Description:
+        Return the circle's bounding box
+
+    ----------------------------------------------------------------------------*/
+
+    public: const SDL_Rect* get_bbox
+    (
+    void
+    )
+        {
+        return &bbox;
+        }
     
     /*----------------------------------------------------------------------------
 
@@ -46,7 +66,7 @@ class Circle
 
     ----------------------------------------------------------------------------*/
 
-    public: Position* get_pos 
+    public: const Position* get_pos 
     (
     void
     )
@@ -90,8 +110,8 @@ class Circle
     int                 i_rad               /* radius of circle                 */
     )
         {
-        pos = i_cntr;
-        radius = i_rad;
+        init( i_cntr.get_x(), i_cntr.get_y(), i_rad );
+        update();
         }
           
     
@@ -115,6 +135,7 @@ class Circle
         pos.init( i_xp, i_yp );
         radius = i_rad;
         set_color( 0xFF, 0x00, 0x00, 0xFF );
+        update();
         }
           
     
@@ -132,20 +153,7 @@ class Circle
     (
     sim_data           *io_sim_data         /* simulation data                  */
     )
-        {
-        /*--------------------------------------------
-        Local Variables
-        --------------------------------------------*/
-        SDL_Rect bbox;                      /* box in which to draw the circle  */
-        
-        /*--------------------------------------------
-        Initialization
-        --------------------------------------------*/
-        bbox = { pos.get_x(), 
-                 pos.get_y(),
-                 radius,
-                 radius };
-        
+        {        
         /*--------------------------------------------
         Set the color
         --------------------------------------------*/
@@ -177,5 +185,91 @@ class Circle
     )
         {
         color.set_color( i_red, i_green, i_blue, i_alpha );
+        update();
+        }
+          
+          
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Set the color of the circle
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos
+    (
+    Position           *new_pos             /* position                         */
+    )
+        {
+        pos.set_pos( new_pos );
+        update();
+        }
+          
+          
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Set the color of the circle
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos
+    (
+    int                 i_xp,               /* x position                       */
+    int                 i_yp                /* y position                       */
+    )
+        {
+        pos.set_pos( i_xp, i_yp );
+        update();
+        }
+          
+          
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Set the color of the circle
+
+    ----------------------------------------------------------------------------*/
+
+    public: void shift_pos_buff
+    (
+    int                 i_x_offset,         /* x offset                         */
+    int                 i_y_offset,         /* y offset                         */
+    int                 i_buff              /* buffer                           */
+    )
+        {
+        pos.shift_pos_buff( i_x_offset, i_y_offset, i_buff );
+        update();
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_radius
+
+    Description:
+        Return the circle's radius
+
+    ----------------------------------------------------------------------------*/
+
+    public: void update
+    (
+    void
+    )
+        {
+        bbox = { pos.get_x(),
+                 pos.get_y(),
+                 radius,
+                 radius };
         }
     };

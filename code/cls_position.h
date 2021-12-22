@@ -60,7 +60,7 @@ class Position
     public: int get_x
     (
     void
-    )
+    ) const
         {
         return x;
         }
@@ -79,7 +79,7 @@ class Position
     public: int get_y
     (
     void
-    )
+    ) const
         {
         return y;
         }
@@ -103,6 +103,8 @@ class Position
         {
         x = i_xp;
         y = i_yp;
+
+        update();
         }
     
 
@@ -137,6 +139,50 @@ class Position
             {
             x = i_xp;
             }
+
+        update();
+
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Updates the position if the new position is valid
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos
+    (
+    int                 i_xp,               /* x position                       */
+    int                 i_yp                /* y position                       */
+    )
+        {
+        set_x( i_xp );
+        set_y( i_yp );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Updates the position if the new position is valid
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos
+    (
+    Position           *pos                 /* position                         */
+    )
+        {
+        set_x( pos->get_x() );
+        set_y( pos->get_y() );
         }
     
 
@@ -172,6 +218,9 @@ class Position
             {
             x = i_xp;
             }
+
+        update();
+
         }
     
 
@@ -206,6 +255,8 @@ class Position
             {
             y = i_yp;
             }
+
+        update();
         }
     
 
@@ -241,6 +292,8 @@ class Position
             {
             y = i_yp;
             }
+
+        update();
         }
     
 
@@ -261,6 +314,28 @@ class Position
         {
         set_x( x + i_x_offset );
         }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos_buff
+
+    Description:
+        Sets the position
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos_buff
+    (
+    int                 i_xp,               /* x position                       */
+    int                 i_yp,               /* y position                       */
+    int                 i_buff              /* buffer                           */
+    )
+        {
+        set_x_buff( i_xp, i_buff );
+        set_y_buff( i_yp, i_buff );
+        }
           
 
     /*----------------------------------------------------------------------------
@@ -280,6 +355,27 @@ class Position
     )
         {
         set_x_buff( x + i_x_offset, i_x_buff );
+        }
+          
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        shift_pos_buff
+
+    Description:
+        Shifts the position by a given amount
+
+    ----------------------------------------------------------------------------*/
+
+    public: void shift_pos_buff
+    (
+    int                 i_x_offset,         /* x offset                         */
+    int                 i_y_offset,         /* y offset                         */
+    int                 i_buff              /* buffer                           */
+    )
+        {
+        set_pos_buff( x + i_x_offset, y + i_y_offset, i_buff );
         }
     
 
@@ -332,12 +428,30 @@ class Position
 
     ----------------------------------------------------------------------------*/
 
-    public: char * stringify
+    public: const char * stringify
+    (
+    void
+    ) const
+        {
+        return( buffer );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_radius
+
+    Description:
+        Return the circle's radius
+
+    ----------------------------------------------------------------------------*/
+
+    public: void update
     (
     void
     )
         {
-        sprintf( buffer, "( %d, %d)", x, y );
-        return( buffer );
+        sprintf( buffer, "( %d, %d )", x, y );
         }
     };
