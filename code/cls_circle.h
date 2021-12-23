@@ -267,9 +267,9 @@ class Circle
     void
     )
         {
-        bbox = { pos.get_x(),
-                 pos.get_y(),
-                 radius,
-                 radius };
+        bbox = { pos.get_x() - radius,
+                 pos.get_y() - radius,
+                 radius * 2,
+                 radius * 2 };
         }
     };

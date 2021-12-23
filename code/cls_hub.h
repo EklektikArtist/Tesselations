@@ -29,6 +29,7 @@ Local Constants
 ------------------------------------------------*/
 #define             PX_PER_SEC             650
                                             /* pixels per second                */
+#define             PI                     3.1415926536f
 
 /*--------------------------------------------------------------------------------
 
@@ -47,13 +48,14 @@ class Hub
     Class Variables
     ------------------------------------------------*/  
     float               drag_ratio;         /* resistance to speed              */
-    int                 speedx;             /* speed in the x direction         */
-    int                 speedy;             /* speed in the y direction         */
+    Sint8                 speedx;             /* speed in the x direction         */
+    Sint8                 speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
+    float               heading;            /* heading                          */
+    int                 health;
     
-
-    /*----------------------------------------------------------------------------
+   /*--------------------------]]-------------------------------------------------
 
     Name:
         init
@@ -68,11 +70,12 @@ class Hub
     void
     )
         {
-        sprite.init( 0, 0, 50 );
+        sprite.init( 0, 0, 25 );
         drag_ratio = .01f;
         text_pos.init( sprite.get_pos()->stringify(), sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 100, 12 );
         speedx = 0;
         speedy = 0;
+        health = 100;
         }
 
     /*----------------------------------------------------------------------------
@@ -110,9 +113,43 @@ class Hub
 
     public: void handle_collision
     (
-        Hub             *hub                /* hub collided with                */
+    Hub                *hub                /* hub collided with                */
     )
         {
+        int min_dist;
+        float angle;
+        Position new_pos;
+        int x_shift;
+        int y_shift;
+        int x_boost;
+        int y_boost;
+        float heading;
+        int damage;
+
+        damage = ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10;
+        health -= damage;
+        hub->health -= damage;
+        min_dist = sprite.get_radius() + hub->get_sprite()->get_radius();
+        min_dist *= 1.1f;
+        heading = get_heading();
+        angle = sprite.get_pos()->angle_to( hub->get_sprite()->get_pos() );// get_heading();
+        if( ( heading - angle > PI / 2 )
+         && ( heading - angle < 3.0f * PI / 2.0f) )
+            {
+            angle -= PI;
+            }
+        memcpy( &new_pos, hub->get_sprite()->get_pos(), sizeof(Position) );
+        x_shift = min_dist * cos( angle );
+        y_shift = min_dist * sin( angle );
+        new_pos.shift_x( x_shift * 1.1f );
+        new_pos.shift_y( y_shift * 1.1f );
+        sprite.set_pos( &new_pos );
+
+        hub->speedx = hub->speedx + speedx / 2;
+        hub->speedy = hub->speedy + speedy / 2 ;
+
+        speedx = speedx / 2;
+        speedy = speedy / 2;
 
         }
 
@@ -129,10 +166,10 @@ class Hub
 
     public: void handle_collision
     (
-        Item            *item               /* item collided with               */
+    Item               *item               /* item collided with               */
     )
         {
-
+        health += item->health_affect;
         }
 
 
@@ -148,7 +185,7 @@ class Hub
 
     public: void handle_drag
     (
-        float timestep
+    float               timestep
     )
         {
         float dragx;
@@ -163,7 +200,7 @@ class Hub
             return;
             }
 
-        dragx = (speedx * drag_ratio * timestep );
+        dragx = ( speedx * drag_ratio * timestep );
         dragy = ( speedy * drag_ratio * timestep );
 
         /*------------------------------------------------
@@ -211,18 +248,22 @@ class Hub
             {
             case SDLK_UP:
                 speedy = -50;
+                heading = PI / 2.0f;
                 break;
 
             case SDLK_DOWN:
                 speedy = 50;        
+                heading = 3.0f * PI / 2.0f;
                 break;
 
             case SDLK_LEFT:
                 speedx = -50;
+                heading = 0.0f;
                 break;
 
             case SDLK_RIGHT:
                 speedx = 50;
+                heading = PI;
                 break;
             }
         }
@@ -243,6 +284,24 @@ class Hub
     )
         {
         return &sprite;
+        }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_heading
+
+    Description:
+        Returns the hub's heading
+
+    ----------------------------------------------------------------------------*/
+
+    public: float get_heading
+    (
+    void
+    )
+        {
+        return heading;
         }
 
     /*----------------------------------------------------------------------------

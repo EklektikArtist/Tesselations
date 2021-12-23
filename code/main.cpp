@@ -123,6 +123,7 @@ int main
     Set up hubs
     ------------------------------------------------*/
     main_sim_data.hub_info.hubs[ 0 ].init();
+    main_sim_data.hub_info.hubs[ 0 ].get_sprite()->set_pos( 100, 0 );
     main_sim_data.hub_info.hubs[ 1 ].init();
     main_sim_data.hub_info.hubs[ 1 ].get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
     main_sim_data.hub_info.hubs[ 1 ].get_sprite()->set_pos( 100, 100 );
@@ -271,10 +272,14 @@ void main_loop
     Uint8               i;                  /* loop counter                     */
     bool                collision;          /* collision detected?              */
     Uint8               j;                  /* loop counter                     */
+    bool                skip;
+    int                 visited_hubs_count;
+    int                 visited_hubs[ MAX_HUBS ];
         
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
+    visited_hubs_count = 0;
     sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
 
     /*------------------------------------------------
@@ -321,8 +326,25 @@ void main_loop
         /*--------------------------------------------
         Check Tess <-> Tess Collisions
         --------------------------------------------*/
+
+        visited_hubs_count = 0;
         for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
             {
+            skip = false;
+            for( j = 0; j < visited_hubs_count; j++ )
+                {
+                if( i == visited_hubs[ j ] )
+                    {
+                    skip = true;
+                    break;
+                    }
+                }
+
+            if( skip )
+                {
+                continue;
+                }
+
             for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
                 {
                 collision = false;
@@ -335,7 +357,9 @@ void main_loop
                                                  io_main_data->hub_info.hubs[ j ].get_sprite()->get_bbox() );
                 if( collision )
                     {
-                    io_main_data->hub_info.hubs[ i ].handle_collision( &io_main_data->hub_info.hubs[ i ] );
+                    io_main_data->hub_info.hubs[ i ].handle_collision( &io_main_data->hub_info.hubs[ j ] );
+                    visited_hubs[ visited_hubs_count ] = j;
+                    visited_hubs_count++;
                     }
                 }
             }
@@ -352,6 +376,7 @@ void main_loop
                     {
                     io_main_data->hub_info.hubs[ i ].handle_collision( &io_main_data->item_info.items[ j ] );
                     io_main_data->item_info.items[ j ].handle_collision(  );
+                    io_main_data->item_info.items[ j ].init();
                     }
                 }
             }

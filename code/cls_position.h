@@ -440,10 +440,10 @@ class Position
     /*----------------------------------------------------------------------------
 
     Name:
-        get_radius
+        update
 
     Description:
-        Return the circle's radius
+        Update the position
 
     ----------------------------------------------------------------------------*/
 
@@ -453,5 +453,61 @@ class Position
     )
         {
         sprintf( buffer, "( %d, %d )", x, y );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        dist_to
+
+    Description:
+        Calculate the distance to another position
+
+    ----------------------------------------------------------------------------*/
+
+    public: float dist_to
+    (
+    const Position           *pos         /* Second Position */
+    ) const 
+        {
+        float x_sqr;
+        float y_sqr;
+        float dist;
+
+        x_sqr = ( x - pos->get_x() ) ^ 2;
+        y_sqr = ( y - pos->get_y() ) ^ 2;
+
+        dist = sqrt( x_sqr - y_sqr );
+
+        return dist;
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        angle_to
+
+    Description:
+        Calculate the angle to another position
+
+    ----------------------------------------------------------------------------*/
+
+    public: float angle_to
+    (
+    const Position           *pos         /* Second Position */
+    ) const 
+        {
+        float opp;
+        float adj;
+        float ang;
+
+        adj = ( x - pos->get_x() );
+        opp = ( y - pos->get_y() );
+
+        ang = atan( opp / adj );
+
+        return ang;
         }
     };
