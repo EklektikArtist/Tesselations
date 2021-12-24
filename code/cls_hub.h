@@ -53,9 +53,11 @@ class Hub
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
     float               heading;            /* heading                          */
-    int                 health;
+    public :int                 health;
+    char                buffer[ MAX_STR_LEN ];
+                                            /* stringified buffer               */
     
-   /*--------------------------]]-------------------------------------------------
+   /*---------------------------------------------------------------------------
 
     Name:
         init
@@ -72,10 +74,12 @@ class Hub
         {
         sprite.init( 0, 0, 25 );
         drag_ratio = .01f;
-        text_pos.init( sprite.get_pos()->stringify(), sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 100, 12 );
+        text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
         speedx = 0;
         speedy = 0;
         health = 100;
+
+        update();
         }
 
     /*----------------------------------------------------------------------------
@@ -94,10 +98,10 @@ class Hub
     )
         {
         sprite.shift_pos_buff( speedx * timestep, speedy * timestep, sprite.get_radius() );
-        text_pos.set_text( sprite.get_pos()->stringify() );
-        text_pos.set_pos( sprite.get_pos() );
-        
+        text_pos.set_pos( sprite.get_pos() );        
         handle_drag( timestep );
+
+        update();
         }
 
 
@@ -151,6 +155,8 @@ class Hub
         speedx = speedx / 2;
         speedy = speedy / 2;
 
+        update();
+
         }
 
 
@@ -170,6 +176,7 @@ class Hub
     )
         {
         health += item->health_affect;
+        update();
         }
 
 
@@ -322,5 +329,25 @@ class Hub
         {
         sprite.render( io_sim_data );
         text_pos.render( i_resource_data, io_sim_data );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        update
+
+    Description:
+        Update the position
+
+    ----------------------------------------------------------------------------*/
+
+    public: void update
+    (
+    void
+    )
+        {
+        snprintf( buffer, MAX_STR_LEN, "Position: %s, Health: %d", sprite.get_pos()->stringify(), health );
+        text_pos.set_text( buffer );
         }
 };

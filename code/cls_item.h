@@ -104,9 +104,9 @@ class Item
 
     public: void handle_collision
     (
-        //Hub             *hub                /* hub collided with                */
+    void
     )
         {
-        
+        sprite.set_pos(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT);
         }
 };
