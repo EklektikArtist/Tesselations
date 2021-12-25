@@ -87,11 +87,6 @@ static bool load_font
 )
     {
     /*------------------------------------------------
-    Local Constants
-    ------------------------------------------------*/
-    #define MAX_STR_SIZE 100
-
-    /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
     char               *font_loc;           /* full font path                   */
@@ -113,8 +108,8 @@ static bool load_font
     /*------------------------------------------------
     Create the full font path
     ------------------------------------------------*/
-    font_loc = (char *)malloc( MAX_STR_SIZE );
-    snprintf( font_loc, MAX_STR_SIZE, "%s/%s", font_path, i_font_name );
+    font_loc = (char *)malloc( MAX_STR_LEN );
+    snprintf( font_loc, MAX_STR_LEN, "%s/%s", font_path, i_font_name );
 
     /*------------------------------------------------
     Load the font

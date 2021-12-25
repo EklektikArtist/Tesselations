@@ -87,11 +87,6 @@ static bool load_image
 )
     {
     /*------------------------------------------------
-    Local Constants
-    ------------------------------------------------*/
-    #define MAX_STR_SIZE 100
-
-    /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
     char               *img_loc;            /* full image path                  */
@@ -114,8 +109,8 @@ static bool load_image
     /*------------------------------------------------
     Create the full image path
     ------------------------------------------------*/
-    img_loc = (char *)malloc( MAX_STR_SIZE );
-    snprintf( img_loc, MAX_STR_SIZE, "%s/%s", img_path, i_image_name );
+    img_loc = (char *)malloc( MAX_STR_LEN );
+    snprintf( img_loc, MAX_STR_LEN, "%s/%s", img_path, i_image_name );
 
     /*------------------------------------------------
     Load the image

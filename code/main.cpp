@@ -45,6 +45,31 @@ Class Headers
 Declarations
 --------------------------------------------------------------------------------*/
 
+void handle_events
+(
+    main_data           *io_main_data       /* main data                        */
+);
+
+void handle_tess_item_collisions
+(
+    main_data           *io_main_data       /* main data                        */
+);
+
+void handle_tess_tess_collisions
+(
+    main_data           *io_main_data       /* main data                        */
+);
+
+void init_sim_data
+(
+    main_data          *io_main_data        /* main data                        */
+);
+
+static void main_close
+(
+    main_data          *io_main_data        /* main data                        */
+);
+
 static void main_init
 (
     char               *i_window_name,      /* name of window                   */
@@ -56,20 +81,16 @@ static void main_loop
     main_data          *io_main_data        /* main data                        */
 );
 
-static void main_close
-(
-    main_data          *io_main_data        /* main data                        */
-);
-
-void init_sim_data
-(
-    main_data          *io_main_data        /* main data                        */
-);
-
 void remove_hub
 (
     main_data          *io_main_data,       /* main data                        */
-    int                 hub_idx
+    int                 hub_idx             /* index of hub to remove           */
+);
+
+void update_hubs
+(
+    main_data           *io_main_data,      /* main data                        */
+    float               time_step           /* seconds since last update        */
 );
 
 /*--------------------------------------------------------------------------------
@@ -194,19 +215,28 @@ void init_sim_data
     Local Variables
     ------------------------------------------------*/
     int                 i;                  /* argument count                   */
-
+    
+    /*------------------------------------------------
+    Initialize Image Data
+    ------------------------------------------------*/
     for( i = 0; i < MAX_IMAGES; i++ )
         {
         io_main_data->resources.images[ i ] = NULL;
         }
     io_main_data->resources.image_count = 0;
-
+    
+    /*------------------------------------------------
+    Initialize Resource Data
+    ------------------------------------------------*/
     for( i = 0; i < MAX_FONTS; i++ )
         {
         io_main_data->resources.fonts[ i ] = NULL;
         }
     io_main_data->resources.font_count = 0;
-
+    
+    /*------------------------------------------------
+    Initialize Sim Variables
+    ------------------------------------------------*/
     io_main_data->sim_data.renderer = NULL;
     io_main_data->sim_data.window = NULL;
     io_main_data->sim_data.running = SIM_STAT_RUNNING;
@@ -247,7 +277,7 @@ void main_init
     /*------------------------------------------------
     Initialize Font Handling
     ------------------------------------------------*/
-    io_main_data->sim_data.running = ( TTF_Init()!=-1 );
+    io_main_data->sim_data.running = ( TTF_Init() != -1 );
     check_or_error( io_main_data->sim_data.running, "SDL_TTF could not initialize!", EH_SDL_TTF );
     
     /*------------------------------------------------
@@ -283,27 +313,10 @@ void main_loop
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
-    SDL_Event           event;              /* SDL event information            */
-    Hub                *sel_hub;            /* selected hub pointer             */
-    float               time_step;          /* seconds since last update        */
-    Uint32              this_update;        /* current time                     */
     Uint8               i;                  /* loop counter                     */
-    bool                collision;          /* collision detected?              */
-    Uint8               j;                  /* loop counter                     */
-    bool                skip;
-    int                 collided_hubs_count;
-    int                 collided_hubs[ MAX_HUBS ];
-    Item               *p_item;
-    Hub                *p_hub_1;
-    Hub                *p_hub_2;
-    Position            new_pos;
-    int                 min_dist;
-        
-    /*------------------------------------------------
-    Initialization
-    ------------------------------------------------*/
-    collided_hubs_count = 0;
-    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
+    Item               *p_item;             /* pointer to an item               */
+    Uint32              this_update;        /* current time                     */
+    float               time_step;          /* seconds since last update        */
 
     /*------------------------------------------------
     Update timer
@@ -313,17 +326,10 @@ void main_loop
     io_main_data->sim_data.last_update = this_update;
 
     /*------------------------------------------------
-    Display the test image
-    ------------------------------------------------*/
-    SDL_RenderCopy( io_main_data->sim_data.renderer, io_main_data->resources.images[ 0 ], NULL, NULL );
-    sel_hub->render( &io_main_data->resources, &io_main_data->sim_data );
-    SDL_RenderPresent( io_main_data->sim_data.renderer );
-
-    /*------------------------------------------------
     Event Loop
     ------------------------------------------------*/
     while( io_main_data->sim_data.running )
-        {
+        {      
         /*--------------------------------------------
         Clear the screen
         --------------------------------------------*/
@@ -332,31 +338,7 @@ void main_loop
         /*--------------------------------------------
         Update hubs
         --------------------------------------------*/
-        for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
-            {
-            p_hub_1 = &io_main_data->hub_info.hubs[ i ];
-            if( p_hub_1->health <= 0 )
-                {
-                remove_hub( io_main_data, i );
-                }
-            
-            if( ( p_hub_1->health >= 200 )
-             && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
-                {
-                p_hub_2 = &io_main_data->hub_info.hubs[io_main_data->hub_info.hub_count];
-                p_hub_2->init();
-                p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
-
-                min_dist = p_hub_1->get_sprite()->get_radius() + p_hub_2->get_sprite()->get_radius();
-                memcpy(&new_pos, p_hub_1->get_sprite()->get_pos(), sizeof(Position));
-                new_pos.shift_y( min_dist );
-                p_hub_2->get_sprite()->set_pos( &new_pos );
-                p_hub_1->health -= 100;
-                io_main_data->hub_info.hub_count++;
-                }
-            p_hub_1->move( time_step );
-            p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data );
-            }
+        update_hubs( io_main_data, time_step );
 
         /*--------------------------------------------
         Update items
@@ -370,95 +352,23 @@ void main_loop
         /*--------------------------------------------
         Check Tess <-> Tess Collisions
         --------------------------------------------*/
-
-        collided_hubs_count = 0;
-        for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
-            {
-            p_hub_1 = &io_main_data->hub_info.hubs[ i ];
-            skip = false;
-            for( j = 0; j < collided_hubs_count; j++ )
-                {
-                if( i == collided_hubs[ j ] )
-                    {
-                    skip = true;
-                    break;
-                    }
-                }
-
-            if( skip )
-                {
-                continue;
-                }
-
-            for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
-                {
-                p_hub_2 = &io_main_data->hub_info.hubs[ j ];
-                collision = false;
-                if( i == j )
-                    {
-                    continue;
-                    }
-
-                collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
-                                                 p_hub_2->get_sprite()->get_bbox() );
-                if( collision )
-                    {
-                    p_hub_1->handle_collision( p_hub_2 );
-                    collided_hubs[ collided_hubs_count ] = j;
-                    collided_hubs_count++;
-                    }
-                }
-            }
+        handle_tess_tess_collisions( io_main_data );
         
-        for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
-            {
-            p_hub_1 = &io_main_data->hub_info.hubs[ i ];
-            for( j = 0; j < io_main_data->item_info.item_count; j++ )
-                {
-                p_item = &io_main_data->item_info.items[ j ];
-                collision = false;
-
-                collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
-                                                 p_item->get_sprite()->get_bbox() );
-                if( collision )
-                    {
-                    p_hub_1->handle_collision( p_item );
-                    p_item->handle_collision();
-                    }
-                }
-            }
+        /*--------------------------------------------
+        Check Tess <-> Item Collisions
+        --------------------------------------------*/  
+        handle_tess_item_collisions( io_main_data );
 
         /*--------------------------------------------
         Get latest events
         --------------------------------------------*/
-        while( SDL_PollEvent( &event ) )
-            { 
-
-            /*----------------------------------------
-            Handle exit button press
-            ----------------------------------------*/
-            if( event.type == SDL_QUIT )
-                {
-                /*------------------------------------
-                Flag the loop to end
-                ------------------------------------*/
-                io_main_data->sim_data.running = SIM_STAT_END;
-                }
-            else if( event.type == SDL_KEYDOWN )
-                {
-                /*------------------------------------
-                Forward the key event to the sprite
-                ------------------------------------*/
-                sel_hub->handle_key( event.key.keysym.sym );
-                
-                }
-            }
+        handle_events( io_main_data );
 
         /*--------------------------------------------
         Refresh the screen
         --------------------------------------------*/
-        SDL_RenderSetClipRect(io_main_data->sim_data.renderer, NULL);
-        SDL_RenderPresent(io_main_data->sim_data.renderer);
+        SDL_RenderSetClipRect( io_main_data->sim_data.renderer, NULL );
+        SDL_RenderPresent( io_main_data->sim_data.renderer );
         }
 
     }    /* main_loop */
@@ -477,10 +387,17 @@ void main_loop
 void remove_hub
 (
     main_data           *io_main_data,      /* main data                        */
-    int                  hub_idx
+    int                 hub_idx             /* index of hub to remove           */
 )
     {
-    int i;
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    Uint8               i;                  /* loop counter                     */
+    
+    /*------------------------------------------------
+    Remove selecte hub
+    ------------------------------------------------*/
     for( i = hub_idx; i < io_main_data->hub_info.hub_count - 1; i++ )
         {
         io_main_data->hub_info.hubs[ i ] = io_main_data->hub_info.hubs[ i + 1 ];
@@ -523,3 +440,285 @@ void main_close
     SDL_Quit();
 
     }    /* main_close */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        handle_tess_item_collisions
+
+    Description:
+        Handle collisions between a tess and an item
+
+--------------------------------------------------------------------------------*/
+
+void handle_tess_item_collisions
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    bool                collision;          /* collision detected?              */
+    Uint8               i;                  /* loop counter                     */
+    Uint8               j;                  /* loop counter                     */
+    Hub                *p_hub_1;            /* first pointer to a hub           */
+    Item               *p_item;             /* pointer to an item               */
+    
+    /*------------------------------------------------
+    Check Tess <-> Item Collisions
+    ------------------------------------------------*/
+    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+        {
+        /*----------------------------------------
+        Assign pointers
+        ----------------------------------------*/
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+        for( j = 0; j < io_main_data->item_info.item_count; j++ )
+            {
+            /*------------------------------------
+            Initialize loop variables
+            ------------------------------------*/
+            p_item = &io_main_data->item_info.items[ j ];
+            collision = false;
+                
+	        /*------------------------------------
+	        Check for collision
+	        ------------------------------------*/
+            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
+                                             p_item->get_sprite()->get_bbox() );
+
+	        /*------------------------------------
+	        Handle Collision
+	        ------------------------------------*/
+            if( collision )
+                {
+                p_hub_1->handle_collision( p_item );
+                p_item->handle_collision();
+                }
+            }
+        }
+
+    }    /* handle_tess_item_collisions */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        handle_tess_tess_collisions
+
+    Description:
+        Handle collisions between tess
+
+--------------------------------------------------------------------------------*/
+
+void handle_tess_tess_collisions
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    bool                collision;          /* collision detected?              */
+    int                 collided_hubs[ MAX_HUBS ][ MAX_HUBS ];
+                                            /* list of collided hubs            */
+    int                 collided_hubs_count[ MAX_HUBS ];
+                                            /* numder of collided hubs          */
+    Uint8               i;                  /* loop counter                     */
+    Uint8               j;                  /* loop counter                     */
+    Hub                *p_hub_1;            /* first pointer to a hub           */
+    Hub                *p_hub_2;            /* second pointer to a hub          */
+    
+    /*------------------------------------------------
+    Initialize variables
+    ------------------------------------------------*/  
+    for( i = 0; i < MAX_HUBS; i++ )
+        {
+        collided_hubs_count[ i ] = 0;
+        }
+        
+    /*------------------------------------------------
+    Check Tess <-> Tess Collisions
+    ------------------------------------------------*/ 
+    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+        {
+        /*----------------------------------------
+        Assign pointers
+        ----------------------------------------*/
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+
+        for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
+            {
+            /*------------------------------------
+            Initialize loop variables
+            ------------------------------------*/
+            p_hub_2 = &io_main_data->hub_info.hubs[ j ];
+            collision = false;
+
+	        /*------------------------------------
+	        Check if this hub has already collided
+	        ------------------------------------*/
+            if( ( i == j )
+                || ( i == collided_hubs[ i ][ j ] ) )
+                {
+                continue;
+                }
+
+	        /*------------------------------------
+	        Check for collision
+	        ------------------------------------*/
+            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
+                                             p_hub_2->get_sprite()->get_bbox() );
+
+	        /*------------------------------------
+	        Handle Collision
+            Mark Collision between 
+	        ------------------------------------*/
+            if( collision )
+                {
+                p_hub_1->handle_collision( p_hub_2 );
+                collided_hubs[ j ][ collided_hubs_count[ j ] ] = i;
+                collided_hubs_count[ j ]++;
+                }
+            }
+        }
+
+    }    /* handle_tess_tess_collisions */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        update_hubs
+
+    Description:
+        Update all the hubs for the current timestep
+
+--------------------------------------------------------------------------------*/
+
+void update_hubs
+(
+    main_data           *io_main_data,      /* main data                        */
+    float               time_step           /* seconds since last update        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    Uint8               i;                  /* loop counter                     */
+    int                 min_dist;           /* minimum distance                 */
+    Position            new_pos;            /* new position                     */
+    Hub                *p_hub_1;            /* first pointer to a hub           */
+    Hub                *p_hub_2;            /* second pointer to a hub          */
+    
+    /*------------------------------------------------
+    Update Hubs
+    ------------------------------------------------*/
+    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+        {
+        /*----------------------------------------
+        Assign pointers
+        ----------------------------------------*/
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+
+        /*----------------------------------------
+        Remove hubs with no health
+        ----------------------------------------*/
+        if( p_hub_1->health <= 0 )
+            {
+            remove_hub( io_main_data, i );
+            }            
+
+        /*----------------------------------------
+        A hub with more than 200 health should
+        create a new 'child' hub
+        ----------------------------------------*/
+        if( ( p_hub_1->health >= 200 )
+            && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
+            {
+            /*------------------------------------
+            Create the child hub
+            ------------------------------------*/
+            p_hub_2 = &io_main_data->hub_info.hubs[io_main_data->hub_info.hub_count];
+            p_hub_2->init();
+            p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
+            io_main_data->hub_info.hub_count++;
+                
+            /*------------------------------------
+            Place the child below the parent
+            ------------------------------------*/
+            min_dist = p_hub_1->get_sprite()->get_radius() + p_hub_2->get_sprite()->get_radius();
+            memcpy(&new_pos, p_hub_1->get_sprite()->get_pos(), sizeof(Position));
+            new_pos.shift_y( min_dist );
+            p_hub_2->get_sprite()->set_pos( &new_pos );
+                
+            /*------------------------------------
+            Remove health from the parent
+            ------------------------------------*/
+            p_hub_1->health -= 100;
+            }
+
+        /*----------------------------------------
+        Move and render the current hub
+        ----------------------------------------*/
+        p_hub_1->move( time_step );
+        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data );
+        }
+
+    }    /* handle_tess_tess_collisions */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        handle_events
+
+    Description:
+        Handle latest events
+
+--------------------------------------------------------------------------------*/
+
+void handle_events
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    SDL_Event           event;              /* SDL event information            */
+    Hub                *sel_hub;            /* selected hub pointer             */
+        
+    /*------------------------------------------------
+    Initialization
+    ------------------------------------------------*/
+    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
+
+    /*--------------------------------------------
+    Check for events
+    --------------------------------------------*/
+    while( SDL_PollEvent( &event ) )
+        { 
+        /*----------------------------------------
+        Handle exit button press
+        ----------------------------------------*/
+        if( event.type == SDL_QUIT )
+            {
+            /*------------------------------------
+            Flag the loop to end
+            ------------------------------------*/
+            io_main_data->sim_data.running = SIM_STAT_END;
+            }
+        else if( event.type == SDL_KEYDOWN )
+            {
+            /*------------------------------------
+            Forward the key event to the sprite
+            ------------------------------------*/
+            sel_hub->handle_key( event.key.keysym.sym );
+                
+            }
+        }
+
+    }    /* handle_events */

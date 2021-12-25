@@ -2,11 +2,15 @@
 /*--------------------------------------------------------------------------------
 
     Name:
-        main.h
+        sim.h
 
     Description:
-        Header for root of code functionality
+        Header for simulaton functionality
 
+--------------------------------------------------------------------------------*/
+
+/*--------------------------------------------------------------------------------
+Includes
 --------------------------------------------------------------------------------*/
 
 /*------------------------------------------------
@@ -31,8 +35,8 @@ Types
 
 struct sim_data
     {
-    SDL_Renderer       *renderer;           /* primary renderer                 */
-    SDL_Window         *window;             /* primary window                   */
     sim_stat_t8         running;            /* simulation status                */
     Uint32              last_update;        /* last update of sim state         */
+    SDL_Renderer       *renderer;           /* primary renderer                 */
+    SDL_Window         *window;             /* primary window                   */
     };

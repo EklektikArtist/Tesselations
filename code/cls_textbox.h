@@ -9,6 +9,10 @@
 
 --------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+Includes
+--------------------------------------------------------------------------------*/
+
 /*------------------------------------------------
 External Libraries
 ------------------------------------------------*/
@@ -21,10 +25,14 @@ External Libraries
 /*------------------------------------------------
 Project Headers
 ------------------------------------------------*/
-#include "sdl_rect.h"
-#include "cls_position.h"
-#include "sim.h"
 #include "resources.h"
+#include "sdl_rect.h"
+#include "sim.h"
+
+/*------------------------------------------------
+Class Headers
+------------------------------------------------*/
+#include "cls_position.h"
 
 
 /*--------------------------------------------------------------------------------
@@ -41,14 +49,13 @@ Project Headers
 --------------------------------------------------------------------------------*/
 
 class TextBox
-    {
- 
+    { 
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/
-    SDL_Rect            textbox;             /* box containing the text         */
     SDL_Color           color;               /* textbox color                   */
     std::string         text;                /* textbox contents                */
+    SDL_Rect            textbox;             /* box containing the text         */
     
 
     /*----------------------------------------------------------------------------
@@ -155,10 +162,14 @@ class TextBox
         /*--------------------------------------------
         Local Variables
         --------------------------------------------*/
-	    SDL_Texture        *gTextOutput;         /* texture to which the textbox     */
-	                                             /*  should be rendered              */
-	    SDL_Surface        *gTextSurface;		 /* surface on which to render the   */
-												 /*  textbox                         */
+	    SDL_Texture     *gTextOutput;       /* texture to which the textbox     */
+	                                        /*  should be rendered              */
+	    SDL_Surface     *gTextSurface;		/* surface on which to render the   */
+							    			/*  textbox                         */
+        
+        /*--------------------------------------------
+        Create the textbox surface
+        --------------------------------------------*/   
         gTextSurface = TTF_RenderText_Solid( i_resource_data->fonts[ 0 ], text.c_str(), color );
         check_or_error( gTextSurface != NULL, "Could not render textbox", EH_SDL );
 

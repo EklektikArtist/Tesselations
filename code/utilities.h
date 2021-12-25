@@ -24,16 +24,11 @@ enum
 /*--------------------------------------------------------------------------------
 Constants
 --------------------------------------------------------------------------------*/
-#define MAX_STR_LEN 100
+#define                 MAX_STR_LEN         100
 
 /*--------------------------------------------------------------------------------
 Declarations
 --------------------------------------------------------------------------------*/
-
-void debug_info
-(
-    void
-);
 
 bool check_or_error
 (
@@ -46,4 +41,9 @@ bool check_or_error
     bool                i_test,             /* condition to test                */
     const char         *i_msg,              /* message to print on fail         */
     error_handler_t8    i_eh                /* error handler to use for info    */
+);
+
+void debug_info
+(
+    void
 );

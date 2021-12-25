@@ -9,14 +9,18 @@
 
 --------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+Includes
+--------------------------------------------------------------------------------*/
+
 /*------------------------------------------------
 Project Headers
 ------------------------------------------------*/
 #include "utilities.h"
 
-/*------------------------------------------------
+/*--------------------------------------------------------------------------------
 Local Constants
-------------------------------------------------*/
+--------------------------------------------------------------------------------*/
 #define             SCREEN_WIDTH            800
                                             /* initial width of screen          */
 #define             SCREEN_HEIGHT           500
@@ -41,10 +45,10 @@ class Position
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/
-    int                 x;                  /* x position                       */
-    int                 y;                  /* y position                       */
     char                buffer[ MAX_STR_LEN ];
                                             /* stringified buffer               */
+    int                 x;                  /* x position                       */
+    int                 y;                  /* y position                       */
     
 
     /*----------------------------------------------------------------------------
@@ -468,18 +472,27 @@ class Position
 
     public: float dist_to
     (
-    const Position           *pos         /* Second Position */
+    const Position     *pos                 /* Second Position                  */
     ) const 
         {
-        float x_sqr;
-        float y_sqr;
-        float dist;
-
+        /*------------------------------------------------
+        Local variables
+        ------------------------------------------------*/
+        float           x_sqr;              /* x difference squared             */  
+        float           y_sqr;              /* y difference squared             */
+        float           dist;               /* distance between positions       */
+        
+        /*------------------------------------------------
+        Calculate the distance
+        ------------------------------------------------*/
         x_sqr = ( x - pos->get_x() ) ^ 2;
         y_sqr = ( y - pos->get_y() ) ^ 2;
 
         dist = sqrt( x_sqr - y_sqr );
-
+        
+        /*------------------------------------------------
+        Return
+        ------------------------------------------------*/
         return dist;
         }
     
@@ -496,18 +509,27 @@ class Position
 
     public: float angle_to
     (
-    const Position           *pos         /* Second Position */
+    const Position           *pos           /* Second Position                  */
     ) const 
         {
-        float opp;
-        float adj;
-        float ang;
-
+        /*------------------------------------------------
+        Local variables
+        ------------------------------------------------*/
+        float           opp;                /* length of opposite side          */  
+        float           adj;                /* length of adjacent side          */
+        float           ang;                /* angle between positions          */
+        
+        /*------------------------------------------------
+        Calculate the nagle
+        ------------------------------------------------*/
         adj = ( x - pos->get_x() );
         opp = ( y - pos->get_y() );
 
         ang = atan( opp / adj );
-
+        
+        /*------------------------------------------------
+        Return
+        ------------------------------------------------*/
         return ang;
         }
     };

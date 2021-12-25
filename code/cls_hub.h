@@ -9,27 +9,37 @@
 
 --------------------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------------------
+Includes
+--------------------------------------------------------------------------------*/
+
 /*------------------------------------------------
 External Headers
 ------------------------------------------------*/
-#include       "SDL_timer.h"
+#include "SDL_timer.h"
 
 /*------------------------------------------------
 Project Headers
 ------------------------------------------------*/
-#include "cls_circle.h"
-#include "cls_textbox.h"
-#include "cls_position.h"
-#include "cls_item.h"
 #include "resources.h"
 #include "sim.h"
 
 /*------------------------------------------------
-Local Constants
+Class Headers
 ------------------------------------------------*/
+#include "cls_circle.h"
+#include "cls_item.h"
+#include "cls_position.h"
+#include "cls_textbox.h"
+
+/*--------------------------------------------------------------------------------
+Local Constants
+--------------------------------------------------------------------------------*/
 #define             PX_PER_SEC             650
                                             /* pixels per second                */
 #define             PI                     3.1415926536f
+                                            /* pi                               */
+
 
 /*--------------------------------------------------------------------------------
 
@@ -43,19 +53,18 @@ Local Constants
 
 class Hub
     {  
-
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/  
-    float               drag_ratio;         /* resistance to speed              */
-    Sint8                 speedx;             /* speed in the x direction         */
-    Sint8                 speedy;             /* speed in the y direction         */
-    Circle              sprite;             /* sprite                           */
-    TextBox             text_pos;           /* textbox                          */
-    float               heading;            /* heading                          */
-    public :int                 health;
     char                buffer[ MAX_STR_LEN ];
                                             /* stringified buffer               */
+    float               drag_ratio;         /* resistance to speed              */
+    float               heading;            /* heading                          */
+    public :int         health;             /* health                           */
+    Sint8               speedx;             /* speed in the x direction         */
+    Sint8               speedy;             /* speed in the y direction         */
+    Circle              sprite;             /* sprite                           */
+    TextBox             text_pos;           /* textbox                          */
     
    /*---------------------------------------------------------------------------
 
@@ -88,7 +97,7 @@ class Hub
         update
 
     Description:
-        Syncronizes the hubs information
+        Move the hub and update the information
 
     ----------------------------------------------------------------------------*/
 
@@ -111,7 +120,7 @@ class Hub
         handle_collision
 
     Description:
-        Respond to a collision event
+        Respond to a collision event with another hub
 
     ----------------------------------------------------------------------------*/
 
@@ -120,41 +129,71 @@ class Hub
     Hub                *hub                /* hub collided with                */
     )
         {
-        int min_dist;
-        float angle;
-        Position new_pos;
-        int x_shift;
-        int y_shift;
-        int x_boost;
-        int y_boost;
-        float heading;
-        int damage;
-
+        /*------------------------------------------------
+        Local variables
+        ------------------------------------------------*/
+        float           angle;              /* angle between hubs               */
+        int             damage;             /* damage caused by collision       */
+        float           heading;            /* heading of current hub           */
+        int             min_dist;           /* minimum distance allowed         */
+        Position        new_pos;            /* new position for hub             */
+        int             x_boost;            /* boost in the x direction         */
+        int             x_shift;            /* shift in the x direction         */
+        int             y_boost;            /* boost in the y direction         */
+        int             y_shift;            /* shift in the y direction         */
+        
+        /*------------------------------------------------
+        Apply collision damage
+        ------------------------------------------------*/
         damage = ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10;
         health -= damage;
         hub->health -= damage;
+        
+        /*------------------------------------------------
+        Calculate separation distance
+        Add a buffer to handle rounding errors
+        ------------------------------------------------*/
         min_dist = sprite.get_radius() + hub->get_sprite()->get_radius();
         min_dist *= 1.1f;
+        
+        /*------------------------------------------------
+        Calculate direction of repulsion
+        ------------------------------------------------*/
         heading = get_heading();
-        angle = sprite.get_pos()->angle_to( hub->get_sprite()->get_pos() );// get_heading();
+        angle = sprite.get_pos()->angle_to( hub->get_sprite()->get_pos() );
         if( ( heading - angle > PI / 2 )
          && ( heading - angle < 3.0f * PI / 2.0f) )
             {
             angle -= PI;
             }
-        memcpy( &new_pos, hub->get_sprite()->get_pos(), sizeof(Position) );
+        
+        /*------------------------------------------------
+        Shift this hub by the proper distance in the
+        proper direction.
+
+        Note: The current code moves the hub with the
+        smallest index, improvement would move both hubs
+        half way
+        ------------------------------------------------*/
         x_shift = min_dist * cos( angle );
         y_shift = min_dist * sin( angle );
+        memcpy( &new_pos, hub->get_sprite()->get_pos(), sizeof(Position) );
         new_pos.shift_x( x_shift * 1.1f );
         new_pos.shift_y( y_shift * 1.1f );
         sprite.set_pos( &new_pos );
-
+        
+        /*------------------------------------------------
+        Update the speeds of the two hubs
+        ------------------------------------------------*/
         hub->speedx = hub->speedx + speedx / 2;
         hub->speedy = hub->speedy + speedy / 2 ;
 
         speedx = speedx / 2;
         speedy = speedy / 2;
-
+        
+        /*------------------------------------------------
+        Update dependent data
+        ------------------------------------------------*/
         update();
 
         }
@@ -166,7 +205,7 @@ class Hub
         handle_collision
 
     Description:
-        Respond to a collision event
+        Respond to a collision event with an item
 
     ----------------------------------------------------------------------------*/
 
@@ -195,8 +234,11 @@ class Hub
     float               timestep
     )
         {
-        float dragx;
-        float dragy;
+        /*------------------------------------------------
+        Local variables
+        ------------------------------------------------*/
+        float           dragx;              /* drag in the x direction          */   
+        float           dragy;              /* drag in the y direction          */
 
         /*------------------------------------------------
         Return early if the hub is stationary
@@ -206,7 +248,10 @@ class Hub
             {
             return;
             }
-
+        
+        /*------------------------------------------------
+        Set the drag effects
+        ------------------------------------------------*/
         dragx = ( speedx * drag_ratio * timestep );
         dragy = ( speedy * drag_ratio * timestep );
 
@@ -252,22 +297,34 @@ class Hub
     )
         {
         switch( key_press )
-            {
+            {            
+            /*--------------------------------------------
+            Handle up arrow press
+            --------------------------------------------*/
             case SDLK_UP:
                 speedy = -50;
                 heading = PI / 2.0f;
                 break;
-
+                
+            /*--------------------------------------------
+            Handle down arrow press
+            --------------------------------------------*/
             case SDLK_DOWN:
                 speedy = 50;        
                 heading = 3.0f * PI / 2.0f;
                 break;
-
+                
+            /*--------------------------------------------
+            Handle left arrow press
+            --------------------------------------------*/
             case SDLK_LEFT:
                 speedx = -50;
                 heading = 0.0f;
                 break;
-
+                
+            /*--------------------------------------------
+            Handle right arrow press
+            --------------------------------------------*/
             case SDLK_RIGHT:
                 speedx = 50;
                 heading = PI;
