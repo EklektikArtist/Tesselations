@@ -151,8 +151,8 @@ class Hub
         ------------------------------------------------*/
         heading = get_heading();
         angle = sprite.get_pos()->angle_to( hub->get_sprite()->get_pos() );
-        if( ( heading - angle > PI / 2 )
-         && ( heading - angle < 3.0f * PI / 2.0f) )
+        if( ( heading - angle > PI / 2.0f )
+         && ( heading - angle < 3.0f * PI / 2.0f ) )
             {
             angle -= PI;
             }
@@ -248,7 +248,7 @@ class Hub
         /*------------------------------------------------
         Adjust the x speed
         ------------------------------------------------*/
-        if ( abs(speedx - dragx ) >= 0 )
+        if ( abs( speedx - dragx ) >= 0 )
             {
             speedx -= dragx;
             }
@@ -260,7 +260,7 @@ class Hub
         /*------------------------------------------------
         Adjust the y speed
         ------------------------------------------------*/
-        if ( abs(speedy - dragy ) >= 0 )
+        if ( abs( speedy - dragy ) >= 0 )
             {
             speedy -= dragy;
             }

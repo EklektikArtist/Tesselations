@@ -306,7 +306,7 @@ class Position
         If the new position is past the edge of the
         screen, set the position to the closest edge
         --------------------------------------------*/
-        if( i_xp >= SCREEN_WIDTH - i_x_buff)
+        if( i_xp >= SCREEN_WIDTH - i_x_buff )
             {
             x = SCREEN_WIDTH - i_x_buff;
             }

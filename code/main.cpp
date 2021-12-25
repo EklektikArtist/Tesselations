@@ -568,7 +568,7 @@ void main_loop
         /*--------------------------------------------
         Clear the screen
         --------------------------------------------*/
-        SDL_RenderCopy(io_main_data->sim_data.renderer, io_main_data->resources.images[ 0 ], NULL, NULL);
+        SDL_RenderCopy( io_main_data->sim_data.renderer, io_main_data->resources.images[ 0 ], NULL, NULL );
 
         /*--------------------------------------------
         Update hubs
@@ -690,12 +690,12 @@ void update_hubs
         create a new 'child' hub
         ----------------------------------------*/
         if( ( p_hub_1->health >= 200 )
-            && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
+         && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
             {
             /*------------------------------------
             Create the child hub
             ------------------------------------*/
-            p_hub_2 = &io_main_data->hub_info.hubs[io_main_data->hub_info.hub_count];
+            p_hub_2 = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
             p_hub_2->init();
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
             io_main_data->hub_info.hub_count++;
@@ -704,7 +704,7 @@ void update_hubs
             Place the child below the parent
             ------------------------------------*/
             min_dist = p_hub_1->get_sprite()->get_radius() + p_hub_2->get_sprite()->get_radius();
-            memcpy(&new_pos, p_hub_1->get_sprite()->get_pos(), sizeof(Position));
+            memcpy( &new_pos, p_hub_1->get_sprite()->get_pos(), sizeof(Position) );
             new_pos.shift_y( min_dist );
             p_hub_2->get_sprite()->set_pos( &new_pos );
                 
