@@ -54,6 +54,80 @@ class Position
     /*----------------------------------------------------------------------------
 
     Name:
+        angle_to
+
+    Description:
+        Calculate the angle to another position
+
+    ----------------------------------------------------------------------------*/
+
+    public: float angle_to
+    (
+    const Position           *pos           /* Second Position                  */
+    ) const 
+        {
+        /*------------------------------------------------
+        Local variables
+        ------------------------------------------------*/
+        float           opp;                /* length of opposite side          */  
+        float           adj;                /* length of adjacent side          */
+        float           ang;                /* angle between positions          */
+        
+        /*------------------------------------------------
+        Calculate the nagle
+        ------------------------------------------------*/
+        adj = ( x - pos->get_x() );
+        opp = ( y - pos->get_y() );
+
+        ang = atan( opp / adj );
+        
+        /*------------------------------------------------
+        Return
+        ------------------------------------------------*/
+        return ang;
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        dist_to
+
+    Description:
+        Calculate the distance to another position
+
+    ----------------------------------------------------------------------------*/
+
+    public: float dist_to
+    (
+    const Position     *pos                 /* Second Position                  */
+    ) const 
+        {
+        /*------------------------------------------------
+        Local variables
+        ------------------------------------------------*/
+        float           x_sqr;              /* x difference squared             */  
+        float           y_sqr;              /* y difference squared             */
+        float           dist;               /* distance between positions       */
+        
+        /*------------------------------------------------
+        Calculate the distance
+        ------------------------------------------------*/
+        x_sqr = ( x - pos->get_x() ) ^ 2;
+        y_sqr = ( y - pos->get_y() ) ^ 2;
+
+        dist = sqrt( x_sqr - y_sqr );
+        
+        /*------------------------------------------------
+        Return
+        ------------------------------------------------*/
+        return dist;
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
         get_x
 
     Description:
@@ -115,43 +189,6 @@ class Position
     /*----------------------------------------------------------------------------
 
     Name:
-        set_x
-
-    Description:
-        Updates the x value if the new position is valid
-
-    ----------------------------------------------------------------------------*/
-
-    public: void set_x
-    (
-    int                 i_xp                /* x position                       */
-    )
-        {
-        /*--------------------------------------------
-        If the new position is past the edge of the
-        screen, set the position to the closest edge
-        --------------------------------------------*/
-        if( i_xp >= SCREEN_WIDTH )
-            {
-            x = SCREEN_WIDTH;
-            }
-        else if( i_xp <= 0 )
-            {
-            x = 0;
-            } 
-        else
-            {
-            x = i_xp;
-            }
-
-        update();
-
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
         set_pos
 
     Description:
@@ -187,6 +224,65 @@ class Position
         {
         set_x( pos->get_x() );
         set_y( pos->get_y() );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos_buff
+
+    Description:
+        Sets the position
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos_buff
+    (
+    int                 i_xp,               /* x position                       */
+    int                 i_yp,               /* y position                       */
+    int                 i_buff              /* buffer                           */
+    )
+        {
+        set_x_buff( i_xp, i_buff );
+        set_y_buff( i_yp, i_buff );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_x
+
+    Description:
+        Updates the x value if the new position is valid
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_x
+    (
+    int                 i_xp                /* x position                       */
+    )
+        {
+        /*--------------------------------------------
+        If the new position is past the edge of the
+        screen, set the position to the closest edge
+        --------------------------------------------*/
+        if( i_xp >= SCREEN_WIDTH )
+            {
+            x = SCREEN_WIDTH;
+            }
+        else if( i_xp <= 0 )
+            {
+            x = 0;
+            } 
+        else
+            {
+            x = i_xp;
+            }
+
+        update();
+
         }
     
 
@@ -299,67 +395,6 @@ class Position
 
         update();
         }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        shift_x
-
-    Description:
-        Shifts the x value by a given amount
-
-    ----------------------------------------------------------------------------*/
-
-    public: void shift_x
-    (
-    int                 i_x_offset          /* x offset                         */
-    )
-        {
-        set_x( x + i_x_offset );
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        set_pos_buff
-
-    Description:
-        Sets the position
-
-    ----------------------------------------------------------------------------*/
-
-    public: void set_pos_buff
-    (
-    int                 i_xp,               /* x position                       */
-    int                 i_yp,               /* y position                       */
-    int                 i_buff              /* buffer                           */
-    )
-        {
-        set_x_buff( i_xp, i_buff );
-        set_y_buff( i_yp, i_buff );
-        }
-          
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        shift_x_buff
-
-    Description:
-        Shifts the x value by a given amount
-
-    ----------------------------------------------------------------------------*/
-
-    public: void shift_x_buff
-    (
-    int                 i_x_offset,         /* x offset                         */
-    int                 i_x_buff            /* x buffer                         */
-    )
-        {
-        set_x_buff( x + i_x_offset, i_x_buff );
-        }
           
 
     /*----------------------------------------------------------------------------
@@ -380,6 +415,45 @@ class Position
     )
         {
         set_pos_buff( x + i_x_offset, y + i_y_offset, i_buff );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        shift_x
+
+    Description:
+        Shifts the x value by a given amount
+
+    ----------------------------------------------------------------------------*/
+
+    public: void shift_x
+    (
+    int                 i_x_offset          /* x offset                         */
+    )
+        {
+        set_x( x + i_x_offset );
+        }
+          
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        shift_x_buff
+
+    Description:
+        Shifts the x value by a given amount
+
+    ----------------------------------------------------------------------------*/
+
+    public: void shift_x_buff
+    (
+    int                 i_x_offset,         /* x offset                         */
+    int                 i_x_buff            /* x buffer                         */
+    )
+        {
+        set_x_buff( x + i_x_offset, i_x_buff );
         }
     
 
@@ -458,78 +532,5 @@ class Position
         {
         sprintf( buffer, "( %d, %d )", x, y );
         }
-    
 
-    /*----------------------------------------------------------------------------
-
-    Name:
-        dist_to
-
-    Description:
-        Calculate the distance to another position
-
-    ----------------------------------------------------------------------------*/
-
-    public: float dist_to
-    (
-    const Position     *pos                 /* Second Position                  */
-    ) const 
-        {
-        /*------------------------------------------------
-        Local variables
-        ------------------------------------------------*/
-        float           x_sqr;              /* x difference squared             */  
-        float           y_sqr;              /* y difference squared             */
-        float           dist;               /* distance between positions       */
-        
-        /*------------------------------------------------
-        Calculate the distance
-        ------------------------------------------------*/
-        x_sqr = ( x - pos->get_x() ) ^ 2;
-        y_sqr = ( y - pos->get_y() ) ^ 2;
-
-        dist = sqrt( x_sqr - y_sqr );
-        
-        /*------------------------------------------------
-        Return
-        ------------------------------------------------*/
-        return dist;
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        angle_to
-
-    Description:
-        Calculate the angle to another position
-
-    ----------------------------------------------------------------------------*/
-
-    public: float angle_to
-    (
-    const Position           *pos           /* Second Position                  */
-    ) const 
-        {
-        /*------------------------------------------------
-        Local variables
-        ------------------------------------------------*/
-        float           opp;                /* length of opposite side          */  
-        float           adj;                /* length of adjacent side          */
-        float           ang;                /* angle between positions          */
-        
-        /*------------------------------------------------
-        Calculate the nagle
-        ------------------------------------------------*/
-        adj = ( x - pos->get_x() );
-        opp = ( y - pos->get_y() );
-
-        ang = atan( opp / adj );
-        
-        /*------------------------------------------------
-        Return
-        ------------------------------------------------*/
-        return ang;
-        }
     };

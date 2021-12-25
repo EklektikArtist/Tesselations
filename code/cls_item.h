@@ -40,6 +40,44 @@ class Item
     ------------------------------------------------*/  
     public:int          health_affect;      /* item's health affect             */
     Circle              sprite;             /* sprite                           */
+
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_sprite
+
+    Description:
+        Returns the hub's sprite
+
+    ----------------------------------------------------------------------------*/
+
+    public: Circle* get_sprite
+    (
+    void
+    )
+        {
+        return &sprite;
+        }
+
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_collision
+
+    Description:
+        Respond to a collision event
+
+    ----------------------------------------------------------------------------*/
+
+    public: void handle_collision
+    (
+    void
+    )
+        {
+        sprite.set_pos( rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT );
+        }
     
 
     /*----------------------------------------------------------------------------
@@ -62,23 +100,6 @@ class Item
         health_affect = 10;
         }
 
-    /*----------------------------------------------------------------------------
-
-    Name:
-        get_sprite
-
-    Description:
-        Returns the hub's sprite
-
-    ----------------------------------------------------------------------------*/
-
-    public: Circle* get_sprite
-    (
-    void
-    )
-        {
-        return &sprite;
-        }
 
     /*----------------------------------------------------------------------------
 
@@ -98,22 +119,4 @@ class Item
         sprite.render( io_sim_data );
         }
 
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        handle_collision
-
-    Description:
-        Respond to a collision event
-
-    ----------------------------------------------------------------------------*/
-
-    public: void handle_collision
-    (
-    void
-    )
-        {
-        sprite.set_pos( rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT );
-        }
 };

@@ -25,28 +25,48 @@ class Color
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/
-    Uint8 red;
-    Uint8 green;
-    Uint8 blue;
-    Uint8 alpha;
+    Uint8               red;               /* red                               */
+    Uint8               green;             /* green                             */
+    Uint8               blue;              /* blue                              */ 
+    Uint8               alpha;             /* alpha                             */
     
     /*----------------------------------------------------------------------------
 
     Name:
-        get_red
+        get_alpha
 
     Description:
-        Return the color's red hue
+        Return the color's alpha hue
 
     ----------------------------------------------------------------------------*/
 
-    public: Uint8 get_red
+    public: Uint8 get_alpha
     (
     void
     )
         {
-        return red;
+        return alpha;
         }
+
+    
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_blue
+
+    Description:
+        Return the color's blue hue
+
+    ----------------------------------------------------------------------------*/
+
+    public: Uint8 get_blue
+    (
+    void
+    )
+        {
+        return blue;
+        }
+    
     
     /*----------------------------------------------------------------------------
 
@@ -69,37 +89,19 @@ class Color
     /*----------------------------------------------------------------------------
 
     Name:
-        get_blue
+        get_red
 
     Description:
-        Return the color's blue hue
+        Return the color's red hue
 
     ----------------------------------------------------------------------------*/
 
-    public: Uint8 get_blue
+    public: Uint8 get_red
     (
     void
     )
         {
-        return blue;
-        }
-    
-    /*----------------------------------------------------------------------------
-
-    Name:
-        get_alpha
-
-    Description:
-        Return the color's alpha hue
-
-    ----------------------------------------------------------------------------*/
-
-    public: Uint8 get_alpha
-    (
-    void
-    )
-        {
-        return alpha;
+        return red;
         }
           
     

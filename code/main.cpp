@@ -199,6 +199,205 @@ int main
 /*--------------------------------------------------------------------------------
 
     Name:
+        handle_events
+
+    Description:
+        Handle latest events
+
+--------------------------------------------------------------------------------*/
+
+void handle_events
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    SDL_Event           event;              /* SDL event information            */
+    Hub                *sel_hub;            /* selected hub pointer             */
+        
+    /*------------------------------------------------
+    Initialization
+    ------------------------------------------------*/
+    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
+
+    /*--------------------------------------------
+    Check for events
+    --------------------------------------------*/
+    while( SDL_PollEvent( &event ) )
+        { 
+        /*----------------------------------------
+        Handle exit button press
+        ----------------------------------------*/
+        if( event.type == SDL_QUIT )
+            {
+            /*------------------------------------
+            Flag the loop to end
+            ------------------------------------*/
+            io_main_data->sim_data.running = SIM_STAT_END;
+            }
+        else if( event.type == SDL_KEYDOWN )
+            {
+            /*------------------------------------
+            Forward the key event to the sprite
+            ------------------------------------*/
+            sel_hub->handle_key( event.key.keysym.sym );                
+            }
+        }
+
+    }    /* handle_events */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        handle_tess_item_collisions
+
+    Description:
+        Handle collisions between a tess and an item
+
+--------------------------------------------------------------------------------*/
+
+void handle_tess_item_collisions
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    bool                collision;          /* collision detected?              */
+    Uint8               i;                  /* loop counter                     */
+    Uint8               j;                  /* loop counter                     */
+    Hub                *p_hub_1;            /* first pointer to a hub           */
+    Item               *p_item;             /* pointer to an item               */
+    
+    /*------------------------------------------------
+    Check Tess <-> Item Collisions
+    ------------------------------------------------*/
+    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+        {
+        /*----------------------------------------
+        Assign pointers
+        ----------------------------------------*/
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+        for( j = 0; j < io_main_data->item_info.item_count; j++ )
+            {
+            /*------------------------------------
+            Initialize loop variables
+            ------------------------------------*/
+            p_item = &io_main_data->item_info.items[ j ];
+            collision = false;
+                
+	        /*------------------------------------
+	        Check for collision
+	        ------------------------------------*/
+            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
+                                             p_item->get_sprite()->get_bbox() );
+
+	        /*------------------------------------
+	        Handle Collision
+	        ------------------------------------*/
+            if( collision )
+                {
+                p_hub_1->handle_collision( p_item );
+                p_item->handle_collision();
+                }
+            }
+        }
+
+    }   /* handle_tess_item_collisions */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        handle_tess_tess_collisions
+
+    Description:
+        Handle collisions between tess
+
+--------------------------------------------------------------------------------*/
+
+void handle_tess_tess_collisions
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    bool                collision;          /* collision detected?              */
+    int                 collided_hubs[ MAX_HUBS ][ MAX_HUBS ];
+                                            /* list of collided hubs            */
+    int                 collided_hubs_count[ MAX_HUBS ];
+                                            /* numder of collided hubs          */
+    Uint8               i;                  /* loop counter                     */
+    Uint8               j;                  /* loop counter                     */
+    Hub                *p_hub_1;            /* first pointer to a hub           */
+    Hub                *p_hub_2;            /* second pointer to a hub          */
+    
+    /*------------------------------------------------
+    Initialize variables
+    ------------------------------------------------*/  
+    for( i = 0; i < MAX_HUBS; i++ )
+        {
+        collided_hubs_count[ i ] = 0;
+        }
+        
+    /*------------------------------------------------
+    Check Tess <-> Tess Collisions
+    ------------------------------------------------*/ 
+    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+        {
+        /*----------------------------------------
+        Assign pointers
+        ----------------------------------------*/
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+
+        for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
+            {
+            /*------------------------------------
+            Initialize loop variables
+            ------------------------------------*/
+            p_hub_2 = &io_main_data->hub_info.hubs[ j ];
+            collision = false;
+
+	        /*------------------------------------
+	        Check if this hub has already collided
+	        ------------------------------------*/
+            if( ( i == j )
+                || ( i == collided_hubs[ i ][ j ] ) )
+                {
+                continue;
+                }
+
+	        /*------------------------------------
+	        Check for collision
+	        ------------------------------------*/
+            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
+                                             p_hub_2->get_sprite()->get_bbox() );
+
+	        /*------------------------------------
+	        Handle Collision
+            Mark Collision between 
+	        ------------------------------------*/
+            if( collision )
+                {
+                p_hub_1->handle_collision( p_hub_2 );
+                collided_hubs[ j ][ collided_hubs_count[ j ] ] = i;
+                collided_hubs_count[ j ]++;
+                }
+            }
+        }
+
+    }    /* handle_tess_tess_collisions */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
         init_sim_data
 
     Description:
@@ -243,6 +442,42 @@ void init_sim_data
     io_main_data->sim_data.last_update = 0;
 
     }    /* init_sim_data */
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        main_close
+
+    Description:
+        Handle simulation cleanup
+
+--------------------------------------------------------------------------------*/
+
+void main_close
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    /*------------------------------------------------
+    Destroy Renderer
+    ------------------------------------------------*/
+    SDL_DestroyRenderer( io_main_data->sim_data.renderer );
+    io_main_data->sim_data.renderer = NULL;
+
+    /*------------------------------------------------
+    Destroy Window
+    ------------------------------------------------*/
+    SDL_DestroyWindow( io_main_data->sim_data.window );
+    io_main_data->sim_data.window = NULL;
+
+    /*------------------------------------------------
+    Quit SDL subsystems
+    ------------------------------------------------*/
+    SDL_Quit();
+
+    }    /* main_close */
+
 
 /*--------------------------------------------------------------------------------
 
@@ -410,187 +645,6 @@ void remove_hub
 /*--------------------------------------------------------------------------------
 
     Name:
-        main_close
-
-    Description:
-        Handle simulation cleanup
-
---------------------------------------------------------------------------------*/
-
-void main_close
-(
-    main_data           *io_main_data       /* main data                        */
-)
-    {
-    /*------------------------------------------------
-    Destroy Renderer
-    ------------------------------------------------*/
-    SDL_DestroyRenderer( io_main_data->sim_data.renderer );
-    io_main_data->sim_data.renderer = NULL;
-
-    /*------------------------------------------------
-    Destroy Window
-    ------------------------------------------------*/
-    SDL_DestroyWindow( io_main_data->sim_data.window );
-    io_main_data->sim_data.window = NULL;
-
-    /*------------------------------------------------
-    Quit SDL subsystems
-    ------------------------------------------------*/
-    SDL_Quit();
-
-    }    /* main_close */
-
-
-/*--------------------------------------------------------------------------------
-
-    Name:
-        handle_tess_item_collisions
-
-    Description:
-        Handle collisions between a tess and an item
-
---------------------------------------------------------------------------------*/
-
-void handle_tess_item_collisions
-(
-    main_data           *io_main_data       /* main data                        */
-)
-    {
-    /*------------------------------------------------
-    Local Variables
-    ------------------------------------------------*/
-    bool                collision;          /* collision detected?              */
-    Uint8               i;                  /* loop counter                     */
-    Uint8               j;                  /* loop counter                     */
-    Hub                *p_hub_1;            /* first pointer to a hub           */
-    Item               *p_item;             /* pointer to an item               */
-    
-    /*------------------------------------------------
-    Check Tess <-> Item Collisions
-    ------------------------------------------------*/
-    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
-        {
-        /*----------------------------------------
-        Assign pointers
-        ----------------------------------------*/
-        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
-        for( j = 0; j < io_main_data->item_info.item_count; j++ )
-            {
-            /*------------------------------------
-            Initialize loop variables
-            ------------------------------------*/
-            p_item = &io_main_data->item_info.items[ j ];
-            collision = false;
-                
-	        /*------------------------------------
-	        Check for collision
-	        ------------------------------------*/
-            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
-                                             p_item->get_sprite()->get_bbox() );
-
-	        /*------------------------------------
-	        Handle Collision
-	        ------------------------------------*/
-            if( collision )
-                {
-                p_hub_1->handle_collision( p_item );
-                p_item->handle_collision();
-                }
-            }
-        }
-
-    }    /* handle_tess_item_collisions */
-
-
-/*--------------------------------------------------------------------------------
-
-    Name:
-        handle_tess_tess_collisions
-
-    Description:
-        Handle collisions between tess
-
---------------------------------------------------------------------------------*/
-
-void handle_tess_tess_collisions
-(
-    main_data           *io_main_data       /* main data                        */
-)
-    {
-    /*------------------------------------------------
-    Local Variables
-    ------------------------------------------------*/
-    bool                collision;          /* collision detected?              */
-    int                 collided_hubs[ MAX_HUBS ][ MAX_HUBS ];
-                                            /* list of collided hubs            */
-    int                 collided_hubs_count[ MAX_HUBS ];
-                                            /* numder of collided hubs          */
-    Uint8               i;                  /* loop counter                     */
-    Uint8               j;                  /* loop counter                     */
-    Hub                *p_hub_1;            /* first pointer to a hub           */
-    Hub                *p_hub_2;            /* second pointer to a hub          */
-    
-    /*------------------------------------------------
-    Initialize variables
-    ------------------------------------------------*/  
-    for( i = 0; i < MAX_HUBS; i++ )
-        {
-        collided_hubs_count[ i ] = 0;
-        }
-        
-    /*------------------------------------------------
-    Check Tess <-> Tess Collisions
-    ------------------------------------------------*/ 
-    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
-        {
-        /*----------------------------------------
-        Assign pointers
-        ----------------------------------------*/
-        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
-
-        for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
-            {
-            /*------------------------------------
-            Initialize loop variables
-            ------------------------------------*/
-            p_hub_2 = &io_main_data->hub_info.hubs[ j ];
-            collision = false;
-
-	        /*------------------------------------
-	        Check if this hub has already collided
-	        ------------------------------------*/
-            if( ( i == j )
-                || ( i == collided_hubs[ i ][ j ] ) )
-                {
-                continue;
-                }
-
-	        /*------------------------------------
-	        Check for collision
-	        ------------------------------------*/
-            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
-                                             p_hub_2->get_sprite()->get_bbox() );
-
-	        /*------------------------------------
-	        Handle Collision
-            Mark Collision between 
-	        ------------------------------------*/
-            if( collision )
-                {
-                p_hub_1->handle_collision( p_hub_2 );
-                collided_hubs[ j ][ collided_hubs_count[ j ] ] = i;
-                collided_hubs_count[ j ]++;
-                }
-            }
-        }
-
-    }    /* handle_tess_tess_collisions */
-
-
-/*--------------------------------------------------------------------------------
-
-    Name:
         update_hubs
 
     Description:
@@ -667,58 +721,4 @@ void update_hubs
         p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data );
         }
 
-    }    /* handle_tess_tess_collisions */
-
-
-/*--------------------------------------------------------------------------------
-
-    Name:
-        handle_events
-
-    Description:
-        Handle latest events
-
---------------------------------------------------------------------------------*/
-
-void handle_events
-(
-    main_data           *io_main_data       /* main data                        */
-)
-    {
-    /*------------------------------------------------
-    Local Variables
-    ------------------------------------------------*/
-    SDL_Event           event;              /* SDL event information            */
-    Hub                *sel_hub;            /* selected hub pointer             */
-        
-    /*------------------------------------------------
-    Initialization
-    ------------------------------------------------*/
-    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
-
-    /*--------------------------------------------
-    Check for events
-    --------------------------------------------*/
-    while( SDL_PollEvent( &event ) )
-        { 
-        /*----------------------------------------
-        Handle exit button press
-        ----------------------------------------*/
-        if( event.type == SDL_QUIT )
-            {
-            /*------------------------------------
-            Flag the loop to end
-            ------------------------------------*/
-            io_main_data->sim_data.running = SIM_STAT_END;
-            }
-        else if( event.type == SDL_KEYDOWN )
-            {
-            /*------------------------------------
-            Forward the key event to the sprite
-            ------------------------------------*/
-            sel_hub->handle_key( event.key.keysym.sym );
-                
-            }
-        }
-
-    }    /* handle_events */
+    }    /* update_hubs */

@@ -35,9 +35,9 @@ Class Headers
 /*--------------------------------------------------------------------------------
 Local Constants
 --------------------------------------------------------------------------------*/
-#define             PX_PER_SEC             650
+#define                 PX_PER_SEC          650
                                             /* pixels per second                */
-#define             PI                     3.1415926536f
+#define                 PI                  3.1415926536f
                                             /* pi                               */
 
 
@@ -65,52 +65,42 @@ class Hub
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
-    
-   /*---------------------------------------------------------------------------
-
-    Name:
-        init
-
-    Description:
-        Initializes a hub object
-
-    ----------------------------------------------------------------------------*/
-
-    public: void init 
-    (
-    void
-    )
-        {
-        sprite.init( 0, 0, 25 );
-        drag_ratio = .01f;
-        text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
-        speedx = 0;
-        speedy = 0;
-        health = 100;
-
-        update();
-        }
 
     /*----------------------------------------------------------------------------
 
     Name:
-        update
+        get_heading
 
     Description:
-        Move the hub and update the information
+        Returns the hub's heading
 
     ----------------------------------------------------------------------------*/
 
-    public: void move
+    public: float get_heading
     (
-    float timestep
+    void
     )
         {
-        sprite.shift_pos_buff( speedx * timestep, speedy * timestep, sprite.get_radius() );
-        text_pos.set_pos( sprite.get_pos() );        
-        handle_drag( timestep );
+        return heading;
+        }
 
-        update();
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_sprite
+
+    Description:
+        Returns the hub's sprite
+
+    ----------------------------------------------------------------------------*/
+
+    public: Circle* get_sprite
+    (
+    void
+    )
+        {
+        return &sprite;
         }
 
 
@@ -331,41 +321,52 @@ class Hub
                 break;
             }
         }
-
-    /*----------------------------------------------------------------------------
+    
+   /*---------------------------------------------------------------------------
 
     Name:
-        get_sprite
+        init
 
     Description:
-        Returns the hub's sprite
+        Initializes a hub object
 
     ----------------------------------------------------------------------------*/
 
-    public: Circle* get_sprite
+    public: void init 
     (
     void
     )
         {
-        return &sprite;
+        sprite.init( 0, 0, 25 );
+        drag_ratio = .01f;
+        text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
+        speedx = 0;
+        speedy = 0;
+        health = 100;
+
+        update();
         }
 
     /*----------------------------------------------------------------------------
 
     Name:
-        get_heading
+        update
 
     Description:
-        Returns the hub's heading
+        Move the hub and update the information
 
     ----------------------------------------------------------------------------*/
 
-    public: float get_heading
+    public: void move
     (
-    void
+    float timestep
     )
         {
-        return heading;
+        sprite.shift_pos_buff( speedx * timestep, speedy * timestep, sprite.get_radius() );
+        text_pos.set_pos( sprite.get_pos() );        
+        handle_drag( timestep );
+
+        update();
         }
 
     /*----------------------------------------------------------------------------

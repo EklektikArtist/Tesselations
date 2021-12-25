@@ -61,6 +61,25 @@ class TextBox
     /*----------------------------------------------------------------------------
 
     Name:
+        get_text
+
+    Description:
+        Returns the text of the textbox
+
+    ----------------------------------------------------------------------------*/        
+
+    public: std::string get_text
+    (
+    void
+    )
+        {
+        return text;
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
         init
 
     Description:
@@ -84,69 +103,11 @@ class TextBox
         textbox.h = i_fsize;
         color = { 255, 255, 255, 0xFF };
         }
-    
 
     /*----------------------------------------------------------------------------
 
     Name:
-        set_pos
-
-    Description:
-        Sets the position of the textbox
-
-    ----------------------------------------------------------------------------*/
-
-    public: void set_pos 
-    (
-    Position const     *i_new_pos           /* new position                     */
-    )
-        {
-        textbox.x = i_new_pos->get_x();
-        textbox.y = i_new_pos->get_y();
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        get_text
-
-    Description:
-        Returns the text of the textbox
-
-    ----------------------------------------------------------------------------*/        
-
-    public: std::string get_text
-    (
-    void
-    )
-        {
-        return text;
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        set_text
-
-    Description:
-        Set the text of the textbox
-
-    ----------------------------------------------------------------------------*/
-       
-    public: void set_text
-    (
-    std::string         i_new_str           /* new string                       */
-    )
-        {
-        text = i_new_str;
-        }    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        init
+        render
 
     Description:
         Renders the textbox on screen
@@ -190,4 +151,44 @@ class TextBox
         SDL_DestroyTexture( gTextOutput );
         gTextOutput = NULL;
         }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_pos
+
+    Description:
+        Sets the position of the textbox
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_pos 
+    (
+    Position const     *i_new_pos           /* new position                     */
+    )
+        {
+        textbox.x = i_new_pos->get_x();
+        textbox.y = i_new_pos->get_y();
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_text
+
+    Description:
+        Set the text of the textbox
+
+    ----------------------------------------------------------------------------*/
+       
+    public: void set_text
+    (
+    std::string         i_new_str           /* new string                       */
+    )
+        {
+        text = i_new_str;
+        }    
+
 };
