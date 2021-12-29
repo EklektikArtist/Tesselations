@@ -97,7 +97,7 @@ class Item
         {
         sprite.init( 0, 0, 5 );
         sprite.set_color( 0xFF, 0xFF, 0x00, 0xFF );
-        health_affect = 10;
+        health_affect = 100;
         }
 
 

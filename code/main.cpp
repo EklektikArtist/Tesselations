@@ -678,6 +678,11 @@ void update_hubs
         p_hub_1 = &io_main_data->hub_info.hubs[ i ];
 
         /*----------------------------------------
+        Reduce health based on time passing
+        ----------------------------------------*/        
+        p_hub_1->health -= ( time_step / 10000 );
+
+        /*----------------------------------------
         Remove hubs with no health
         ----------------------------------------*/
         if( p_hub_1->health <= 0 )
@@ -689,7 +694,7 @@ void update_hubs
         A hub with more than 200 health should
         create a new 'child' hub
         ----------------------------------------*/
-        if( ( p_hub_1->health >= 200 )
+        if( ( p_hub_1->health >= 2000 )
          && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
             {
             /*------------------------------------
@@ -711,7 +716,7 @@ void update_hubs
             /*------------------------------------
             Remove health from the parent
             ------------------------------------*/
-            p_hub_1->health -= 100;
+            p_hub_1->health -= 1000;
             }
 
         /*----------------------------------------

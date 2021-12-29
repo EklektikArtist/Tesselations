@@ -60,7 +60,7 @@ class Hub
                                             /* stringified buffer               */
     float               drag_ratio;         /* resistance to speed              */
     float               heading;            /* heading                          */
-    public :int         health;             /* health                           */
+    public :double      health;             /* health                           */
     Sint8               speedx;             /* speed in the x direction         */
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
@@ -135,7 +135,7 @@ class Hub
         /*------------------------------------------------
         Apply collision damage
         ------------------------------------------------*/
-        damage = ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10;
+        damage = ( 100 + ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10 );
         health -= damage;
         hub->health -= damage;
         
@@ -294,6 +294,7 @@ class Hub
             case SDLK_UP:
                 speedy = -50;
                 heading = PI / 2.0f;
+                health -= 5;
                 break;
                 
             /*--------------------------------------------
@@ -302,6 +303,7 @@ class Hub
             case SDLK_DOWN:
                 speedy = 50;        
                 heading = 3.0f * PI / 2.0f;
+                health -= 5;
                 break;
                 
             /*--------------------------------------------
@@ -310,6 +312,7 @@ class Hub
             case SDLK_LEFT:
                 speedx = -50;
                 heading = 0.0f;
+                health -= 5;
                 break;
                 
             /*--------------------------------------------
@@ -318,6 +321,7 @@ class Hub
             case SDLK_RIGHT:
                 speedx = 50;
                 heading = PI;
+                health -= 5;
                 break;
             }
         }
@@ -342,7 +346,7 @@ class Hub
         text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
         speedx = 0;
         speedy = 0;
-        health = 100;
+        health = 1000;
 
         update();
         }
@@ -405,7 +409,7 @@ class Hub
     void
     )
         {
-        snprintf( buffer, MAX_STR_LEN, "Position: %s, Health: %d", sprite.get_pos()->stringify(), health );
+        snprintf( buffer, MAX_STR_LEN, "Position: %s, Health: %f2", sprite.get_pos()->stringify(), health );
         text_pos.set_text( buffer );
         }
 };

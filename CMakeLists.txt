@@ -11,7 +11,7 @@ find_package(MPI REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 include_directories(${MPI_INCLUDE_PATH})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/include/NEAT)
 
 #set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 #set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
@@ -36,7 +36,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 include_directories(${SDL2_TTF_INCLUDE_DIRS})
 #include_directories(SYSTEM ${MPI_INCLUDE_PATH})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/include/NEAT)
 
 file(GLOB SOURCES "code/*.cpp")
 
