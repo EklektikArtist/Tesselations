@@ -116,7 +116,7 @@ class Position
         x_sqr = ( x - pos->get_x() ) ^ 2;
         y_sqr = ( y - pos->get_y() ) ^ 2;
 
-        dist = sqrt( x_sqr - y_sqr );
+        dist = sqrt( abs( x_sqr - y_sqr ) );
         
         /*------------------------------------------------
         Return

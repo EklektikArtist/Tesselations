@@ -12,6 +12,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 include_directories(${MPI_INCLUDE_PATH})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/include/NEAT)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/src)
 
 #set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 #set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
@@ -39,7 +40,8 @@ include_directories(${SDL2_TTF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/include/NEAT)
 
 file(GLOB SOURCES "code/*.cpp")
+file(GLOB NEAT_LIB "libraries/neat/src/*.cpp")
 
-add_executable(Tesselations ${SOURCES})
+add_executable(Tesselations ${SOURCES} ${NEAT_LIB})
 target_link_libraries(Tesselations ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} MPI::MPI_CXX)
 endif(WIN32)

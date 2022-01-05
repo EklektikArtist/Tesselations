@@ -65,6 +65,7 @@ class Hub
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
+    int                 items_collected;
 
     /*----------------------------------------------------------------------------
 
@@ -135,7 +136,7 @@ class Hub
         /*------------------------------------------------
         Apply collision damage
         ------------------------------------------------*/
-        damage = ( 100 + ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10 );
+        damage = ( 50 + ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10 );
         health -= damage;
         hub->health -= damage;
         
@@ -347,6 +348,7 @@ class Hub
         speedx = 0;
         speedy = 0;
         health = 1000;
+        items_collected = 0;
 
         update();
         }

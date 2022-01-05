@@ -18,6 +18,7 @@ Includes
 External Libraries
 ------------------------------------------------*/
 #include <SDL_ttf.h>
+#include "population.h"
 
 /*------------------------------------------------
 Project Headers
@@ -30,6 +31,8 @@ Class Headers
 ------------------------------------------------*/
 #include "cls_hub.h"
 #include "cls_item.h"
+
+using namespace NEAT;
 
 /*--------------------------------------------------------------------------------
 Constants
@@ -55,12 +58,21 @@ struct item_data
     int                 item_count;         /* count of items in use            */
     };
 
+struct population_data
+    {
+    Population         *population;
+    int                 offspring_count;    /* count of items in use            */
+    };
+
 struct main_data
     {
     sim_data            sim_data;           /* simulator data                   */
     hub_data            hub_info;           /* hub data                         */
     item_data           item_info;          /* item data                        */
     resource_data       resources;          /* resource data                    */
+    population_data     pop_info;
+    double                 max_fit;
+
     };
 
 /*--------------------------------------------------------------------------------
