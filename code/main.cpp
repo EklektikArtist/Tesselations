@@ -228,16 +228,26 @@ double * get_sensor_data
 )
     {
     /*------------------------------------------------
-    Local Constants
+    Local Enums
     ------------------------------------------------*/
-    #define NUM_INPUTS 6
+    typedef int inputs_t8;
+    enum
+        {
+        INPUTS_NUM_ENEMIES                  = 0,
+        INPUTS_X_DIST_NRST_ENEMY,
+        INPUTS_Y_DIST_NRST_ENEMY,
+        INPUTS_NUM_ITEMS,
+        INPUTS_X_DIST_NRST_ITEM,
+        INPUTS_Y_DIST_NRST_ITEM,
+        INPUTS_CNT
+        };
     
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/    
     float                dist;              /* distance between hubs            */
     int                  i;                 /* iterator                         */
-    double               input[NUM_INPUTS]; /* hub inputs                       */
+    double               input[INPUTS_CNT]; /* hub inputs                       */
     float                min_dist;          /* minimum distance between hubs    */
     Hub                 *nearest_hub;       /* pointer to nearest hub           */
     Item                *nearest_item;      /* pointer to nearest item          */
@@ -290,31 +300,31 @@ double * get_sensor_data
     /*------------------------------------------------
     Update hub related inputs
     ------------------------------------------------*/
-    input[ 0 ] = io_main_data->hub_info.hub_count - 1; /* number of enemies */
+    input[ INPUTS_NUM_ENEMIES ] = io_main_data->hub_info.hub_count - 1;
     if( io_main_data->hub_info.hub_count > 1 )
         {
-        input[ 1 ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x(); /* x dist to nearest enemy */
-        input[ 2 ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y(); /* y dist to nearest enemy */
+        input[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x();
+        input[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y();
         }
     else
         {
-        input[ 1 ] = min_dist;        
-        input[ 2 ] = min_dist;
+        input[ INPUTS_X_DIST_NRST_ENEMY ] = min_dist;        
+        input[ INPUTS_Y_DIST_NRST_ENEMY ] = min_dist;
         }
     
     /*------------------------------------------------
     Update item related inputs
     ------------------------------------------------*/
-    input[ 3 ] = io_main_data->item_info.item_count - 1; /* number of items */
+    input[ INPUTS_NUM_ITEMS ] = io_main_data->item_info.item_count - 1;
     if( io_main_data->item_info.item_count > 1 )
         {
-        input[ 4 ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x(); /* x dist to nearest item */
-        input[ 5 ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y(); /* y dist to nearest item */
+        input[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x();
+        input[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y();
         }
     else
         {
-        input[ 4 ] = min_dist;        
-        input[ 5 ] = min_dist;
+        input[ INPUTS_X_DIST_NRST_ITEM ] = min_dist;        
+        input[ INPUTS_Y_DIST_NRST_ITEM ] = min_dist;
         }
 
     return( input );
@@ -743,7 +753,7 @@ void main_loop
     Local Variables
     ------------------------------------------------*/
     Uint8               i;                  /* loop counter                     */
-  Organism             *new_org;            /* temporary new organism           */
+    Organism           *new_org;            /* temporary new organism           */
     Hub                *p_hub;              /* pointer to a hub                 */
     Item               *p_item;             /* pointer to an item               */
     Uint32              this_update;        /* current time                     */
@@ -919,16 +929,16 @@ void update_hubs
         Save genome if this organism is the most
         superior discovered
         ----------------------------------------*/
-        if( io_main_data->max_fit < p_org->fitness )
+        if( io_main_data->statistics.max_fit < p_org->fitness )
             {
-            io_main_data->max_fit = p_org->fitness;
+            io_main_data->statistics.max_fit = p_org->fitness;
             
             string file = "C://Users//infof//Documents//Git//Tesselations//output//";
             file += to_string(p_hub_1->items_collected);
             file += "_";
             file += to_string( p_hub_1->health );
             file += ".txt";
-            cout<<"Max Fit: " << io_main_data->max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
+            cout<<"Max Fit: " << io_main_data->statistics.max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
             print_Genome_tofile( p_org->gnome, file.c_str() );
             }
 
@@ -999,7 +1009,7 @@ void update_hubs
             file += "_";
             file += to_string( p_hub_1->health );
             file += ".txt";
-            cout<<"Max Fit: " << io_main_data->max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
+            cout<<"Max Fit: " << io_main_data->statistics.max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
             print_Genome_tofile( p_org->gnome, file.c_str() );
             }
         

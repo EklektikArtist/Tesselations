@@ -64,14 +64,19 @@ struct population_data
     int                 offspring_count;    /* count of brains in use           */
     };
 
+struct statistic_data
+    {
+    double              max_fit;            /* highest achieved fitness         */
+    };
+
 struct main_data
     {
     sim_data            sim_data;           /* simulator data                   */
     hub_data            hub_info;           /* hub data                         */
     item_data           item_info;          /* item data                        */
-    resource_data       resources;          /* resource data                    */
     population_data     pop_info;           /* population data                  */
-    double              max_fit;            /* highest achieved fitness         */
+    resource_data       resources;          /* resource data                    */
+    statistic_data      statistics;         /* statitstic records               */
 
     };
 
