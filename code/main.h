@@ -60,8 +60,8 @@ struct item_data
 
 struct population_data
     {
-    Population         *population;
-    int                 offspring_count;    /* count of items in use            */
+    Population         *population;         /* array of brains                  */
+    int                 offspring_count;    /* count of brains in use           */
     };
 
 struct main_data
@@ -70,8 +70,8 @@ struct main_data
     hub_data            hub_info;           /* hub data                         */
     item_data           item_info;          /* item data                        */
     resource_data       resources;          /* resource data                    */
-    population_data     pop_info;
-    double                 max_fit;
+    population_data     pop_info;           /* population data                  */
+    double              max_fit;            /* highest achieved fitness         */
 
     };
 

@@ -65,7 +65,7 @@ class Hub
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
-    int                 items_collected;
+    int                 items_collected;	/* number of items collected        */
 
     /*----------------------------------------------------------------------------
 

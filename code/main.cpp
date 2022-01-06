@@ -20,17 +20,12 @@ External Libraries
 #include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
-
-
 #include <iostream>
 #include <iomanip>
-//#include <fstream>
-//#include <sstream>
+#include "genome.h"
+#include "population.h"
 
 #include "mpi.h"        //not in use yet, but leave to make sure compilation works
-#include "population.h"
-#include "genome.h"
-
 /*------------------------------------------------
 File Header
 ------------------------------------------------*/
@@ -48,6 +43,9 @@ Class Headers
 ------------------------------------------------*/
 #include "cls_textbox.h"
 
+/*--------------------------------------------------------------------------------
+Namespace markers
+--------------------------------------------------------------------------------*/
 using namespace NEAT;
 using namespace std;
 
@@ -70,12 +68,12 @@ void handle_tess_tess_collisions
     main_data           *io_main_data       /* main data                        */
 );
 
-void init_sim_data
+void init_brains
 (
     main_data          *io_main_data        /* main data                        */
 );
 
-void init_brains
+void init_sim_data
 (
     main_data          *io_main_data        /* main data                        */
 );
@@ -105,7 +103,7 @@ void remove_hub
 void update_hubs
 (
     main_data           *io_main_data,      /* main data                        */
-    float               time_step          /* seconds since last update        */
+    float                time_step          /* seconds since last update        */
 );
 
 void update_species
@@ -137,7 +135,7 @@ int main
     Local Variables
     ------------------------------------------------*/
     main_data           main_sim_data;     /* simulation data                  */
-    int                 i;
+    int                 i;                 /* loop counter                     */
 
     /*------------------------------------------------
     Print out startup status info
@@ -219,7 +217,7 @@ int main
         get_sensor_data
 
     Description:
-        Handle latest events
+        Update hub inputs for latest events
 
 --------------------------------------------------------------------------------*/
 
@@ -229,20 +227,33 @@ double * get_sensor_data
     Hub                 *i_hub              /* first pointer to a hub           */
 )
     {
+    /*------------------------------------------------
+    Local Constants
+    ------------------------------------------------*/
     #define NUM_INPUTS 6
-
-    double input[NUM_INPUTS];
-    Hub                 *nearest_hub;       /* first pointer to a hub           */
-    Item                *nearest_item;      /* first pointer to a hub           */
-    Hub                 *p_hub;             /* first pointer to a hub           */
-    Item                *p_item;            /* first pointer to a hub           */
-    int                  i;                 /* iterator                         */
-    float                dist;              /* distance between hubs            */
-    float                min_dist;          /* minimum distance between hubs    */
     
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/    
+    float                dist;              /* distance between hubs            */
+    int                  i;                 /* iterator                         */
+    double               input[NUM_INPUTS]; /* hub inputs                       */
+    float                min_dist;          /* minimum distance between hubs    */
+    Hub                 *nearest_hub;       /* pointer to nearest hub           */
+    Item                *nearest_item;      /* pointer to nearest item          */
+    Hub                 *p_hub;             /* first pointer to a hub           */
+    Item                *p_item;            /* first pointer to an item         */
+    
+    /*------------------------------------------------
+    Initialization
+    ------------------------------------------------*/
     nearest_hub = NULL;
     nearest_item = NULL;
     min_dist = 999999;
+
+    /*------------------------------------------------
+    Find the closest hub
+    ------------------------------------------------*/
     for( i = 0; i < io_main_data->hub_info.hub_count; i++ )
         {
         p_hub = &io_main_data->hub_info.hubs[ i ];
@@ -260,6 +271,9 @@ double * get_sensor_data
             }
         }
     
+    /*------------------------------------------------
+    Find the closest item
+    ------------------------------------------------*/
     min_dist = 999999;
     for( i = 0; i < io_main_data->item_info.item_count; i++ )
         {
@@ -272,23 +286,30 @@ double * get_sensor_data
             nearest_item = p_item;
             }
         }
-
-    input[ 0 ] = io_main_data->hub_info.hub_count - 1; // num enemies
+    
+    /*------------------------------------------------
+    Update hub related inputs
+    ------------------------------------------------*/
+    input[ 0 ] = io_main_data->hub_info.hub_count - 1; /* number of enemies */
     if( io_main_data->hub_info.hub_count > 1 )
         {
-        input[ 1 ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x(); // x dist to nearest enemy
-        input[ 2 ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y(); // y dist to nearest enemy
+        input[ 1 ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x(); /* x dist to nearest enemy */
+        input[ 2 ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y(); /* y dist to nearest enemy */
         }
     else
         {
         input[ 1 ] = min_dist;        
         input[ 2 ] = min_dist;
         }
-    input[ 3 ] = io_main_data->item_info.item_count - 1; // num items
+    
+    /*------------------------------------------------
+    Update item related inputs
+    ------------------------------------------------*/
+    input[ 3 ] = io_main_data->item_info.item_count - 1; /* number of items */
     if( io_main_data->item_info.item_count > 1 )
         {
-        input[ 4 ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x(); // x dist to nearest item 
-        input[ 5 ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y(); // y dist to nearest itemenemy
+        input[ 4 ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x(); /* x dist to nearest item */
+        input[ 5 ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y(); /* y dist to nearest item */
         }
     else
         {
@@ -516,25 +537,25 @@ void init_brains
     main_data          *io_main_data        /* main data                        */
 )
     {    
-    Genome *start_genome;
-    char curword[20];
-    int id;
-
-    ostringstream *fnamebuf;
-    int gen;
-
-    double highscore;
-
-    ifstream iFile;
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    vector<Species*>::iterator 
+                        curspec;            /* used in printing out debug info  */                 
+    char                curword[20];        /* current read in word             */
+    int                 id;                 /* genome id                        */
+    ifstream            iFile;              /* input file                       */
+    Genome             *start_genome;       /* starting genome                  */                                         
     
-    vector<Species*>::iterator curspec; //used in printing out debug info                                                         
-    
+    /*------------------------------------------------
+    Open the starting genome file
+    ------------------------------------------------*/
     iFile.open( "C://Users//infof//Documents//Git//Tesselations//genes//tessstartgenes", std::ifstream::in );
-
-    cout<<"START DOUBLE POLE BALANCING REAL-TIME EVOLUTION VALIDATION"<<endl;
-
+    
+    /*------------------------------------------------
+    Read in the start Genome
+    ------------------------------------------------*/
     cout<<"Reading in the start genome"<<endl;
-    //Read in the start Genome
     iFile>>curword;
     iFile>>id;
     cout<<"Reading in Genome id "<<id<<endl;
@@ -542,21 +563,22 @@ void init_brains
     iFile.close();
 
     cout<<"Start Genome: "<<start_genome<<endl;
-
-    //Spawn the Population from starter gene
+    
+    /*------------------------------------------------
+    Spawn the Population from starter gene
+    ------------------------------------------------*/
     cout<<"Spawning Population off Genome"<<endl;
     io_main_data->pop_info.population = new Population(start_genome, io_main_data->hub_info.hub_count );
     io_main_data->pop_info.offspring_count = 0;
-      
-    //Alternative way to start off of randomly connected genomes
-    //pop=new Population(pop_size,7,1,10,false,0.3);
 
     cout<<"Verifying Spawned Pop"<<endl;
     io_main_data->pop_info.population->verify();
 
     update_species( io_main_data );
-
+    
+    /*------------------------------------------------
     //For printing only
+    ------------------------------------------------*/
     for(curspec=(io_main_data->pop_info.population->species).begin();curspec!=(io_main_data->pop_info.population->species).end();curspec++) 
         {
         cout<<"Species "<<(*curspec)->id<<" size: "<<(*curspec)->organisms.size()<<" average: "<<(*curspec)->average_est<<endl;
@@ -721,13 +743,11 @@ void main_loop
     Local Variables
     ------------------------------------------------*/
     Uint8               i;                  /* loop counter                     */
+  Organism             *new_org;            /* temporary new organism           */
+    Hub                *p_hub;              /* pointer to a hub                 */
     Item               *p_item;             /* pointer to an item               */
     Uint32              this_update;        /* current time                     */
     float               time_step;          /* seconds since last update        */
-    
-    Hub                *p_hub;             /* pointer to a hub                  */
-    
-  Organism *new_org;
 
     /*------------------------------------------------
     Update timer
@@ -785,10 +805,18 @@ void main_loop
                 p_hub->init();
                 p_hub->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
                 io_main_data->hub_info.hub_count++;
+                
+                /*------------------------------------
+                Create the child brain
 
-                //Here we call two rtNEAT calls: 
-                //1) choose_parent_species() decides which species should produce the next offspring
-                //2) reproduce_one(...) creates a single offspring fromt the chosen species    
+                Here we call two rtNEAT calls: 
+                1) choose_parent_species() decides 
+                   which species should produce the 
+                   next offspring
+                2) reproduce_one(...) creates a 
+                   single offspring from the chosen 
+                   species    
+                ------------------------------------*/    
                 new_org=(io_main_data->pop_info.population->choose_parent_species())->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
                 io_main_data->pop_info.offspring_count++;
 
@@ -862,17 +890,15 @@ void update_hubs
     Local Variables
     ------------------------------------------------*/
     Uint8               i;                  /* loop counter                     */
+    double              h_lvl;              /* horizontal output level          */
+    SDL_Keycode         key;                /* key being pressed                */
     int                 min_dist;           /* minimum distance                 */
+    Organism           *new_org;            /* new organism being created       */
     Position            new_pos;            /* new position                     */
     Hub                *p_hub_1;            /* first pointer to a hub           */
     Hub                *p_hub_2;            /* second pointer to a hub          */
-    
-  Organism *new_org;
-  Organism *p_org;
-  SDL_Keycode key;
-  double v_lvl;
-  double h_lvl;
-  
+    Organism           *p_org;              /* pointer to an organism           */    
+    double              v_lvl;              /* vertical output level            */  
     
     /*------------------------------------------------
     Update Hubs
@@ -889,6 +915,10 @@ void update_hubs
             p_org->fitness = p_hub_1->items_collected * 1000 + p_hub_1->health - 2000;
             }
         
+        /*----------------------------------------
+        Save genome if this organism is the most
+        superior discovered
+        ----------------------------------------*/
         if( io_main_data->max_fit < p_org->fitness )
             {
             io_main_data->max_fit = p_org->fitness;
@@ -918,7 +948,7 @@ void update_hubs
             }            
 
         /*----------------------------------------
-        A hub with more than 200 health should
+        A hub with more than 2000 health should
         create a new 'child' hub
         ----------------------------------------*/
         if( ( p_hub_1->health >= 2000 )
@@ -932,10 +962,18 @@ void update_hubs
             p_hub_2->init();
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
             io_main_data->hub_info.hub_count++;
+                
+            /*------------------------------------
+            Create the child brain
 
-            //Here we call two rtNEAT calls: 
-            //1) choose_parent_species() decides which species should produce the next offspring
-            //2) reproduce_one(...) creates a single offspring fromt the chosen species    
+            Here we call two rtNEAT calls: 
+            1) choose_parent_species() decides 
+                which species should produce the 
+                next offspring
+            2) reproduce_one(...) creates a 
+                single offspring from the chosen 
+                species    
+            ------------------------------------*/    
             new_org=(io_main_data->pop_info.population->choose_parent_species())->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
             io_main_data->pop_info.offspring_count++;
 
@@ -951,9 +989,10 @@ void update_hubs
             Remove health from the parent
             ------------------------------------*/
             p_hub_1->health -= 1000;
-                
+        
             /*------------------------------------
-            Print the parent genome
+            Save genome if this organism is able
+            to produce a child
             ------------------------------------*/
             string file = "C://Users//infof//Documents//Git//Tesselations//output//CHILD_PARENT_";
             file += to_string(p_hub_1->items_collected);
@@ -971,12 +1010,16 @@ void update_hubs
         p_org->net->activate();
 
         /*----------------------------------------
-        Move and render the current hub
-        ----------------------------------------*/
-        
+        Read the weights of the horizontal and 
+        vertical motion outputs
+        ----------------------------------------*/        
         v_lvl = (p_org->net->outputs.at( 0 ))->activation;
         h_lvl = (p_org->net->outputs.at( 1 ))->activation; 
-
+        
+        /*----------------------------------------
+        Simualte the keypress of the direction 
+        with the maximum weight
+        ----------------------------------------*/
         if( ( v_lvl != 0.0 )
          && ( h_lvl != 0.0 ) )
             {
@@ -1005,6 +1048,9 @@ void update_hubs
             p_hub_1->handle_key( key ); 
             }
              
+        /*----------------------------------------
+        Move and render the current hub
+        ----------------------------------------*/
         p_hub_1->move( time_step );
         p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data );
         }
@@ -1027,32 +1073,47 @@ void update_species
     main_data           *io_main_data       /* main data                        */
 )
     {
-    vector<Organism*>::iterator curorg;
-    //Real-time evolution variables            
-    Organism *new_org;
-
-    //thecart->nmarkov_long=false;
-    //thecart->generalization_test=false;
-
-    //We try to keep the number of species constant at this number                                                    
-    int num_species_target=NEAT::pop_size/15;
+    /*------------------------------------------------
+    Local Variables
+    ------------------------------------------------*/
+    int                 compat_adjust_frequency;
+                                            /* frequency of compatibility       */
+                                            /*  adjustment                      */
+    double              compat_mod;         /* speciation control threshold     */
+    vector<Organism*>::iterator 
+                        curorg;             /* current organisim               */
+    int                 num_species;        /* current number of species       */
+    int                 num_species_target; /* target number of species        */
+    
+    /*------------------------------------------------
+    Initialization
+    ------------------------------------------------*/                                                
+    num_species_target=NEAT::pop_size/15;
   
-    //This is where we determine the frequency of compatibility threshold adjustment
-    int compat_adjust_frequency = NEAT::pop_size/10;
+    /*------------------------------------------------
+    This is where we determine the frequency of 
+    compatibility threshold adjustment
+    ------------------------------------------------*/
+    compat_adjust_frequency = NEAT::pop_size/10;
     if (compat_adjust_frequency < 1)
         {
         compat_adjust_frequency = 1;
         }
-
-    //Every pop_size reproductions, adjust the compat_thresh to better match the num_species_targer
-    //and reassign the population to new species                                              
+        
+    /*------------------------------------------------
+    Every pop_size reproductions, adjust the 
+    compat_thresh to better match the 
+    num_species_target and reassign the population to
+    new species                                            
+    ------------------------------------------------*/  
     if (io_main_data->pop_info.offspring_count % compat_adjust_frequency == 0) 
         {
-
-        int num_species = io_main_data->pop_info.population->species.size();
-        double compat_mod=0.1;  //Modify compat thresh to control speciation                                                     
-
-        // This tinkers with the compatibility threshold 
+        num_species = io_main_data->pop_info.population->species.size();
+        compat_mod=0.1;                                            
+        
+    /*------------------------------------------------
+    This tinkers with the compatibility threshold 
+    ------------------------------------------------*/
         if (num_species < num_species_target) 
             {
 	        NEAT::compat_threshold -= compat_mod;
@@ -1068,20 +1129,30 @@ void update_species
         }
 
     cout<<"compat_thresh = "<<NEAT::compat_threshold<<endl;
-
-    //Go through entire population, reassigning organisms to new species                                                  
+    
+    /*------------------------------------------------
+    Go through entire population, reassigning 
+    organisms to new species       
+    ------------------------------------------------*/                                           
     for (curorg = (io_main_data->pop_info.population->organisms).begin(); curorg != io_main_data->pop_info.population->organisms.end(); ++curorg) 
         {
 	    io_main_data->pop_info.population->reassign_species(*curorg);
         }
     }                                                                          
      
-
-    //Rank all the organisms from best to worst in each species
+    /*------------------------------------------------
+    Rank all the organisms from best to worst in each 
+    species
+    ------------------------------------------------*/
     io_main_data->pop_info.population->rank_within_species();  
-
-    //Assign each species an average fitness 
-    //This average must be kept up-to-date by rtNEAT in order to select species probabailistically for reproduction
+    
+    /*------------------------------------------------
+    Assign each species an average fitness 
+    
+    This average must be kept up-to-date by rtNEAT 
+    in order to select species probabailistically for
+    reproduction
+    ------------------------------------------------*/
     io_main_data->pop_info.population->estimate_all_averages();   
 
 }    /* update_species */
