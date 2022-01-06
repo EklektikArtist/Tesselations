@@ -553,6 +553,7 @@ void init_brains
     vector<Species*>::iterator 
                         curspec;            /* used in printing out debug info  */                 
     char                curword[20];        /* current read in word             */
+    char               *gene_loc;           /* full gene path                   */
     int                 id;                 /* genome id                        */
     ifstream            iFile;              /* input file                       */
     Genome             *start_genome;       /* starting genome                  */                                         
@@ -560,7 +561,9 @@ void init_brains
     /*------------------------------------------------
     Open the starting genome file
     ------------------------------------------------*/
-    iFile.open( "C://Users//infof//Documents//Git//Tesselations//genes//tessstartgenes", std::ifstream::in );
+    gene_loc = (char *)malloc( MAX_STR_LEN );
+    snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
+    iFile.open( gene_loc, std::ifstream::in );
     
     /*------------------------------------------------
     Read in the start Genome
@@ -788,7 +791,7 @@ void main_loop
             {
             p_item = &io_main_data->item_info.items[ i ];
             p_item->render( &io_main_data->sim_data );
-            }
+            } 
 
         /*--------------------------------------------
         Check Tess <-> Tess Collisions
@@ -899,6 +902,7 @@ void update_hubs
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/
+    string              file;               /* output file                      */ 
     Uint8               i;                  /* loop counter                     */
     double              h_lvl;              /* horizontal output level          */
     SDL_Keycode         key;                /* key being pressed                */
@@ -933,7 +937,8 @@ void update_hubs
             {
             io_main_data->statistics.max_fit = p_org->fitness;
             
-            string file = "C://Users//infof//Documents//Git//Tesselations//output//";
+            file = ROOT_PATH;
+            file += "output//";
             file += to_string(p_hub_1->items_collected);
             file += "_";
             file += to_string( p_hub_1->health );
@@ -1004,7 +1009,8 @@ void update_hubs
             Save genome if this organism is able
             to produce a child
             ------------------------------------*/
-            string file = "C://Users//infof//Documents//Git//Tesselations//output//CHILD_PARENT_";
+            file = ROOT_PATH;
+            file += "output//CHILD_PARENT_";
             file += to_string(p_hub_1->items_collected);
             file += "_";
             file += to_string( p_hub_1->health );

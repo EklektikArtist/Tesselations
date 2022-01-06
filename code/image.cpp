@@ -99,7 +99,7 @@ static bool load_image
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        img_path = "C:/Users/infof/Documents/Git/Tesselations/images";
+        img_path = "images";
         }
     else
         {
@@ -110,7 +110,7 @@ static bool load_image
     Create the full image path
     ------------------------------------------------*/
     img_loc = (char *)malloc( MAX_STR_LEN );
-    snprintf( img_loc, MAX_STR_LEN, "%s/%s", img_path, i_image_name );
+    snprintf( img_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, img_path, i_image_name );
 
     /*------------------------------------------------
     Load the image

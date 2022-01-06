@@ -98,7 +98,7 @@ static bool load_font
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        font_path = "C:/Users/infof/Documents/Git/Tesselations/fonts";
+        font_path = "fonts";
         }
     else
         {
@@ -109,7 +109,7 @@ static bool load_font
     Create the full font path
     ------------------------------------------------*/
     font_loc = (char *)malloc( MAX_STR_LEN );
-    snprintf( font_loc, MAX_STR_LEN, "%s/%s", font_path, i_font_name );
+    snprintf( font_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, font_path, i_font_name );
 
     /*------------------------------------------------
     Load the font
