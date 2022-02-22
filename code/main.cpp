@@ -63,6 +63,12 @@ void handle_tess_item_collisions
     main_data           *io_main_data       /* main data                        */
 );
 
+void create_pop
+(
+    main_data           *io_main_data,      /* main data                        */
+    Genome 				*gnome
+);
+
 void handle_tess_tess_collisions
 (
     main_data           *io_main_data       /* main data                        */
@@ -70,7 +76,8 @@ void handle_tess_tess_collisions
 
 void init_brains
 (
-    main_data          *io_main_data        /* main data                        */
+    main_data          *io_main_data,        /* main data                        */
+    Genome 				*gnome
 );
 
 void init_sim_data
@@ -111,6 +118,22 @@ void update_species
     main_data          *io_main_data       /* main data                        */
 );
 
+
+/*--------------------------------------------------------------------------------
+Enumerations
+--------------------------------------------------------------------------------*/
+typedef int inputs_t8;
+enum
+    {
+    INPUTS_NUM_ENEMIES                  = 0,
+    INPUTS_X_DIST_NRST_ENEMY,
+    INPUTS_Y_DIST_NRST_ENEMY,
+    INPUTS_NUM_ITEMS,
+    INPUTS_X_DIST_NRST_ITEM,
+    INPUTS_Y_DIST_NRST_ITEM,
+    INPUTS_CNT
+    };
+
 /*--------------------------------------------------------------------------------
 Procedures
 --------------------------------------------------------------------------------*/
@@ -135,7 +158,12 @@ int main
     Local Variables
     ------------------------------------------------*/
     main_data           main_sim_data;     /* simulation data                  */
-    int                 i;                 /* loop counter                     */
+    int                 i;                 /* loop counter                     */               
+    char                curword[20];        /* current read in word             */
+    char               *gene_loc;           /* full gene path                   */
+    int                 id;                 /* genome id                        */
+    ifstream            iFile;              /* input file                       */
+    Genome             *start_genome;       /* starting genome                  */  
 
     /*------------------------------------------------
     Print out startup status info
@@ -163,19 +191,26 @@ int main
     Load Fonts
     ------------------------------------------------*/
     load_all_fonts( &main_sim_data );
-    check_or_error( main_sim_data.sim_data.running, "Failed to get all images" );
-
+    check_or_error( main_sim_data.sim_data.running, "Failed to get all images" );      
+    
     /*------------------------------------------------
-    Set up hubs
+    Open the starting genome file
     ------------------------------------------------*/
-    main_sim_data.hub_info.hubs[ 0 ].init();
-    main_sim_data.hub_info.hubs[ 0 ].get_sprite()->set_pos( 100, 0 );
-    main_sim_data.hub_info.hubs[ 1 ].init();
-    main_sim_data.hub_info.hubs[ 1 ].get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
-    main_sim_data.hub_info.hubs[ 1 ].get_sprite()->set_pos( 100, 100 );
+    gene_loc = (char *)malloc( MAX_STR_LEN );
+    snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
+    iFile.open( gene_loc, std::ifstream::in );
+    
+    /*------------------------------------------------
+    Read in the start Genome
+    ------------------------------------------------*/
+    cout<<"Reading in the start genome"<<endl;
+    iFile>>curword;
+    iFile>>id;
+    cout<<"Reading in Genome id "<<id<<endl;
+    start_genome=new Genome(id,iFile);
+    iFile.close();
 
-    main_sim_data.hub_info.hub_count = 2;
-    main_sim_data.hub_info.selected_hub = 0;
+    create_pop( &main_sim_data, start_genome );
 
     /*------------------------------------------------
     Set up items
@@ -185,13 +220,8 @@ int main
     for( i = 0; i < main_sim_data.item_info.item_count; i++ )
         {
         main_sim_data.item_info.items[ i ].init();
-        main_sim_data.item_info.items[ i ].handle_collision();
+        main_sim_data.item_info.items[ i ].handle_collision();  
         }
-
-    /*------------------------------------------------
-    Set up brains
-    ------------------------------------------------*/
-    init_brains( &main_sim_data );
 
     /*------------------------------------------------
     Run Simulation
@@ -211,6 +241,43 @@ int main
     }    /* main */
 
 
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        create_pop
+
+    Description:
+        Update hub inputs for latest events
+
+--------------------------------------------------------------------------------*/
+
+void create_pop
+(
+    main_data           *io_main_data,      /* main data                        */
+    Genome 				*gnome
+)
+    {
+
+    /*------------------------------------------------
+    Set up hubs
+    ------------------------------------------------*/
+    for( int i = 0; i < MAX_HUBS; i++ )
+        {
+        io_main_data->hub_info.hubs[ i ].init();
+        io_main_data->hub_info.hubs[ i ].get_sprite()->set_pos( rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT );
+        }
+
+    io_main_data->hub_info.hub_count = MAX_HUBS;
+    io_main_data->hub_info.selected_hub = 0;
+
+    /*------------------------------------------------
+    Set up brains
+    ------------------------------------------------*/
+    init_brains( io_main_data, gnome );
+    }
+
+
 /*--------------------------------------------------------------------------------
 
     Name:
@@ -221,33 +288,19 @@ int main
 
 --------------------------------------------------------------------------------*/
 
-double * get_sensor_data
+void get_sensor_data
 (
     main_data           *io_main_data,      /* main data                        */
-    Hub                 *i_hub              /* first pointer to a hub           */
+    Hub                 *i_hub,              /* first pointer to a hub           */
+    double              *io_sensvals
 )
     {
-    /*------------------------------------------------
-    Local Enums
-    ------------------------------------------------*/
-    typedef int inputs_t8;
-    enum
-        {
-        INPUTS_NUM_ENEMIES                  = 0,
-        INPUTS_X_DIST_NRST_ENEMY,
-        INPUTS_Y_DIST_NRST_ENEMY,
-        INPUTS_NUM_ITEMS,
-        INPUTS_X_DIST_NRST_ITEM,
-        INPUTS_Y_DIST_NRST_ITEM,
-        INPUTS_CNT
-        };
     
     /*------------------------------------------------
     Local Variables
     ------------------------------------------------*/    
     float                dist;              /* distance between hubs            */
     int                  i;                 /* iterator                         */
-    double               input[INPUTS_CNT]; /* hub inputs                       */
     float                min_dist;          /* minimum distance between hubs    */
     Hub                 *nearest_hub;       /* pointer to nearest hub           */
     Item                *nearest_item;      /* pointer to nearest item          */
@@ -300,34 +353,33 @@ double * get_sensor_data
     /*------------------------------------------------
     Update hub related inputs
     ------------------------------------------------*/
-    input[ INPUTS_NUM_ENEMIES ] = io_main_data->hub_info.hub_count - 1;
+    io_sensvals[ INPUTS_NUM_ENEMIES ] = io_main_data->hub_info.hub_count - 1;
     if( io_main_data->hub_info.hub_count > 1 )
         {
-        input[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x();
-        input[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y();
+        io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x();
+        io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y();
         }
     else
         {
-        input[ INPUTS_X_DIST_NRST_ENEMY ] = min_dist;        
-        input[ INPUTS_Y_DIST_NRST_ENEMY ] = min_dist;
+        io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = min_dist;        
+        io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = min_dist;
         }
     
     /*------------------------------------------------
     Update item related inputs
     ------------------------------------------------*/
-    input[ INPUTS_NUM_ITEMS ] = io_main_data->item_info.item_count - 1;
+    io_sensvals[ INPUTS_NUM_ITEMS ] = io_main_data->item_info.item_count - 1;
     if( io_main_data->item_info.item_count > 1 )
         {
-        input[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x();
-        input[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y();
+        io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x();
+        io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y();
         }
     else
         {
-        input[ INPUTS_X_DIST_NRST_ITEM ] = min_dist;        
-        input[ INPUTS_Y_DIST_NRST_ITEM ] = min_dist;
+        io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = min_dist;        
+        io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = min_dist;
         }
 
-    return( input );
 
     }    /* get_sensor_data */
 
@@ -544,60 +596,39 @@ void handle_tess_tess_collisions
 
 void init_brains
 (
-    main_data          *io_main_data        /* main data                        */
+    main_data          *io_main_data,        /* main data                        */
+    Genome 				*gnome
 )
     {    
-    /*------------------------------------------------
-    Local Variables
-    ------------------------------------------------*/
     vector<Species*>::iterator 
-                        curspec;            /* used in printing out debug info  */                 
-    char                curword[20];        /* current read in word             */
-    char               *gene_loc;           /* full gene path                   */
-    int                 id;                 /* genome id                        */
-    ifstream            iFile;              /* input file                       */
-    Genome             *start_genome;       /* starting genome                  */                                         
-    
-    /*------------------------------------------------
-    Open the starting genome file
-    ------------------------------------------------*/
-    gene_loc = (char *)malloc( MAX_STR_LEN );
-    snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
-    iFile.open( gene_loc, std::ifstream::in );
-    
-    /*------------------------------------------------
-    Read in the start Genome
-    ------------------------------------------------*/
-    cout<<"Reading in the start genome"<<endl;
-    iFile>>curword;
-    iFile>>id;
-    cout<<"Reading in Genome id "<<id<<endl;
-    start_genome=new Genome(id,iFile);
-    iFile.close();
-
-    cout<<"Start Genome: "<<start_genome<<endl;
+                        curspec;            /* used in printing out debug info  */  
     
     /*------------------------------------------------
     Spawn the Population from starter gene
     ------------------------------------------------*/
-    cout<<"Spawning Population off Genome"<<endl;
-    io_main_data->pop_info.population = new Population(start_genome, io_main_data->hub_info.hub_count );
+    //cout<<"Spawning Population off Genome"<<endl;
+    io_main_data->pop_info.population = new Population(gnome, io_main_data->hub_info.hub_count );
     io_main_data->pop_info.offspring_count = 0;
 
-    cout<<"Verifying Spawned Pop"<<endl;
+    //cout<<"Verifying Spawned Pop"<<endl;
     io_main_data->pop_info.population->verify();
 
     update_species( io_main_data );
-    
+
+    /*------------------------------------------------
+    Create Champion Species
+    ------------------------------------------------*/
+    //io_main_data->champions
+
     /*------------------------------------------------
     //For printing only
     ------------------------------------------------*/
-    for(curspec=(io_main_data->pop_info.population->species).begin();curspec!=(io_main_data->pop_info.population->species).end();curspec++) 
+   /* for(curspec=(io_main_data->pop_info.population->species).begin();curspec!=(io_main_data->pop_info.population->species).end();curspec++) 
         {
         cout<<"Species "<<(*curspec)->id<<" size: "<<(*curspec)->organisms.size()<<" average: "<<(*curspec)->average_est<<endl;
         }
 
-    cout<<"Pop size: "<<io_main_data->pop_info.population->organisms.size()<<endl;
+    cout<<"Pop size: "<<io_main_data->pop_info.population->organisms.size()<<endl;*/
 
     }    /* init_brains */
 
@@ -807,37 +838,47 @@ void main_loop
         Get latest events
         --------------------------------------------*/
         handle_events( io_main_data );
-        if( io_main_data->hub_info.hub_count < 5 )
+        if( io_main_data->hub_info.hub_count == 0 )
             {           
-            for( i = 0; i < 1; i++ )
-                {
-                /*------------------------------------
-                Create the child hub
-                ------------------------------------*/
-                p_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
-                p_hub->init();
-                p_hub->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
-                io_main_data->hub_info.hub_count++;
+            /*------------------------------------
+            Create the child hub
+            ------------------------------------*/
+            p_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
+            p_hub->init();
+            p_hub->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
+            io_main_data->hub_info.hub_count++;
                 
-                /*------------------------------------
-                Create the child brain
+            /*------------------------------------
+            Create the child brain
 
-                Here we call two rtNEAT calls: 
-                1) choose_parent_species() decides 
-                   which species should produce the 
-                   next offspring
-                2) reproduce_one(...) creates a 
-                   single offspring from the chosen 
-                   species    
-                ------------------------------------*/    
+            Here we call two rtNEAT calls: 
+            1) choose_parent_species() decides 
+                which species should produce the 
+                next offspring
+            2) reproduce_one(...) creates a 
+                single offspring from the chosen 
+                species    
+            ------------------------------------*/    
+            if( io_main_data->champions.size() == 0 )
+                {
                 new_org=(io_main_data->pop_info.population->choose_parent_species())->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
                 io_main_data->pop_info.offspring_count++;
-
-                /*------------------------------------
-                Place the child below the parent
-                ------------------------------------*/                
-                p_hub->get_sprite()->set_pos( rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT );
                 }
+            else
+                {       
+                Genome *champ_parent = NULL ;
+                for(int j = io_main_data->champions.size() - 1 ; j >= 0; j--)
+                    {
+                    if( io_main_data->champions.at( j ) != NULL )
+                        {
+                        champ_parent = io_main_data->champions.at( j );
+                        break;
+                        }
+                    }
+                create_pop( io_main_data, champ_parent );
+                }
+                continue;
+                
             }
 
         /*--------------------------------------------
@@ -945,6 +986,7 @@ void update_hubs
             file += ".txt";
             cout<<"Max Fit: " << io_main_data->statistics.max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
             print_Genome_tofile( p_org->gnome, file.c_str() );
+            io_main_data->champions.push_back( (p_org->gnome)->duplicate( 0 ) );
             }
 
         /*----------------------------------------
@@ -959,6 +1001,7 @@ void update_hubs
             {
             remove_hub( io_main_data, i );
             io_main_data->pop_info.population->remove_org( io_main_data->pop_info.population->organisms.at( i ) );
+            i--;
             continue;
             }            
 
@@ -1022,7 +1065,9 @@ void update_hubs
         /*----------------------------------------
         Load the sensor 
         ----------------------------------------*/
-        p_org->net->load_sensors( get_sensor_data( io_main_data, p_hub_1 ) );
+        double sensvals[ INPUTS_CNT ];
+        get_sensor_data( io_main_data, p_hub_1, sensvals );
+        p_org->net->load_sensors( sensvals );
         p_org->net->activate();
 
         /*----------------------------------------
@@ -1144,7 +1189,7 @@ void update_species
 	    NEAT::compat_threshold = 0.3;
         }
 
-    cout<<"compat_thresh = "<<NEAT::compat_threshold<<endl;
+    //cout<<"compat_thresh = "<<NEAT::compat_threshold<<endl;
     
     /*------------------------------------------------
     Go through entire population, reassigning 

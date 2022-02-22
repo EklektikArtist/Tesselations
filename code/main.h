@@ -19,6 +19,7 @@ External Libraries
 ------------------------------------------------*/
 #include <SDL_ttf.h>
 #include "population.h"
+#include "species.h"
 
 /*------------------------------------------------
 Project Headers
@@ -38,7 +39,7 @@ using namespace NEAT;
 Constants
 --------------------------------------------------------------------------------*/
 #define                 WINDOWS             true
-#define                 MAX_HUBS            10
+#define                 MAX_HUBS            25
 #define                 MAX_ITEMS           50
 #define                 ROOT_PATH           "T:/tesselations/"
 //#define               ROOT_PATH           "C:/Users/infof/Documents/Git/Tesselations/"
@@ -77,6 +78,8 @@ struct main_data
     hub_data            hub_info;           /* hub data                         */
     item_data           item_info;          /* item data                        */
     population_data     pop_info;           /* population data                  */
+    std::vector<Genome*> 
+                        champions;          /* champion list                    */
     resource_data       resources;          /* resource data                    */
     statistic_data      statistics;         /* statitstic records               */
 

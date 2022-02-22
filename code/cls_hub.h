@@ -342,7 +342,7 @@ class Hub
     void
     )
         {
-        sprite.init( 0, 0, 25 );
+        sprite.init( 0, 0, 10 );
         drag_ratio = .01f;
         text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
         speedx = 0;
