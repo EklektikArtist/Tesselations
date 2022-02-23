@@ -297,7 +297,7 @@ class Hub
                     {
                     speedy -= 5;
                     heading = PI / 2.0f;
-                    health -= 5;
+                    //health -= 5;
                     }
                 break;
                 
@@ -309,7 +309,7 @@ class Hub
                     {
                     speedy += 5;        
                     heading = 3.0f * PI / 2.0f;
-                    health -= 5;
+                    //health -= 5;
                     }
                 break;
                 
@@ -321,7 +321,7 @@ class Hub
                     {
                     speedx -= 5;
                     heading = 0.0f;
-                    health -= 5;
+                    //health -= 5;
                     }
                 break;
                 
@@ -333,7 +333,7 @@ class Hub
                     {
                     speedx += 5;
                     heading = PI;
-                    health -= 5;
+                    //health -= 5;
                     }
                 break;
             }
