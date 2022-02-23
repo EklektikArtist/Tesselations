@@ -159,7 +159,8 @@ class Circle
 
     public: void render
     (
-    sim_data           *io_sim_data         /* simulation data                  */
+    sim_data           *io_sim_data,        /* simulation data                  */
+    Position           *camera              /* camera                           */
     )
         {        
         /*--------------------------------------------
@@ -169,8 +170,8 @@ class Circle
 
         /*--------------------------------------------
         Render the circle to the screen
-        --------------------------------------------*/      
-        SDL_RenderFillRect( io_sim_data->renderer, &bbox );
+        --------------------------------------------*/
+        SDL_RenderFillRect( io_sim_data->renderer, &bbox_shift( camera ) );
         }
           
     
@@ -279,5 +280,30 @@ class Circle
                  pos.get_y() - radius,
                  radius * 2,
                  radius * 2 };
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_radius
+
+    Description:
+        Return the circle's radius
+
+    ----------------------------------------------------------------------------*/
+
+    public: SDL_Rect bbox_shift
+    (
+    Position           *shift_pos           /* shift position                   */
+    )
+        {
+        SDL_Rect ret_rect
+         = { pos.get_x() - radius - shift_pos->get_x(),
+                 pos.get_y() - radius - shift_pos->get_y(),
+                 radius * 2,
+                 radius * 2 };
+
+        return( ret_rect );
         }
     };

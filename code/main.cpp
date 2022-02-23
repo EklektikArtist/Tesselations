@@ -134,6 +134,17 @@ enum
     INPUTS_CNT
     };
 
+
+typedef int outputs_t8;
+enum
+    {
+    OUTPUTS_UP                  = 0,
+    OUTPUTS_DOWN,
+    OUTPUTS_LEFT,
+    OUTPUTS_RIGHT,
+    OUTPUTS_CNT
+    };
+
 /*--------------------------------------------------------------------------------
 Procedures
 --------------------------------------------------------------------------------*/
@@ -196,19 +207,19 @@ int main
     /*------------------------------------------------
     Open the starting genome file
     ------------------------------------------------*/
-    gene_loc = (char *)malloc( MAX_STR_LEN );
-    snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
-    iFile.open( gene_loc, std::ifstream::in );
+    //gene_loc = (char *)malloc( MAX_STR_LEN );
+    //snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
+    //iFile.open( gene_loc, std::ifstream::in );
     
     /*------------------------------------------------
     Read in the start Genome
     ------------------------------------------------*/
-    cout<<"Reading in the start genome"<<endl;
-    iFile>>curword;
-    iFile>>id;
-    cout<<"Reading in Genome id "<<id<<endl;
-    start_genome=new Genome(id,iFile);
-    iFile.close();
+    //cout<<"Reading in the start genome"<<endl;
+    //iFile>>curword;
+    //iFile>>id;
+    //cout<<"Reading in Genome id "<<id<<endl;
+    start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
+    //iFile.close();
 
     create_pop( &main_sim_data, start_genome );
 
@@ -265,7 +276,7 @@ void create_pop
     for( int i = 0; i < MAX_HUBS; i++ )
         {
         io_main_data->hub_info.hubs[ i ].init();
-        io_main_data->hub_info.hubs[ i ].get_sprite()->set_pos( rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT );
+        io_main_data->hub_info.hubs[ i ].get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
         }
 
     io_main_data->hub_info.hub_count = MAX_HUBS;
@@ -356,13 +367,13 @@ void get_sensor_data
     io_sensvals[ INPUTS_NUM_ENEMIES ] = io_main_data->hub_info.hub_count - 1;
     if( io_main_data->hub_info.hub_count > 1 )
         {
-        io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x();
-        io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y();
+        io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x() / 10;
+        io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y() / 10;
         }
     else
         {
-        io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = min_dist;        
-        io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = min_dist;
+        io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = min_dist / 10;        
+        io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = min_dist / 10;
         }
     
     /*------------------------------------------------
@@ -371,13 +382,13 @@ void get_sensor_data
     io_sensvals[ INPUTS_NUM_ITEMS ] = io_main_data->item_info.item_count - 1;
     if( io_main_data->item_info.item_count > 1 )
         {
-        io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x();
-        io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y();
+        io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x() / 10;
+        io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y() / 10;
         }
     else
         {
-        io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = min_dist;        
-        io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = min_dist;
+        io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = min_dist / 10;        
+        io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = min_dist / 10;
         }
 
 
@@ -758,6 +769,7 @@ void main_init
     ------------------------------------------------*/
     io_main_data->sim_data.window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
     io_main_data->sim_data.running = check_or_error( io_main_data->sim_data.window != NULL, "Could not create window", EH_SDL );
+    io_main_data->camera.init( 0, 0 );
 
     /*------------------------------------------------
     Create the main renderer
@@ -814,6 +826,43 @@ void main_loop
         Update hubs
         --------------------------------------------*/
         update_hubs( io_main_data, time_step );
+            SDL_Event e;
+
+                        //Handle events on queue
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    //User requests quit
+                    if( e.type == SDL_QUIT )
+                    {
+                        //quit = true;
+                    }
+                    //User presses a key
+                    else if( e.type == SDL_KEYDOWN )
+                    {
+                        //Select surfaces based on key press
+                        switch( e.key.keysym.sym )
+                        {
+                            case SDLK_COMMA:
+                                io_main_data->camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
+                                break;
+
+                            case SDLK_o:
+                                io_main_data->camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
+                                break;
+
+                            case SDLK_a:
+                                io_main_data->camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
+                                break;
+
+                            case SDLK_e:
+                                io_main_data->camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
+                                break;
+
+                            default:
+                            break;
+                        }
+                    }
+                }
 
         /*--------------------------------------------
         Update items
@@ -821,7 +870,7 @@ void main_loop
         for ( i = 0; i < io_main_data->item_info.item_count; i++ )
             {
             p_item = &io_main_data->item_info.items[ i ];
-            p_item->render( &io_main_data->sim_data );
+            p_item->render( &io_main_data->sim_data, &io_main_data->camera );
             } 
 
         /*--------------------------------------------
@@ -1073,47 +1122,52 @@ void update_hubs
         /*----------------------------------------
         Read the weights of the horizontal and 
         vertical motion outputs
-        ----------------------------------------*/        
-        v_lvl = (p_org->net->outputs.at( 0 ))->activation;
-        h_lvl = (p_org->net->outputs.at( 1 ))->activation; 
+        ----------------------------------------*/   
+        outputs_t8 max = OUTPUTS_CNT;
+        double max_weight = 0;
+        i = 0;
+        for( auto & otp : p_org->net->outputs )
+            {
+            if( otp->activation > max_weight )
+                {
+                max = i;
+                max_weight = otp->activation;
+                }
+            i++;
+            }
         
         /*----------------------------------------
         Simualte the keypress of the direction 
         with the maximum weight
         ----------------------------------------*/
-        if( ( v_lvl != 0.0 )
-         && ( h_lvl != 0.0 ) )
+        key = SDLK_UNKNOWN;
+        switch( max )
             {
-            if( v_lvl > h_lvl )
-                {
-                if( v_lvl > 0.5)
-                    {
-                    key = SDLK_UP;
-                    }
-                else
-                    {
-                    key = SDLK_DOWN;
-                    }
-                }
-            else
-                {
-                if( h_lvl > 0.5 )
-                    {
-                    key = SDLK_RIGHT;
-                    }
-                else
-                    {
-                    key = SDLK_LEFT;
-                    }
-                }
-            p_hub_1->handle_key( key ); 
+            case OUTPUTS_UP:
+                key = SDLK_UP;
+                break;
+                
+            case OUTPUTS_DOWN:
+                key = SDLK_DOWN;
+                break;
+                
+            case OUTPUTS_LEFT:
+                key = SDLK_LEFT;
+                break;
+                
+            case OUTPUTS_RIGHT:
+                key = SDLK_RIGHT;
+                break;
+
             }
+        p_hub_1->handle_key( key ); 
+            
              
         /*----------------------------------------
         Move and render the current hub
         ----------------------------------------*/
         p_hub_1->move( time_step );
-        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data );
+        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data, &io_main_data->camera );
         }
 
     }    /* update_hubs */

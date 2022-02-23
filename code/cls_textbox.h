@@ -117,7 +117,8 @@ class TextBox
     public: void render
     (
     resource_data      *i_resource_data,    /* resource data                    */
-    sim_data           *io_sim_data         /* simulation data                  */
+    sim_data           *io_sim_data,        /* simulation data                  */
+    Position           *camera              /* camera                           */
     )
         {       
         /*--------------------------------------------
@@ -140,7 +141,7 @@ class TextBox
         /*--------------------------------------------
         Render the texture to the screen 
         --------------------------------------------*/   
-        SDL_RenderCopy( io_sim_data->renderer, gTextOutput, NULL, &textbox );
+        SDL_RenderCopy( io_sim_data->renderer, gTextOutput, NULL, &bbox_shift( camera ) );
 
         /*--------------------------------------------
         Free Memory
@@ -190,5 +191,30 @@ class TextBox
         {
         text = i_new_str;
         }    
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_radius
+
+    Description:
+        Return the circle's radius
+
+    ----------------------------------------------------------------------------*/
+
+    public: SDL_Rect bbox_shift
+    (
+    Position           *shift_pos           /* shift position                   */
+    )
+        {
+        SDL_Rect ret_rect
+             = { textbox.x - shift_pos->get_x(),
+                 textbox.y - shift_pos->get_y(),
+                 textbox.w,
+                 textbox.h };
+
+        return( ret_rect );
+        }
 
 };

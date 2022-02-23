@@ -76,7 +76,7 @@ class Item
     void
     )
         {
-        sprite.set_pos( rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT );
+        sprite.set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
         }
     
 
@@ -113,10 +113,11 @@ class Item
 
     public: void render
     (
-    sim_data           *io_sim_data         /* simulation data                  */
+    sim_data           *io_sim_data,        /* simulation data                  */
+    Position           *camera              /* camera                           */
     )
         {
-        sprite.render( io_sim_data );
+        sprite.render( io_sim_data, camera );
         }
 
 };

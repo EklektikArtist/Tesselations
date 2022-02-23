@@ -25,6 +25,10 @@ Local Constants
                                             /* initial width of screen          */
 #define             SCREEN_HEIGHT           500
                                             /* initial height of screen         */
+#define             WORLD_WIDTH             800
+                                            /* initial width of world           */
+#define             WORLD_HEIGHT            500
+                                            /* initial height of world          */
 
 
 /*--------------------------------------------------------------------------------
@@ -268,13 +272,13 @@ class Position
         If the new position is past the edge of the
         screen, set the position to the closest edge
         --------------------------------------------*/
-        if( i_xp >= SCREEN_WIDTH )
+        if( i_xp >= WORLD_WIDTH )
             {
-            x = SCREEN_WIDTH;
+            x = 0;
             }
         else if( i_xp <= 0 )
             {
-            x = 0;
+            x = WORLD_WIDTH;
             } 
         else
             {
@@ -306,13 +310,13 @@ class Position
         If the new position is past the edge of the
         screen, set the position to the closest edge
         --------------------------------------------*/
-        if( i_xp >= SCREEN_WIDTH - i_x_buff )
+        if( i_xp >= WORLD_WIDTH - i_x_buff )
             {
-            x = SCREEN_WIDTH - i_x_buff;
+            x = 0;
             }
         else if( i_xp <= 0 )
             {
-            x = 0;
+            x = WORLD_WIDTH - i_x_buff;
             } 
         else
             {
@@ -343,13 +347,13 @@ class Position
         If the new position is past the edge of the
         screen, set the position to the closest edge
         --------------------------------------------*/
-        if( i_yp >= SCREEN_HEIGHT )
+        if( i_yp >= WORLD_HEIGHT )
             {
-            y = SCREEN_HEIGHT;
+            y = 0;
             }
         else if( i_yp <= 0 )
             {
-            y = 0;
+            y = WORLD_HEIGHT;
             }            
         else
             {
@@ -380,13 +384,13 @@ class Position
         If the new position is past the edge of the
         screen, set the position to the closest edge
         --------------------------------------------*/
-        if( i_yp >= SCREEN_HEIGHT - i_y_buff )
+        if( i_yp >= WORLD_HEIGHT - i_y_buff )
             {
-            y = SCREEN_HEIGHT - i_y_buff;
+            y = 0;
             }
         else if( i_yp <= 0 )
             {
-            y = 0;
+            y = WORLD_HEIGHT - i_y_buff;
             }            
         else
             {

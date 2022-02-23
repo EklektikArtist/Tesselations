@@ -41,8 +41,8 @@ Constants
 #define                 WINDOWS             true
 #define                 MAX_HUBS            25
 #define                 MAX_ITEMS           50
-#define                 ROOT_PATH           "T:/tesselations/"
-//#define               ROOT_PATH           "C:/Users/infof/Documents/Git/Tesselations/"
+//#define                 ROOT_PATH           "T:/tesselations/"
+#define               ROOT_PATH           "C:/Users/infof/Documents/Git/Tesselations/"
 
 /*--------------------------------------------------------------------------------
 Types
@@ -82,6 +82,7 @@ struct main_data
                         champions;          /* champion list                    */
     resource_data       resources;          /* resource data                    */
     statistic_data      statistics;         /* statitstic records               */
+    Position            camera;             /* camera                           */
 
     };
 

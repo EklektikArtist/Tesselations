@@ -293,36 +293,48 @@ class Hub
             Handle up arrow press
             --------------------------------------------*/
             case SDLK_UP:
-                speedy = -50;
-                heading = PI / 2.0f;
-                health -= 5;
+                if( abs(speedy) < 13 )
+                    {
+                    speedy -= 5;
+                    heading = PI / 2.0f;
+                    health -= 5;
+                    }
                 break;
                 
             /*--------------------------------------------
             Handle down arrow press
             --------------------------------------------*/
             case SDLK_DOWN:
-                speedy = 50;        
-                heading = 3.0f * PI / 2.0f;
-                health -= 5;
+                if( abs(speedy) < 13 )
+                    {
+                    speedy += 5;        
+                    heading = 3.0f * PI / 2.0f;
+                    health -= 5;
+                    }
                 break;
                 
             /*--------------------------------------------
             Handle left arrow press
             --------------------------------------------*/
             case SDLK_LEFT:
-                speedx = -50;
-                heading = 0.0f;
-                health -= 5;
+                if( abs(speedx) < 13 )
+                    {
+                    speedx -= 5;
+                    heading = 0.0f;
+                    health -= 5;
+                    }
                 break;
                 
             /*--------------------------------------------
             Handle right arrow press
             --------------------------------------------*/
             case SDLK_RIGHT:
-                speedx = 50;
-                heading = PI;
-                health -= 5;
+                if( abs(speedx) < 13 )
+                    {
+                    speedx += 5;
+                    heading = PI;
+                    health -= 5;
+                    }
                 break;
             }
         }
@@ -343,7 +355,7 @@ class Hub
     )
         {
         sprite.init( 0, 0, 10 );
-        drag_ratio = .01f;
+        drag_ratio = .001f;
         text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
         speedx = 0;
         speedy = 0;
@@ -388,11 +400,12 @@ class Hub
     public: void render
     (
     resource_data      *i_resource_data,    /* resource data                    */
-    sim_data           *io_sim_data         /* simulation data                  */
+    sim_data           *io_sim_data,        /* simulation data                  */
+    Position           *camera              /* camera                           */
     )
         {
-        sprite.render( io_sim_data );
-        text_pos.render( i_resource_data, io_sim_data );
+        sprite.render( io_sim_data, camera );
+        text_pos.render( i_resource_data, io_sim_data, camera );
         }
     
 
