@@ -39,8 +39,8 @@ using namespace NEAT;
 Constants
 --------------------------------------------------------------------------------*/
 #define                 WINDOWS             true
-#define                 MAX_HUBS            25
-#define                 MAX_ITEMS           50
+#define                 MAX_HUBS            50
+#define                 MAX_ITEMS           200
 //#define                 ROOT_PATH           "T:/tesselations/"
 #define               ROOT_PATH           "C:/Users/infof/Documents/Git/Tesselations/"
 

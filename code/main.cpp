@@ -277,6 +277,8 @@ void create_pop
         {
         io_main_data->hub_info.hubs[ i ].init();
         io_main_data->hub_info.hubs[ i ].get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
+        io_main_data->hub_info.hubs[ i ].generation = 0;
+
         }
 
     io_main_data->hub_info.hub_count = MAX_HUBS;
@@ -826,43 +828,43 @@ void main_loop
         Update hubs
         --------------------------------------------*/
         update_hubs( io_main_data, time_step );
-            SDL_Event e;
+        SDL_Event e;
 
-                        //Handle events on queue
-                while( SDL_PollEvent( &e ) != 0 )
+        //Handle events on queue
+        while( SDL_PollEvent( &e ) != 0 )
+        {
+            //User requests quit
+            if( e.type == SDL_QUIT )
+            {
+                //quit = true;
+            }
+            //User presses a key
+            else if( e.type == SDL_KEYDOWN )
+            {
+                //Select surfaces based on key press
+                switch( e.key.keysym.sym )
                 {
-                    //User requests quit
-                    if( e.type == SDL_QUIT )
-                    {
-                        //quit = true;
-                    }
-                    //User presses a key
-                    else if( e.type == SDL_KEYDOWN )
-                    {
-                        //Select surfaces based on key press
-                        switch( e.key.keysym.sym )
-                        {
-                            case SDLK_COMMA:
-                                io_main_data->camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
-                                break;
+                    case SDLK_COMMA:
+                        io_main_data->camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
+                        break;
 
-                            case SDLK_o:
-                                io_main_data->camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
-                                break;
+                    case SDLK_o:
+                        io_main_data->camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
+                        break;
 
-                            case SDLK_a:
-                                io_main_data->camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
-                                break;
+                    case SDLK_a:
+                        io_main_data->camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
+                        break;
 
-                            case SDLK_e:
-                                io_main_data->camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
-                                break;
+                    case SDLK_e:
+                        io_main_data->camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
+                        break;
 
-                            default:
-                            break;
-                        }
-                    }
+                    default:
+                    break;
                 }
+            }
+        }
 
         /*--------------------------------------------
         Update items
@@ -910,21 +912,11 @@ void main_loop
             ------------------------------------*/    
             if( io_main_data->champions.size() == 0 )
                 {
-                new_org=(io_main_data->pop_info.population->choose_parent_species())->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
-                io_main_data->pop_info.offspring_count++;
+                create_pop( io_main_data, io_main_data->pop_info.population->choose_parent_species()->organisms.back()->gnome );
                 }
             else
                 {       
-                Genome *champ_parent = NULL ;
-                for(int j = io_main_data->champions.size() - 1 ; j >= 0; j--)
-                    {
-                    if( io_main_data->champions.at( j ) != NULL )
-                        {
-                        champ_parent = io_main_data->champions.at( j );
-                        break;
-                        }
-                    }
-                create_pop( io_main_data, champ_parent );
+                create_pop( io_main_data, io_main_data->champions.back() );
                 }
                 continue;
                 
@@ -994,6 +986,7 @@ void update_hubs
     ------------------------------------------------*/
     string              file;               /* output file                      */ 
     Uint8               i;                  /* loop counter                     */
+    Uint8               j;                  /* loop counter                     */
     double              h_lvl;              /* horizontal output level          */
     SDL_Keycode         key;                /* key being pressed                */
     int                 min_dist;           /* minimum distance                 */
@@ -1041,7 +1034,7 @@ void update_hubs
         /*----------------------------------------
         Reduce health based on time passing
         ----------------------------------------*/        
-        p_hub_1->health -= ( time_step * 5 );
+        p_hub_1->health -= ( time_step );
 
         /*----------------------------------------
         Remove hubs with no health
@@ -1058,7 +1051,7 @@ void update_hubs
         A hub with more than 2000 health should
         create a new 'child' hub
         ----------------------------------------*/
-        if( ( p_hub_1->health >= 2000 )
+        if( ( p_hub_1->health >= 1200 )
          && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
             {
             /*------------------------------------
@@ -1068,6 +1061,7 @@ void update_hubs
             p_hub_2 = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
             p_hub_2->init();
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
+            p_hub_2->generation = p_hub_1->generation + 1;
             io_main_data->hub_info.hub_count++;
                 
             /*------------------------------------
@@ -1095,7 +1089,7 @@ void update_hubs
             /*------------------------------------
             Remove health from the parent
             ------------------------------------*/
-            p_hub_1->health -= 1000;
+            p_hub_1->health -= 500;
         
             /*------------------------------------
             Save genome if this organism is able
@@ -1125,15 +1119,15 @@ void update_hubs
         ----------------------------------------*/   
         outputs_t8 max = OUTPUTS_CNT;
         double max_weight = 0;
-        i = 0;
+        j = 0;
         for( auto & otp : p_org->net->outputs )
             {
             if( otp->activation > max_weight )
                 {
-                max = i;
+                max = j;
                 max_weight = otp->activation;
                 }
-            i++;
+            j++;
             }
         
         /*----------------------------------------

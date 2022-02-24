@@ -66,6 +66,7 @@ class Hub
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
     int                 items_collected;	/* number of items collected        */
+    int                 generation;         /* generation via birth             */
 
     /*----------------------------------------------------------------------------
 
@@ -297,7 +298,7 @@ class Hub
                     {
                     speedy -= 5;
                     heading = PI / 2.0f;
-                    //health -= 5;
+                    health -= 1;
                     }
                 break;
                 
@@ -309,7 +310,7 @@ class Hub
                     {
                     speedy += 5;        
                     heading = 3.0f * PI / 2.0f;
-                    //health -= 5;
+                    health -= 1;
                     }
                 break;
                 
@@ -321,7 +322,7 @@ class Hub
                     {
                     speedx -= 5;
                     heading = 0.0f;
-                    //health -= 5;
+                    health -= 1;
                     }
                 break;
                 
@@ -333,7 +334,7 @@ class Hub
                     {
                     speedx += 5;
                     heading = PI;
-                    //health -= 5;
+                    health -= 1;
                     }
                 break;
             }

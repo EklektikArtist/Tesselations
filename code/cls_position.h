@@ -25,9 +25,9 @@ Local Constants
                                             /* initial width of screen          */
 #define             SCREEN_HEIGHT           500
                                             /* initial height of screen         */
-#define             WORLD_WIDTH             800
+#define             WORLD_WIDTH             1600
                                             /* initial width of world           */
-#define             WORLD_HEIGHT            500
+#define             WORLD_HEIGHT            1000
                                             /* initial height of world          */
 
 
