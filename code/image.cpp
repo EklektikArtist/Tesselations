@@ -62,7 +62,7 @@ void load_all_images
     /*------------------------------------------------
     Load the background image
     ------------------------------------------------*/
-    io_main_data->sim_info.running = load_image( "Background.png", io_main_data->sim_info.renderer, &io_main_data->resources.images[ io_main_data->resources.image_count ] );
+    io_main_data->sim_info.running = load_image( (char*)"Background.png", io_main_data->sim_info.renderer, &io_main_data->resources.images[ io_main_data->resources.image_count ] );
     io_main_data->resources.image_count++;
     check_or_error( io_main_data->sim_info.running, "Failed to load background image" );
 
@@ -99,11 +99,11 @@ static bool load_image
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        img_path = "images";
+        img_path = (char*)"images";
         }
     else
         {
-        img_path = "../images";
+        img_path = (char*)"../images";
         }
 
     /*------------------------------------------------

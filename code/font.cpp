@@ -62,7 +62,7 @@ void load_all_fonts
     /*------------------------------------------------
     Load the background font
     ------------------------------------------------*/
-    io_main_data->sim_info.running = load_font( "Consolas.ttf", 14, &io_main_data->resources.fonts[ io_main_data->resources.font_count ] );
+    io_main_data->sim_info.running = load_font( (char*)"Consolas.ttf", 14, &io_main_data->resources.fonts[ io_main_data->resources.font_count ] );
     io_main_data->resources.font_count++;
     check_or_error( io_main_data->sim_info.running, "Failed to primary font" );
 
@@ -98,11 +98,11 @@ static bool load_font
     ------------------------------------------------*/
     if( WINDOWS )
         {
-        font_path = "fonts";
+        font_path = (char*)"fonts";
         }
     else
         {
-        font_path = "../fonts";
+        font_path = (char*)"../fonts";
         }
     
     /*------------------------------------------------

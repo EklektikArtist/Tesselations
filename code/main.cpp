@@ -189,8 +189,7 @@ int main
     /*------------------------------------------------
     Initialize Environment
     ------------------------------------------------*/
-    sprintf( curword, "Tesselations" );
-    main_init( curword, &main_sim_data );
+    main_init( (char*)"Tesselations", &main_sim_data );
     check_or_error( main_sim_data.sim_info.running, "Initialization Failed" );
 
     /*------------------------------------------------
