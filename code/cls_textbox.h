@@ -26,7 +26,7 @@ External Libraries
 Project Headers
 ------------------------------------------------*/
 #include "resources.h"
-#include "sdl_rect.h"
+#include "SDL_rect.h"
 #include "sim.h"
 
 /*------------------------------------------------
