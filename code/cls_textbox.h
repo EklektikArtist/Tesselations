@@ -141,7 +141,8 @@ class TextBox
         /*--------------------------------------------
         Render the texture to the screen 
         --------------------------------------------*/   
-        SDL_RenderCopy( io_sim_data->renderer, gTextOutput, NULL, &bbox_shift( camera ) );
+        SDL_Rect pos_on_screen = bbox_shift( camera );
+        SDL_RenderCopy( io_sim_data->renderer, gTextOutput, NULL, &pos_on_screen );
 
         /*--------------------------------------------
         Free Memory

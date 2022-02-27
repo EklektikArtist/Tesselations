@@ -74,7 +74,7 @@ struct statistic_data
 
 struct main_data
     {
-    sim_data            sim_data;           /* simulator data                   */
+    sim_data            sim_info;           /* simulator data                   */
     hub_data            hub_info;           /* hub data                         */
     item_data           item_info;          /* item data                        */
     population_data     pop_info;           /* population data                  */
@@ -83,7 +83,6 @@ struct main_data
     resource_data       resources;          /* resource data                    */
     statistic_data      statistics;         /* statitstic records               */
     Position            camera;             /* camera                           */
-
     };
 
 /*--------------------------------------------------------------------------------

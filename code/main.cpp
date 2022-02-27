@@ -189,20 +189,21 @@ int main
     /*------------------------------------------------
     Initialize Environment
     ------------------------------------------------*/
-    main_init( "Tesselations", &main_sim_data );
-    check_or_error( main_sim_data.sim_data.running, "Initialization Failed" );
+    sprintf( curword, "Tesselations" );
+    main_init( curword, &main_sim_data );
+    check_or_error( main_sim_data.sim_info.running, "Initialization Failed" );
 
     /*------------------------------------------------
     Load Images
     ------------------------------------------------*/
     load_all_images( &main_sim_data );
-    check_or_error( main_sim_data.sim_data.running, "Failed to get all images" );
+    check_or_error( main_sim_data.sim_info.running, "Failed to get all images" );
 
     /*------------------------------------------------
     Load Fonts
     ------------------------------------------------*/
     load_all_fonts( &main_sim_data );
-    check_or_error( main_sim_data.sim_data.running, "Failed to get all images" );      
+    check_or_error( main_sim_data.sim_info.running, "Failed to get all images" );      
     
     /*------------------------------------------------
     Open the starting genome file
@@ -436,7 +437,7 @@ void handle_events
             /*------------------------------------
             Flag the loop to end
             ------------------------------------*/
-            io_main_data->sim_data.running = SIM_STAT_END;
+            io_main_data->sim_info.running = SIM_STAT_END;
             }
         else if( event.type == SDL_KEYDOWN )
             {
@@ -687,10 +688,10 @@ void init_sim_data
     /*------------------------------------------------
     Initialize Sim Variables
     ------------------------------------------------*/
-    io_main_data->sim_data.renderer = NULL;
-    io_main_data->sim_data.window = NULL;
-    io_main_data->sim_data.running = SIM_STAT_RUNNING;
-    io_main_data->sim_data.last_update = 0;
+    io_main_data->sim_info.renderer = NULL;
+    io_main_data->sim_info.window = NULL;
+    io_main_data->sim_info.running = SIM_STAT_RUNNING;
+    io_main_data->sim_info.last_update = 0;
 
     }    /* init_sim_data */
 
@@ -713,14 +714,14 @@ void main_close
     /*------------------------------------------------
     Destroy Renderer
     ------------------------------------------------*/
-    SDL_DestroyRenderer( io_main_data->sim_data.renderer );
-    io_main_data->sim_data.renderer = NULL;
+    SDL_DestroyRenderer( io_main_data->sim_info.renderer );
+    io_main_data->sim_info.renderer = NULL;
 
     /*------------------------------------------------
     Destroy Window
     ------------------------------------------------*/
-    SDL_DestroyWindow( io_main_data->sim_data.window );
-    io_main_data->sim_data.window = NULL;
+    SDL_DestroyWindow( io_main_data->sim_info.window );
+    io_main_data->sim_info.window = NULL;
 
     /*------------------------------------------------
     Quit SDL subsystems
@@ -750,34 +751,34 @@ void main_init
     Initialize SDL
     - Video Output
     ------------------------------------------------*/
-    io_main_data->sim_data.running = ( SDL_Init( SDL_INIT_VIDEO ) == 0 );
-    check_or_error( io_main_data->sim_data.running, "SDL Failed to initialize", EH_SDL );
+    io_main_data->sim_info.running = ( SDL_Init( SDL_INIT_VIDEO ) == 0 );
+    check_or_error( io_main_data->sim_info.running, "SDL Failed to initialize", EH_SDL );
 
     /*------------------------------------------------
     Initialize PNG Handling
     ------------------------------------------------*/
     int imgFlags = IMG_INIT_PNG;
-    io_main_data->sim_data.running = ( IMG_Init( imgFlags ) & imgFlags );
-    check_or_error( io_main_data->sim_data.running, "SDL_image could not initialize!", EH_SDL_IMG );
+    io_main_data->sim_info.running = ( IMG_Init( imgFlags ) & imgFlags );
+    check_or_error( io_main_data->sim_info.running, "SDL_image could not initialize!", EH_SDL_IMG );
     
     /*------------------------------------------------
     Initialize Font Handling
     ------------------------------------------------*/
-    io_main_data->sim_data.running = ( TTF_Init() != -1 );
-    check_or_error( io_main_data->sim_data.running, "SDL_TTF could not initialize!", EH_SDL_TTF );
+    io_main_data->sim_info.running = ( TTF_Init() != -1 );
+    check_or_error( io_main_data->sim_info.running, "SDL_TTF could not initialize!", EH_SDL_TTF );
     
     /*------------------------------------------------
     Create the main window
     ------------------------------------------------*/
-    io_main_data->sim_data.window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
-    io_main_data->sim_data.running = check_or_error( io_main_data->sim_data.window != NULL, "Could not create window", EH_SDL );
+    io_main_data->sim_info.window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
+    io_main_data->sim_info.running = check_or_error( io_main_data->sim_info.window != NULL, "Could not create window", EH_SDL );
     io_main_data->camera.init( 0, 0 );
 
     /*------------------------------------------------
     Create the main renderer
     ------------------------------------------------*/
-    io_main_data->sim_data.renderer = SDL_CreateRenderer( io_main_data->sim_data.window, -1, SDL_RENDERER_SOFTWARE );
-    io_main_data->sim_data.running = check_or_error( io_main_data->sim_data.renderer != NULL, "Could not create renderer", EH_SDL );
+    io_main_data->sim_info.renderer = SDL_CreateRenderer( io_main_data->sim_info.window, -1, SDL_RENDERER_SOFTWARE );
+    io_main_data->sim_info.running = check_or_error( io_main_data->sim_info.renderer != NULL, "Could not create renderer", EH_SDL );
 
     }    /* main_init */
 
@@ -811,18 +812,18 @@ void main_loop
     Update timer
     ------------------------------------------------*/
     this_update = SDL_GetTicks();
-    time_step = ( this_update - io_main_data->sim_data.last_update ) / 1000.0f;
-    io_main_data->sim_data.last_update = this_update;
+    time_step = ( this_update - io_main_data->sim_info.last_update ) / 1000.0f;
+    io_main_data->sim_info.last_update = this_update;
 
     /*------------------------------------------------
     Event Loop
     ------------------------------------------------*/
-    while( io_main_data->sim_data.running )
+    while( io_main_data->sim_info.running )
         {      
         /*--------------------------------------------
         Clear the screen
         --------------------------------------------*/
-        SDL_RenderCopy( io_main_data->sim_data.renderer, io_main_data->resources.images[ 0 ], NULL, NULL );
+        SDL_RenderCopy( io_main_data->sim_info.renderer, io_main_data->resources.images[ 0 ], NULL, NULL );
 
         /*--------------------------------------------
         Update hubs
@@ -872,7 +873,7 @@ void main_loop
         for ( i = 0; i < io_main_data->item_info.item_count; i++ )
             {
             p_item = &io_main_data->item_info.items[ i ];
-            p_item->render( &io_main_data->sim_data, &io_main_data->camera );
+            p_item->render( &io_main_data->sim_info, &io_main_data->camera );
             } 
 
         /*--------------------------------------------
@@ -925,8 +926,8 @@ void main_loop
         /*--------------------------------------------
         Refresh the screen
         --------------------------------------------*/
-        SDL_RenderSetClipRect( io_main_data->sim_data.renderer, NULL );
-        SDL_RenderPresent( io_main_data->sim_data.renderer );
+        SDL_RenderSetClipRect( io_main_data->sim_info.renderer, NULL );
+        SDL_RenderPresent( io_main_data->sim_info.renderer );
         }
 
     }    /* main_loop */
@@ -1161,7 +1162,7 @@ void update_hubs
         Move and render the current hub
         ----------------------------------------*/
         p_hub_1->move( time_step );
-        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_data, &io_main_data->camera );
+        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_info, &io_main_data->camera );
         }
 
     }    /* update_hubs */

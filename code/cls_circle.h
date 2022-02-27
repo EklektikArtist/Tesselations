@@ -171,7 +171,8 @@ class Circle
         /*--------------------------------------------
         Render the circle to the screen
         --------------------------------------------*/
-        SDL_RenderFillRect( io_sim_data->renderer, &bbox_shift( camera ) );
+        SDL_Rect pos_on_screen = bbox_shift( camera );
+        SDL_RenderFillRect( io_sim_data->renderer, &pos_on_screen );
         }
           
     
