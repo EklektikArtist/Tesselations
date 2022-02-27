@@ -23,9 +23,9 @@
 #
 # ::
 #
-# SDL2IMAGE_LIBRARY (same value as SDL2_TTF_LIBRARIES)
-# SDL2IMAGE_INCLUDE_DIR (same value as SDL2_TTF_INCLUDE_DIRS)
-# SDL2IMAGE_FOUND (same value as SDL2_TTF_FOUND)
+# SDL2TTF_LIBRARY (same value as SDL2_TTF_LIBRARIES)
+# SDL2TTF_INCLUDE_DIR (same value as SDL2_TTF_INCLUDE_DIRS)
+# SDL2TTF_FOUND (same value as SDL2_TTF_FOUND)
 #
 #
 #
@@ -36,12 +36,12 @@
 # module, but with modifications to recognize OS X frameworks and
 # additional Unix paths (FreeBSD, etc).
 
-if(NOT SDL2_TTF_INCLUDE_DIR AND SDL2IMAGE_INCLUDE_DIR)
-  set(SDL2_TTF_INCLUDE_DIR ${SDL2IMAGE_INCLUDE_DIR} CACHE PATH "directory cache entry initialized from old variable name")
+if(NOT SDL2_TTF_INCLUDE_DIR AND SDL2TTF_INCLUDE_DIR)
+  set(SDL2_TTF_INCLUDE_DIR ${SDL2TTF_INCLUDE_DIR} CACHE PATH "directory cache entry initialized from old variable name")
 endif()
-find_path(SDL2_TTF_INCLUDE_DIR SDL_image.h
+find_path(SDL2_TTF_INCLUDE_DIR SDL_ttf.h
   HINTS
-    ENV SDL2IMAGEDIR
+    ENV SDL2TTFDIR
     ENV SDL2DIR
     ${SDL2_DIR}
   PATH_SUFFIXES SDL2
@@ -55,13 +55,13 @@ else()
   set(VC_LIB_PATH_SUFFIX lib/x86)
 endif()
 
-if(NOT SDL2_TTF_LIBRARY AND SDL2IMAGE_LIBRARY)
-  set(SDL2_TTF_LIBRARY ${SDL2IMAGE_LIBRARY} CACHE FILEPATH "file cache entry initialized from old variable name")
+if(NOT SDL2_TTF_LIBRARY AND SDL2TTF_LIBRARY)
+  set(SDL2_TTF_LIBRARY ${SDL2TTF_LIBRARY} CACHE FILEPATH "file cache entry initialized from old variable name")
 endif()
 find_library(SDL2_TTF_LIBRARY
   NAMES SDL2_ttf
   HINTS
-    ENV SDL2IMAGEDIR
+    ENV SDL2TTFDIR
     ENV SDL2DIR
     ${SDL2_DIR}
   PATH_SUFFIXES lib ${VC_LIB_PATH_SUFFIX}
@@ -93,8 +93,8 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2_ttf
                                   VERSION_VAR SDL2_TTF_VERSION_STRING)
 
 # for backward compatibility
-set(SDL2IMAGE_LIBRARY ${SDL2_TTF_LIBRARIES})
-set(SDL2IMAGE_INCLUDE_DIR ${SDL2_TTF_INCLUDE_DIRS})
-set(SDL2IMAGE_FOUND ${SDL2_TTF_FOUND})
+set(SDL2TTF_LIBRARY ${SDL2_TTF_LIBRARIES})
+set(SDL2TTF_INCLUDE_DIR ${SDL2_TTF_INCLUDE_DIRS})
+set(SDL2TTF_FOUND ${SDL2_TTF_FOUND})
 
 mark_as_advanced(SDL2_TTF_LIBRARY SDL2_TTF_INCLUDE_DIR)
