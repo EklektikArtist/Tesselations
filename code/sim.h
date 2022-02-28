@@ -39,4 +39,5 @@ struct sim_data
     Uint32              last_update;        /* last update of sim state         */
     SDL_Renderer       *renderer;           /* primary renderer                 */
     SDL_Window         *window;             /* primary window                   */
+    char               *root_dir;           /* root directory                   */
     };

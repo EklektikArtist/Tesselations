@@ -15,6 +15,7 @@ Includes
 /*------------------------------------------------
 External Libraries
 ------------------------------------------------*/
+#include <direct.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -202,7 +203,7 @@ int main
     Load Fonts
     ------------------------------------------------*/
     load_all_fonts( &main_sim_data );
-    check_or_error( main_sim_data.sim_info.running, "Failed to get all images" );      
+    check_or_error( main_sim_data.sim_info.running, "Failed to get all fonts" );      
     
     /*------------------------------------------------
     Open the starting genome file
@@ -691,6 +692,9 @@ void init_sim_data
     io_main_data->sim_info.window = NULL;
     io_main_data->sim_info.running = SIM_STAT_RUNNING;
     io_main_data->sim_info.last_update = 0;
+
+    io_main_data->sim_info.root_dir = (char *)malloc( MAX_STR_LEN );
+    _getcwd(io_main_data->sim_info.root_dir, 256);
 
     }    /* init_sim_data */
 

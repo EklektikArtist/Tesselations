@@ -33,11 +33,11 @@ Project Headers
 Declarations
 --------------------------------------------------------------------------------*/
 
-static bool load_font
+static void load_font
 (
-    char               *i_font_name,        /* name of font to load            */
-    int                 i_font_sz,          /* font size                       */
-    TTF_Font          **o_font              /* created font                    */
+    main_data          *io_main_data,       /* main data                        */
+    char               *i_font_name,        /* name of font to load             */
+    int                 i_font_sz          /* font size                        */
 );
 
 /*--------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void load_all_fonts
     /*------------------------------------------------
     Load the background font
     ------------------------------------------------*/
-    io_main_data->sim_info.running = load_font( (char*)"Consolas.ttf", 14, &io_main_data->resources.fonts[ io_main_data->resources.font_count ] );
+    load_font( io_main_data, (char*)"Consolas.ttf", 14 );
     io_main_data->resources.font_count++;
     check_or_error( io_main_data->sim_info.running, "Failed to primary font" );
 
@@ -79,11 +79,11 @@ void load_all_fonts
 
 --------------------------------------------------------------------------------*/
 
-static bool load_font
+static void load_font
 (
+    main_data          *io_main_data,       /* main data                        */
     char               *i_font_name,        /* name of font to load             */
-    int                 i_font_sz,          /* font size                        */
-    TTF_Font          **o_font              /* created font                     */
+    int                 i_font_sz          /* font size                        */
 )
     {
     /*------------------------------------------------
@@ -91,35 +91,25 @@ static bool load_font
     ------------------------------------------------*/
     char               *font_loc;           /* full font path                   */
     char               *font_path;          /* font location                    */
+    TTF_Font          **o_font;             /* created font                     */
     sim_stat_t8         running;            /* simulation status                */
     
     /*------------------------------------------------
-    Load the proper path for the current OS
+    Load the path relative to working directory
     ------------------------------------------------*/
-    if( WINDOWS )
-        {
-        font_path = (char*)"fonts";
-        }
-    else
-        {
-        font_path = (char*)"../fonts";
-        }
+    font_path = (char*)"../fonts";
     
     /*------------------------------------------------
     Create the full font path
     ------------------------------------------------*/
     font_loc = (char *)malloc( MAX_STR_LEN );
-    snprintf( font_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, font_path, i_font_name );
+    snprintf( font_loc, MAX_STR_LEN, "%s/%s/%s", io_main_data->sim_info.root_dir, font_path, i_font_name );
 
     /*------------------------------------------------
     Load the font
     ------------------------------------------------*/
+    o_font = &io_main_data->resources.fonts[ io_main_data->resources.font_count ];
     *o_font = TTF_OpenFont( font_loc, i_font_sz );
-    running = check_or_error( o_font != NULL, "Could not load font", EH_SDL_TTF );
-
-    /*------------------------------------------------
-    Return the simulator status
-    ------------------------------------------------*/
-    return( running );
+    io_main_data->sim_info.running = check_or_error( *o_font != NULL, "Could not load font", EH_SDL_TTF );
 
     }   /* load_font() */

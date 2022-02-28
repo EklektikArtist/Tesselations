@@ -33,11 +33,10 @@ Project Headers
 Declarations
 --------------------------------------------------------------------------------*/
 
-static bool load_image
+static void load_image
 (
-    char               *i_image_name,       /* name of image to load            */
-    SDL_Renderer       *i_renderer,         /* image renderer                   */
-    SDL_Texture       **o_image             /* created image                    */
+    main_data          *io_main_data,       /* main data                        */
+    char               *i_image_name        /* name of image to load            */
 );
 
 /*--------------------------------------------------------------------------------
@@ -62,7 +61,7 @@ void load_all_images
     /*------------------------------------------------
     Load the background image
     ------------------------------------------------*/
-    io_main_data->sim_info.running = load_image( (char*)"Background.png", io_main_data->sim_info.renderer, &io_main_data->resources.images[ io_main_data->resources.image_count ] );
+    load_image( io_main_data, (char*)"Background.png" );
     io_main_data->resources.image_count++;
     check_or_error( io_main_data->sim_info.running, "Failed to load background image" );
 
@@ -79,11 +78,10 @@ void load_all_images
 
 --------------------------------------------------------------------------------*/
 
-static bool load_image
+static void load_image
 (
-    char               *i_image_name,       /* name of image to load            */
-    SDL_Renderer       *i_renderer,         /* image renderer                   */
-    SDL_Texture       **o_image             /* created image                    */
+    main_data          *io_main_data,       /* main data                        */
+    char               *i_image_name        /* name of image to load            */
 )
     {
     /*------------------------------------------------
@@ -91,42 +89,31 @@ static bool load_image
     ------------------------------------------------*/
     char               *img_loc;            /* full image path                  */
     char               *img_path;           /* image location                   */
-    sim_stat_t8         running;            /* simulation status                */
+    SDL_Texture       **o_image;            /* created image                    */
     SDL_Surface        *tmp_surface;        /* temporary surface                */
-
+    
     /*------------------------------------------------
-    Load the proper path for the current OS
+    Load the path relative to working directory
     ------------------------------------------------*/
-    if( WINDOWS )
-        {
-        img_path = (char*)"images";
-        }
-    else
-        {
-        img_path = (char*)"../images";
-        }
+    img_path = (char*)"../images";
 
     /*------------------------------------------------
     Create the full image path
     ------------------------------------------------*/
     img_loc = (char *)malloc( MAX_STR_LEN );
-    snprintf( img_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, img_path, i_image_name );
+    snprintf( img_loc, MAX_STR_LEN, "%s/%s/%s", io_main_data->sim_info.root_dir, img_path, i_image_name );
 
     /*------------------------------------------------
     Load the image
     ------------------------------------------------*/
     tmp_surface = IMG_Load( img_loc );
-    running = check_or_error( tmp_surface != NULL, "Could not load image", EH_SDL_IMG );
+    io_main_data->sim_info.running = check_or_error( tmp_surface != NULL, "Could not load image", EH_SDL_IMG );
 
     /*------------------------------------------------
     Convert the image surface to a texture
     ------------------------------------------------*/
-    *o_image = SDL_CreateTextureFromSurface( i_renderer, tmp_surface );
-    running = check_or_error( *o_image != NULL, "Could not convert image to texture", EH_SDL );
-
-    /*------------------------------------------------
-    Return the simulator status
-    ------------------------------------------------*/
-    return( running );
+    o_image = &io_main_data->resources.images[ io_main_data->resources.image_count ];
+    *o_image = SDL_CreateTextureFromSurface( io_main_data->sim_info.renderer, tmp_surface );
+    io_main_data->sim_info.running = check_or_error( *o_image != NULL, "Could not convert image to texture", EH_SDL );
 
     }   /* load_image() */

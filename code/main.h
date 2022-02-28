@@ -42,7 +42,7 @@ Constants
 #define                 MAX_HUBS            50
 #define                 MAX_ITEMS           200
 //#define                 ROOT_PATH           "T:/tesselations/"
-#define               ROOT_PATH           "C:/Users/infof/Documents/Git/Tesselations/"
+#define               ROOT_PATH           "."
 
 /*--------------------------------------------------------------------------------
 Types
