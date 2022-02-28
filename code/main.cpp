@@ -15,7 +15,13 @@ Includes
 /*------------------------------------------------
 External Libraries
 ------------------------------------------------*/
+#if defined(_WIN64) || defined(_WIN32)
 #include <direct.h>
+#define GET_CURRENT_DIR _getcwd
+#elif defined(__linux__)
+#include <unistd.h>
+#define GET_CURRENT_DIR getcwd
+#endif
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -694,7 +700,7 @@ void init_sim_data
     io_main_data->sim_info.last_update = 0;
 
     io_main_data->sim_info.root_dir = (char *)malloc( MAX_STR_LEN );
-    _getcwd(io_main_data->sim_info.root_dir, 256);
+    GET_CURRENT_DIR(io_main_data->sim_info.root_dir, 256);
 
     }    /* init_sim_data */
 
