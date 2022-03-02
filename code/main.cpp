@@ -87,7 +87,7 @@ void init_brains
     Genome 				*gnome
 );
 
-void init_sim_data
+void init_sim_resources_data
 (
     main_data          *io_main_data        /* main data                        */
 );
@@ -188,7 +188,7 @@ int main
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    init_sim_data( &main_sim_data );
+    init_sim_resources_data( &main_sim_data );
 
     /*------------------------------------------------
     Initialize Environment
@@ -230,13 +230,17 @@ int main
     /*------------------------------------------------
     Set up items
     ------------------------------------------------*/
-    main_sim_data.item_info.item_count = MAX_ITEMS / 2;
+    main_sim_data.item_info.item_count = MAX_ITEMS;
 
     for( i = 0; i < main_sim_data.item_info.item_count; i++ )
         {
         main_sim_data.item_info.items[ i ].init();
         main_sim_data.item_info.items[ i ].handle_collision();  
         }
+    /*------------------------------------------------
+    Initialize Statistics
+    ------------------------------------------------*/
+    main_sim_data.statistics.max_fit = 0;
 
     /*------------------------------------------------
     Run Simulation
@@ -652,14 +656,14 @@ void init_brains
 /*--------------------------------------------------------------------------------
 
     Name:
-        init_sim_data
+        init_sim_resources_data
 
     Description:
         Primary Initializer
 
 --------------------------------------------------------------------------------*/
 
-void init_sim_data
+void init_sim_resources_data
 (
     main_data          *io_main_data        /* main data                        */
 )
@@ -698,7 +702,9 @@ void init_sim_data
     io_main_data->sim_info.root_dir = (char *)malloc( MAX_STR_LEN );
     GET_CURRENT_DIR(io_main_data->sim_info.root_dir, 256);
 
-    }    /* init_sim_data */
+    io_main_data->sim_info.camera = new Position( 0, 0 );
+
+    }    /* init_sim_resources_data */
 
 
 /*--------------------------------------------------------------------------------
@@ -777,7 +783,6 @@ void main_init
     ------------------------------------------------*/
     io_main_data->sim_info.window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
     io_main_data->sim_info.running = check_or_error( io_main_data->sim_info.window != NULL, "Could not create window", EH_SDL );
-    io_main_data->sim_info.camera = new Position( 0, 0 );
 
     /*------------------------------------------------
     Create the main renderer
