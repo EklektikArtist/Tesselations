@@ -142,7 +142,7 @@ class Circle
         {
         pos = new Position( i_xp, i_yp );
         radius = i_rad;
-        set_color( 0xFF, 0x00, 0x00, 0xFF );
+        color = new Color( 0xFF, 0x00, 0x00, 0xFF );
         update();
         }
           

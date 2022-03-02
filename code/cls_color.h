@@ -30,6 +30,31 @@ class Color
     Uint8               blue;              /* blue                              */ 
     Uint8               alpha;             /* alpha                             */
     
+    public: Color 
+    (
+        void
+    )
+        {
+        red = 255;
+        green = 255;
+        blue = 255;
+        alpha = 255;
+        }
+    
+    public: Color 
+    (
+    Uint8               i_red,             /* red                               */
+    Uint8               i_green,           /* green                             */
+    Uint8               i_blue,            /* blue                              */ 
+    Uint8               i_alpha            /* alpha                             */
+    )
+        {
+        red = i_red;
+        green = i_green;
+        blue = i_blue;
+        alpha = i_alpha;
+        }
+
     /*----------------------------------------------------------------------------
 
     Name:
