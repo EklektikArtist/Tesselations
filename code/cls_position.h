@@ -58,6 +58,74 @@ class Position
     /*----------------------------------------------------------------------------
 
     Name:
+        init
+
+    Description:
+        Initializes a position object
+
+    ----------------------------------------------------------------------------*/
+
+    public: Position
+    (
+    void
+    )
+        {
+        x = 0;
+        y = 0;
+
+        update();
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        init
+
+    Description:
+        Initializes a position object
+
+    ----------------------------------------------------------------------------*/
+
+    public: Position
+    (
+    int                 i_xp,               /* x position                       */
+    int                 i_yp                /* y position                       */
+    )
+        {
+        x = i_xp;
+        y = i_yp;
+
+        update();
+        }
+        
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        init
+
+    Description:
+        Initializes a position object
+
+    ----------------------------------------------------------------------------*/
+
+    public: Position
+    (
+    const Position        *position
+    )
+        {
+        x = position->get_x();
+        y = position->get_y();
+
+        update();
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
         angle_to
 
     Description:
@@ -80,8 +148,8 @@ class Position
         /*------------------------------------------------
         Calculate the nagle
         ------------------------------------------------*/
-        adj = ( x - pos->get_x() );
-        opp = ( y - pos->get_y() );
+        adj = (float)( x - pos->get_x() );
+        opp = (float)( y - pos->get_y() );
 
         ang = atan( opp / adj );
         
@@ -117,8 +185,8 @@ class Position
         /*------------------------------------------------
         Calculate the distance
         ------------------------------------------------*/
-        x_sqr = ( x - pos->get_x() ) ^ 2;
-        y_sqr = ( y - pos->get_y() ) ^ 2;
+        x_sqr = (float)( ( x - pos->get_x() ) ^ 2 );
+        y_sqr = (float)( ( y - pos->get_y() ) ^ 2 );
 
         dist = sqrt( abs( x_sqr - y_sqr ) );
         
@@ -164,29 +232,6 @@ class Position
     ) const
         {
         return y;
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        init
-
-    Description:
-        Initializes a position object
-
-    ----------------------------------------------------------------------------*/
-
-    public: void init 
-    (
-    int                 i_xp,               /* x position                       */
-    int                 i_yp                /* y position                       */
-    )
-        {
-        x = i_xp;
-        y = i_yp;
-
-        update();
         }
     
 

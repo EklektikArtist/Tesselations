@@ -92,8 +92,7 @@ static void load_font
     char               *font_loc;           /* full font path                   */
     char               *font_path;          /* font location                    */
     TTF_Font          **o_font;             /* created font                     */
-    sim_stat_t8         running;            /* simulation status                */
-    
+        
     /*------------------------------------------------
     Load the path relative to working directory
     ------------------------------------------------*/

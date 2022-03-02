@@ -52,21 +52,47 @@ Local Constants
 --------------------------------------------------------------------------------*/
 
 class Hub
-    {  
+    {
     /*------------------------------------------------
     Class Variables
     ------------------------------------------------*/  
     char                buffer[ MAX_STR_LEN ];
                                             /* stringified buffer               */
     float               drag_ratio;         /* resistance to speed              */
+    int                 generation;         /* generation via birth             */
     float               heading;            /* heading                          */
     public :double      health;             /* health                           */
+    int                 items_collected;	/* number of items collected        */
     Sint8               speedx;             /* speed in the x direction         */
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
-    TextBox             text_pos;           /* textbox                          */
-    int                 items_collected;	/* number of items collected        */
-    int                 generation;         /* generation via birth             */
+    TextBox            *text_pos;           /* textbox                          */
+    
+   /*---------------------------------------------------------------------------
+
+    Description:
+        Creates a hub object
+
+    ----------------------------------------------------------------------------*/
+
+public:Hub 
+    (
+    void
+    )
+        {
+        memset( buffer, 0, sizeof(char) * MAX_STR_LEN );
+        drag_ratio = .001f;
+        heading = 0;
+        health = 1000;
+        items_collected = 0;
+        sprite.init( 0, 0, 10 );
+        generation = 0;
+        speedx = 0;
+        speedy = 0;
+        text_pos = new TextBox( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
+
+        update();
+        }
 
     /*----------------------------------------------------------------------------
 
@@ -84,6 +110,24 @@ class Hub
     )
         {
         return heading;
+        }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_generation
+
+    Description:
+        Returns the hub's generation
+
+    ----------------------------------------------------------------------------*/
+
+    public: int get_generation
+    (
+    void
+    )
+        {
+        return generation;
         }
 
 
@@ -127,12 +171,10 @@ class Hub
         float           angle;              /* angle between hubs               */
         int             damage;             /* damage caused by collision       */
         float           heading;            /* heading of current hub           */
-        int             min_dist;           /* minimum distance allowed         */
-        Position        new_pos;            /* new position for hub             */
-        int             x_boost;            /* boost in the x direction         */
-        int             x_shift;            /* shift in the x direction         */
-        int             y_boost;            /* boost in the y direction         */
-        int             y_shift;            /* shift in the y direction         */
+        float           min_dist;           /* minimum distance allowed         */
+        Position       *new_pos;            /* new position for hub             */
+        float           x_shift;            /* shift in the x direction         */
+        float           y_shift;            /* shift in the y direction         */
         
         /*------------------------------------------------
         Apply collision damage
@@ -145,7 +187,7 @@ class Hub
         Calculate separation distance
         Add a buffer to handle rounding errors
         ------------------------------------------------*/
-        min_dist = sprite.get_radius() + hub->get_sprite()->get_radius();
+        min_dist = (float)( sprite.get_radius() + hub->get_sprite()->get_radius() );
         min_dist *= 1.1f;
         
         /*------------------------------------------------
@@ -169,10 +211,10 @@ class Hub
         ------------------------------------------------*/
         x_shift = min_dist * cos( angle );
         y_shift = min_dist * sin( angle );
-        memcpy( &new_pos, hub->get_sprite()->get_pos(), sizeof(Position) );
-        new_pos.shift_x( x_shift * 1.1f );
-        new_pos.shift_y( y_shift * 1.1f );
-        sprite.set_pos( &new_pos );
+        new_pos = new Position( hub->get_sprite()->get_pos() );
+        new_pos->shift_x( (int)( x_shift * 1.1f ) );
+        new_pos->shift_y( (int)( y_shift * 1.1f ) );
+        sprite.set_pos( new_pos );
         
         /*------------------------------------------------
         Update the speeds of the two hubs
@@ -252,7 +294,7 @@ class Hub
         ------------------------------------------------*/
         if ( abs( speedx - dragx ) >= 0 )
             {
-            speedx -= dragx;
+            speedx -= (Sint8)dragx;
             }
         else
             {
@@ -264,7 +306,7 @@ class Hub
         ------------------------------------------------*/
         if ( abs( speedy - dragy ) >= 0 )
             {
-            speedy -= dragy;
+            speedy -= (Sint8)dragy;
             }
         else
             {
@@ -339,32 +381,6 @@ class Hub
                 break;
             }
         }
-    
-   /*---------------------------------------------------------------------------
-
-    Name:
-        init
-
-    Description:
-        Initializes a hub object
-
-    ----------------------------------------------------------------------------*/
-
-    public: void init 
-    (
-    void
-    )
-        {
-        sprite.init( 0, 0, 10 );
-        drag_ratio = .001f;
-        text_pos.init( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
-        speedx = 0;
-        speedy = 0;
-        health = 1000;
-        items_collected = 0;
-
-        update();
-        }
 
     /*----------------------------------------------------------------------------
 
@@ -381,8 +397,8 @@ class Hub
     float timestep
     )
         {
-        sprite.shift_pos_buff( speedx * timestep, speedy * timestep, sprite.get_radius() );
-        text_pos.set_pos( sprite.get_pos() );        
+        sprite.shift_pos_buff( (int)( speedx * timestep ), (int)( speedy * timestep ), sprite.get_radius() );
+        text_pos->set_pos( sprite.get_pos() );        
         handle_drag( timestep );
 
         update();
@@ -406,7 +422,26 @@ class Hub
     )
         {
         sprite.render( io_sim_data, camera );
-        text_pos.render( i_resource_data, io_sim_data, camera );
+        text_pos->render( i_resource_data, io_sim_data, camera );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_generation
+
+    Description:
+        Updates the generation
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_generation
+    (
+    int                 i_gen               /* new generation                   */
+    )
+        {
+        generation = i_gen;
         }
     
 
@@ -426,6 +461,6 @@ class Hub
     )
         {
         snprintf( buffer, MAX_STR_LEN, "Position: %s, Health: %f2", sprite.get_pos()->stringify(), health );
-        text_pos.set_text( buffer );
+        text_pos->set_text( buffer );
         }
 };

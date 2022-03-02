@@ -41,8 +41,8 @@ class Circle
     Class Variables
     ------------------------------------------------*/
     SDL_Rect            bbox;               /* box in which to draw the circle  */
-    Color               color;              /* color                            */
-    Position            pos;                /* position                         */
+    Color              *color;              /* color                            */
+    Position           *pos;                /* position                         */
     int                 radius;             /* radius                           */
     
 
@@ -79,7 +79,7 @@ class Circle
     void
     )
         {
-        return &pos;
+        return pos;
         }
     
 
@@ -140,7 +140,7 @@ class Circle
     int                 i_rad               /* radius of circle                 */
     )
         {
-        pos.init( i_xp, i_yp );
+        pos = new Position( i_xp, i_yp );
         radius = i_rad;
         set_color( 0xFF, 0x00, 0x00, 0xFF );
         update();
@@ -166,7 +166,7 @@ class Circle
         /*--------------------------------------------
         Set the color
         --------------------------------------------*/
-        SDL_SetRenderDrawColor( io_sim_data->renderer, color.get_red(), color.get_green() , color.get_blue() , color.get_alpha() );
+        SDL_SetRenderDrawColor( io_sim_data->renderer, color->get_red(), color->get_green() , color->get_blue() , color->get_alpha() );
 
         /*--------------------------------------------
         Render the circle to the screen
@@ -194,7 +194,7 @@ class Circle
     Uint8               i_alpha            /* alpha                             */
     )
         {
-        color.set_color( i_red, i_green, i_blue, i_alpha );
+        color->set_color( i_red, i_green, i_blue, i_alpha );
         update();
         }
           
@@ -214,7 +214,7 @@ class Circle
     Position           *new_pos             /* position                         */
     )
         {
-        pos.set_pos( new_pos );
+        pos->set_pos( new_pos );
         update();
         }
           
@@ -235,7 +235,7 @@ class Circle
     int                 i_yp                /* y position                       */
     )
         {
-        pos.set_pos( i_xp, i_yp );
+        pos->set_pos( i_xp, i_yp );
         update();
         }
           
@@ -257,7 +257,7 @@ class Circle
     int                 i_buff              /* buffer                           */
     )
         {
-        pos.shift_pos_buff( i_x_offset, i_y_offset, i_buff );
+        pos->shift_pos_buff( i_x_offset, i_y_offset, i_buff );
         update();
         }
     
@@ -277,8 +277,8 @@ class Circle
     void
     )
         {
-        bbox = { pos.get_x() - radius,
-                 pos.get_y() - radius,
+        bbox = { pos->get_x() - radius,
+                 pos->get_y() - radius,
                  radius * 2,
                  radius * 2 };
         }
@@ -300,8 +300,8 @@ class Circle
     )
         {
         SDL_Rect ret_rect
-         = { pos.get_x() - radius - shift_pos->get_x(),
-                 pos.get_y() - radius - shift_pos->get_y(),
+         = { pos->get_x() - radius - shift_pos->get_x(),
+                 pos->get_y() - radius - shift_pos->get_y(),
                  radius * 2,
                  radius * 2 };
 

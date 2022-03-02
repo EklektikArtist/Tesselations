@@ -50,7 +50,7 @@ Types
 
 struct hub_data
     {
-    Hub                 hubs[ MAX_HUBS ];   /* array of hubs for sim            */
+    Hub                *hubs[ MAX_HUBS ];   /* array of hubs for sim            */
     int                 hub_count;          /* count of hubs in use             */
     int                 selected_hub;       /* index of currently selected hub  */
     };
@@ -82,7 +82,6 @@ struct main_data
                         champions;          /* champion list                    */
     resource_data       resources;          /* resource data                    */
     statistic_data      statistics;         /* statitstic records               */
-    Position            camera;             /* camera                           */
     };
 
 /*--------------------------------------------------------------------------------

@@ -61,19 +61,23 @@ class TextBox
     /*----------------------------------------------------------------------------
 
     Name:
-        get_text
+        init
 
     Description:
-        Returns the text of the textbox
+        Initializes a position object
 
-    ----------------------------------------------------------------------------*/        
+    ----------------------------------------------------------------------------*/
 
-    public: std::string get_text
+public:TextBox
     (
-    void
     )
         {
-        return text;
+        color = { 255, 255, 255, 0xFF };
+        text = "";
+        textbox.x = 0;
+        textbox.y = 0;
+        textbox.w = 100;
+        textbox.h = 12;
         }
     
 
@@ -87,7 +91,7 @@ class TextBox
 
     ----------------------------------------------------------------------------*/
 
-    public: void init 
+public:TextBox
     (
     std::string         i_textstr,          /* textbox string                   */
     int                 i_xpos,             /* x position                       */
@@ -96,12 +100,30 @@ class TextBox
     int                 i_fsize             /* height/font size                 */
     )
         {
+        color = { 255, 255, 255, 0xFF };
         text = i_textstr;
         textbox.x = i_xpos;
         textbox.y = i_ypos;
         textbox.w = i_width;
         textbox.h = i_fsize;
-        color = { 255, 255, 255, 0xFF };
+        }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_text
+
+    Description:
+        Returns the text of the textbox
+
+    ----------------------------------------------------------------------------*/        
+
+    public: std::string get_text
+    (
+    void
+    )
+        {
+        return text;
         }
 
     /*----------------------------------------------------------------------------

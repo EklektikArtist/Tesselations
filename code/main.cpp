@@ -177,9 +177,6 @@ int main
     ------------------------------------------------*/
     main_data           main_sim_data;     /* simulation data                  */
     int                 i;                 /* loop counter                     */               
-    char                curword[20];        /* current read in word             */
-    char               *gene_loc;           /* full gene path                   */
-    int                 id;                 /* genome id                        */
     ifstream            iFile;              /* input file                       */
     Genome             *start_genome;       /* starting genome                  */  
 
@@ -282,9 +279,8 @@ void create_pop
     ------------------------------------------------*/
     for( int i = 0; i < MAX_HUBS; i++ )
         {
-        io_main_data->hub_info.hubs[ i ].init();
-        io_main_data->hub_info.hubs[ i ].get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
-        io_main_data->hub_info.hubs[ i ].generation = 0;
+        io_main_data->hub_info.hubs[ i ] = new Hub();
+        io_main_data->hub_info.hubs[ i ]->get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
 
         }
 
@@ -339,7 +335,7 @@ void get_sensor_data
     ------------------------------------------------*/
     for( i = 0; i < io_main_data->hub_info.hub_count; i++ )
         {
-        p_hub = &io_main_data->hub_info.hubs[ i ];
+        p_hub = io_main_data->hub_info.hubs[ i ];
 
         if( p_hub == i_hub )
             {
@@ -428,7 +424,7 @@ void handle_events
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
+    sel_hub = io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
 
     /*--------------------------------------------
     Check for events
@@ -489,7 +485,7 @@ void handle_tess_item_collisions
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+        p_hub_1 = io_main_data->hub_info.hubs[ i ];
         for( j = 0; j < io_main_data->item_info.item_count; j++ )
             {
             /*------------------------------------
@@ -563,14 +559,14 @@ void handle_tess_tess_collisions
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+        p_hub_1 = io_main_data->hub_info.hubs[ i ];
 
         for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
             {
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
-            p_hub_2 = &io_main_data->hub_info.hubs[ j ];
+            p_hub_2 = io_main_data->hub_info.hubs[ j ];
             collision = false;
 
 	        /*------------------------------------
@@ -781,7 +777,7 @@ void main_init
     ------------------------------------------------*/
     io_main_data->sim_info.window = ( SDL_CreateWindow( i_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN ) );
     io_main_data->sim_info.running = check_or_error( io_main_data->sim_info.window != NULL, "Could not create window", EH_SDL );
-    io_main_data->camera.init( 0, 0 );
+    io_main_data->sim_info.camera = new Position( 0, 0 );
 
     /*------------------------------------------------
     Create the main renderer
@@ -811,8 +807,6 @@ void main_loop
     Local Variables
     ------------------------------------------------*/
     Uint8               i;                  /* loop counter                     */
-    Organism           *new_org;            /* temporary new organism           */
-    Hub                *p_hub;              /* pointer to a hub                 */
     Item               *p_item;             /* pointer to an item               */
     Uint32              this_update;        /* current time                     */
     float               time_step;          /* seconds since last update        */
@@ -855,19 +849,19 @@ void main_loop
                 switch( e.key.keysym.sym )
                 {
                     case SDLK_COMMA:
-                        io_main_data->camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
+                        io_main_data->sim_info.camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
                         break;
 
                     case SDLK_o:
-                        io_main_data->camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
+                        io_main_data->sim_info.camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
                         break;
 
                     case SDLK_a:
-                        io_main_data->camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
+                        io_main_data->sim_info.camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
                         break;
 
                     case SDLK_e:
-                        io_main_data->camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
+                        io_main_data->sim_info.camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
                         break;
 
                     default:
@@ -882,7 +876,7 @@ void main_loop
         for ( i = 0; i < io_main_data->item_info.item_count; i++ )
             {
             p_item = &io_main_data->item_info.items[ i ];
-            p_item->render( &io_main_data->sim_info, &io_main_data->camera );
+            p_item->render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
             } 
 
         /*--------------------------------------------
@@ -900,15 +894,7 @@ void main_loop
         --------------------------------------------*/
         handle_events( io_main_data );
         if( io_main_data->hub_info.hub_count == 0 )
-            {           
-            /*------------------------------------
-            Create the child hub
-            ------------------------------------*/
-            p_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
-            p_hub->init();
-            p_hub->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
-            io_main_data->hub_info.hub_count++;
-                
+            {                           
             /*------------------------------------
             Create the child brain
 
@@ -997,15 +983,13 @@ void update_hubs
     string              file;               /* output file                      */ 
     Uint8               i;                  /* loop counter                     */
     Uint8               j;                  /* loop counter                     */
-    double              h_lvl;              /* horizontal output level          */
     SDL_Keycode         key;                /* key being pressed                */
     int                 min_dist;           /* minimum distance                 */
     Organism           *new_org;            /* new organism being created       */
-    Position            new_pos;            /* new position                     */
+    Position           *new_pos;            /* new position                     */
     Hub                *p_hub_1;            /* first pointer to a hub           */
     Hub                *p_hub_2;            /* second pointer to a hub          */
     Organism           *p_org;              /* pointer to an organism           */    
-    double              v_lvl;              /* vertical output level            */  
     
     /*------------------------------------------------
     Update Hubs
@@ -1015,7 +999,7 @@ void update_hubs
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+        p_hub_1 = io_main_data->hub_info.hubs[ i ];
         p_org = io_main_data->pop_info.population->organisms.at( i );
         if( p_org->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
             {
@@ -1068,10 +1052,10 @@ void update_hubs
             Create the child hub
             ------------------------------------*/
             cout << " A CHILD!" << std::endl;
-            p_hub_2 = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
-            p_hub_2->init();
+            io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ] = new Hub();
+            p_hub_2 = io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
-            p_hub_2->generation = p_hub_1->generation + 1;
+            p_hub_2->set_generation( p_hub_1->get_generation() + 1 );
             io_main_data->hub_info.hub_count++;
                 
             /*------------------------------------
@@ -1092,9 +1076,9 @@ void update_hubs
             Place the child below the parent
             ------------------------------------*/
             min_dist = p_hub_1->get_sprite()->get_radius() + p_hub_2->get_sprite()->get_radius();
-            memcpy( &new_pos, p_hub_1->get_sprite()->get_pos(), sizeof(Position) );
-            new_pos.shift_y( min_dist );
-            p_hub_2->get_sprite()->set_pos( &new_pos );
+            new_pos = new Position( p_hub_1->get_sprite()->get_pos() );
+            new_pos->shift_y( min_dist );
+            p_hub_2->get_sprite()->set_pos( new_pos );
                 
             /*------------------------------------
             Remove health from the parent
@@ -1171,7 +1155,7 @@ void update_hubs
         Move and render the current hub
         ----------------------------------------*/
         p_hub_1->move( time_step );
-        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_info, &io_main_data->camera );
+        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_info, &io_main_data->sim_info.camera );
         }
 
     }    /* update_hubs */

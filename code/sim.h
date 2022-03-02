@@ -17,6 +17,7 @@ Includes
 External Libraries
 ------------------------------------------------*/
 #include <SDL_ttf.h>
+#include "cls_position.h"
 
 /*--------------------------------------------------------------------------------
 Enums
@@ -39,5 +40,6 @@ struct sim_data
     Uint32              last_update;        /* last update of sim state         */
     SDL_Renderer       *renderer;           /* primary renderer                 */
     SDL_Window         *window;             /* primary window                   */
+    Position            camera;             /* camera                           */
     char               *root_dir;           /* root directory                   */
     };
