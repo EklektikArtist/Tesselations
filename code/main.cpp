@@ -60,6 +60,9 @@ using namespace std;
 Declarations
 --------------------------------------------------------------------------------*/
 
+
+void mpi_test();
+
 void handle_events
 (
     main_data           *io_main_data       /* main data                        */
@@ -183,6 +186,7 @@ int main
     /*------------------------------------------------
     Print out startup status info
     ------------------------------------------------*/
+    mpi_test();
     debug_info();
 
     /*------------------------------------------------
@@ -1264,3 +1268,13 @@ void update_species
     io_main_data->pop_info.population->estimate_all_averages();   
 
 }    /* update_species */
+
+
+void mpi_test()
+{
+    MPI_Init( NULL, NULL);
+    int my_rank;
+    MPI_Comm_rank( MPI_COMM_WORLD, &my_rank);
+    printf( "Echo from rank %d\n", my_rank );
+    MPI_Finalize();
+}
