@@ -41,7 +41,29 @@ class Item
     public:int          health_affect;      /* item's health affect             */
     Circle              sprite;             /* sprite                           */
 
+    
+    
 
+    /*----------------------------------------------------------------------------
+
+    Name:
+        init
+
+    Description:
+        Initializes a hub object
+
+    ----------------------------------------------------------------------------*/
+
+    public: Item
+    (
+    void
+    )
+        {
+        sprite.init( 0, 0, 5 );
+        sprite.set_color( 0xFF, 0xFF, 0x00, 0xFF );
+        health_affect = 100;
+        sprite.update();
+        }
     /*----------------------------------------------------------------------------
 
     Name:
@@ -77,27 +99,6 @@ class Item
     )
         {
         sprite.set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
-        }
-    
-
-    /*----------------------------------------------------------------------------
-
-    Name:
-        init
-
-    Description:
-        Initializes a hub object
-
-    ----------------------------------------------------------------------------*/
-
-    public: void init 
-    (
-    void
-    )
-        {
-        sprite.init( 0, 0, 5 );
-        sprite.set_color( 0xFF, 0xFF, 0x00, 0xFF );
-        health_affect = 100;
         }
 
 

@@ -32,7 +32,6 @@ External Libraries
 #include "genome.h"
 #include "population.h"
 
-#include "mpi.h"        //not in use yet, but leave to make sure compilation works
 /*------------------------------------------------
 File Header
 ------------------------------------------------*/
@@ -61,7 +60,10 @@ Declarations
 --------------------------------------------------------------------------------*/
 
 
-void mpi_test();
+void mpi_test
+(
+    main_data           *io_main_data       /* main data                        */
+);
 
 void handle_events
 (
@@ -186,7 +188,8 @@ int main
     /*------------------------------------------------
     Print out startup status info
     ------------------------------------------------*/
-    mpi_test();
+    MPI_Init(NULL, NULL);
+    mpi_test( &main_sim_data );
     debug_info();
 
     /*------------------------------------------------
@@ -234,12 +237,12 @@ int main
     /*------------------------------------------------
     Set up items
     ------------------------------------------------*/
-    main_sim_data.item_info.item_count = MAX_ITEMS;
+    main_sim_data.item_info.items.resize( MAX_ITEMS );
 
-    for( i = 0; i < main_sim_data.item_info.item_count; i++ )
+    for( auto item : main_sim_data.item_info.items  )
         {
-        main_sim_data.item_info.items[ i ].init();
-        main_sim_data.item_info.items[ i ].handle_collision();  
+        item = *new Item();
+        item.handle_collision();  
         }
     /*------------------------------------------------
     Initialize Statistics
@@ -281,16 +284,54 @@ void create_pop
     Genome 				*gnome
 )
     {
+    std::vector<Hub> 
+                        loc_champs;          /* champion list                    */
 
     /*------------------------------------------------
     Set up hubs
     ------------------------------------------------*/
-    for( int i = 0; i < MAX_HUBS; i++ )
+    int total_pieces = MAX_HUBS;
+    int sub_pieces = MAX_HUBS/io_main_data->mpi_info.world_size;
+    int root_pieces = sub_pieces + ( total_pieces - sub_pieces * io_main_data->mpi_info.world_size );
+    
+    cout << total_pieces << " : " << sub_pieces << " : " << root_pieces  << std::endl;
+
+    if ( io_main_data->mpi_info.local.rank == 0)
         {
-        io_main_data->hub_info.hubs[ i ] = new Hub();
-        io_main_data->hub_info.hubs[ i ]->get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
+        loc_champs.resize( root_pieces );
+        io_main_data->hub_info.hubs.resize( total_pieces );
+        }
+    else
+        {
+        loc_champs.resize( sub_pieces );
+        }
+    int errclass,resultlen;
+    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces, MPI_CHAR , 
+                loc_champs.data(),            sub_pieces, MPI_CHAR, 
+                io_main_data->mpi_info.root, MPI_COMM_WORLD); 
+      char err_buffer[MPI_MAX_ERROR_STRING];
+    
+    if( ierr != MPI_SUCCESS) 
+        {
+        MPI_Error_class(ierr,&errclass);
+        if(errclass== MPI_ERR_RANK) 
+            {
+            fprintf(stderr,"Invalid rank used in MPI send call\n");
+            MPI_Error_string(ierr,err_buffer,&resultlen);
+            fprintf(stderr,err_buffer);
+            }
+        }
+
+    for( auto hub : loc_champs )
+        {
+        hub = *new Hub();
+        hub.get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
 
         }
+    
+    MPI_Gather( loc_champs.data(),            sub_pieces, MPI_INT , 
+                io_main_data->hub_info.hubs.data(), sub_pieces, MPI_INT , 
+                io_main_data->mpi_info.root, MPI_COMM_WORLD);
 
     io_main_data->hub_info.hub_count = MAX_HUBS;
     io_main_data->hub_info.selected_hub = 0;
@@ -343,7 +384,7 @@ void get_sensor_data
     ------------------------------------------------*/
     for( i = 0; i < io_main_data->hub_info.hub_count; i++ )
         {
-        p_hub = io_main_data->hub_info.hubs[ i ];
+        p_hub = &io_main_data->hub_info.hubs[ i ];
 
         if( p_hub == i_hub )
             {
@@ -362,15 +403,14 @@ void get_sensor_data
     Find the closest item
     ------------------------------------------------*/
     min_dist = 999999;
-    for( i = 0; i < io_main_data->item_info.item_count; i++ )
+    for( Item item : io_main_data->item_info.items  )
         {
-        p_item = &io_main_data->item_info.items[ i ];
-        dist = i_hub->get_sprite()->get_pos()->dist_to( p_item->get_sprite()->get_pos() );
+        dist = i_hub->get_sprite()->get_pos()->dist_to( item.get_sprite()->get_pos() );
 
         if( abs( dist ) < abs( min_dist ) )
             {
             min_dist = dist;
-            nearest_item = p_item;
+            nearest_item = &item;
             }
         }
     
@@ -432,7 +472,7 @@ void handle_events
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    sel_hub = io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
+    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
 
     /*--------------------------------------------
     Check for events
@@ -488,34 +528,32 @@ void handle_tess_item_collisions
     /*------------------------------------------------
     Check Tess <-> Item Collisions
     ------------------------------------------------*/
-    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+    for( auto hub : io_main_data->hub_info.hubs )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = io_main_data->hub_info.hubs[ i ];
-        for( j = 0; j < io_main_data->item_info.item_count; j++ )
+        for( auto item : io_main_data->item_info.items  )
             {
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
-            p_item = &io_main_data->item_info.items[ j ];
             collision = false;
                 
 	        /*------------------------------------
 	        Check for collision
 	        ------------------------------------*/
-            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
-                                             p_item->get_sprite()->get_bbox() );
+            collision = SDL_HasIntersection( hub.get_sprite()->get_bbox(),
+                                             item.get_sprite()->get_bbox() );
 
 	        /*------------------------------------
 	        Handle Collision
 	        ------------------------------------*/
             if( collision )
                 {
-                p_hub_1->items_collected++;
-                p_hub_1->handle_collision( p_item );
-                p_item->handle_collision();
+                hub.items_collected++;
+                hub.handle_collision( &item );
+                item.handle_collision();
                 }
             }
         }
@@ -567,14 +605,14 @@ void handle_tess_tess_collisions
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = io_main_data->hub_info.hubs[ i ];
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
 
         for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
             {
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
-            p_hub_2 = io_main_data->hub_info.hubs[ j ];
+            p_hub_2 = &io_main_data->hub_info.hubs[ j ];
             collision = false;
 
 	        /*------------------------------------
@@ -739,6 +777,11 @@ void main_close
     io_main_data->sim_info.window = NULL;
 
     /*------------------------------------------------
+    Finalize the MPI environment.
+    ------------------------------------------------*/
+    MPI_Finalize();
+
+    /*------------------------------------------------
     Quit SDL subsystems
     ------------------------------------------------*/
     SDL_Quit();
@@ -882,10 +925,9 @@ void main_loop
         /*--------------------------------------------
         Update items
         --------------------------------------------*/
-        for ( i = 0; i < io_main_data->item_info.item_count; i++ )
+        for( auto item : io_main_data->item_info.items  )
             {
-            p_item = &io_main_data->item_info.items[ i ];
-            p_item->render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
+            item.render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
             } 
 
         /*--------------------------------------------
@@ -1008,7 +1050,7 @@ void update_hubs
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = io_main_data->hub_info.hubs[ i ];
+        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
         p_org = io_main_data->pop_info.population->organisms.at( i );
         if( p_org->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
             {
@@ -1061,8 +1103,8 @@ void update_hubs
             Create the child hub
             ------------------------------------*/
             cout << " A CHILD!" << std::endl;
-            io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ] = new Hub();
-            p_hub_2 = io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
+            io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ] = *new Hub();
+            p_hub_2 = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
             p_hub_2->set_generation( p_hub_1->get_generation() + 1 );
             io_main_data->hub_info.hub_count++;
@@ -1270,27 +1312,25 @@ void update_species
 }    /* update_species */
 
 
-void mpi_test()
-{
-    MPI_Init(NULL, NULL);
+void mpi_test
+(
+    main_data           *io_main_data       /* main data                        */
+)
+    {
+    int name_len;
 
+    io_main_data->mpi_info.root = 0;
     // Get the number of processes
-    int world_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    MPI_Comm_size(MPI_COMM_WORLD, &io_main_data->mpi_info.world_size);
 
     // Get the rank of the process
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &io_main_data->mpi_info.local.rank);
 
     // Get the name of the processor
-    char processor_name[MPI_MAX_PROCESSOR_NAME];
-    int name_len;
-    MPI_Get_processor_name(processor_name, &name_len);
+    MPI_Get_processor_name(io_main_data->mpi_info.local.node, &name_len);
 
     // Print off a hello world message
     printf("Hello world from processor %s, rank %d out of %d processors\n",
-           processor_name, world_rank, world_size);
+           io_main_data->mpi_info.local.node, io_main_data->mpi_info.local.rank, io_main_data->mpi_info.world_size);
 
-    // Finalize the MPI environment.
-    MPI_Finalize();
-}
+    }

@@ -20,6 +20,7 @@ External Libraries
 #include <SDL_ttf.h>
 #include "population.h"
 #include "species.h"
+#include "mpi.h"
 
 /*------------------------------------------------
 Project Headers
@@ -50,14 +51,15 @@ Types
 
 struct hub_data
     {
-    Hub                *hubs[ MAX_HUBS ];   /* array of hubs for sim            */
+    
+    std::vector<Hub>   hubs;               /* vector of hubs for sim            */
     int                 hub_count;          /* count of hubs in use             */
     int                 selected_hub;       /* index of currently selected hub  */
     };
 
 struct item_data
     {
-    Item                items[ MAX_ITEMS ]; /* array of items for sim           */
+    std::vector<Item>   items;              /* vector of items for sim           */
     int                 item_count;         /* count of items in use            */
     };
 
@@ -72,6 +74,19 @@ struct statistic_data
     double              max_fit;            /* highest achieved fitness         */
     };
 
+struct local_rank_data
+    {
+    char                node[MPI_MAX_PROCESSOR_NAME];
+    int                 rank;
+    };
+
+struct mpi_data
+    {    
+    int                 world_size;
+    int                 root;
+    local_rank_data     local;
+    };
+
 struct main_data
     {
     sim_data            sim_info;           /* simulator data                   */
@@ -82,6 +97,7 @@ struct main_data
                         champions;          /* champion list                    */
     resource_data       resources;          /* resource data                    */
     statistic_data      statistics;         /* statitstic records               */
+    mpi_data            mpi_info;           /* MPI data                         */
     };
 
 /*--------------------------------------------------------------------------------
