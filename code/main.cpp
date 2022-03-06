@@ -756,7 +756,7 @@ void init_sim_resources_data
     io_main_data->sim_info.root_dir = (char *)malloc( MAX_STR_LEN );
     GET_CURRENT_DIR(io_main_data->sim_info.root_dir, 256);
 
-    io_main_data->sim_info.camera = new Position( 0, 0 );
+    io_main_data->sim_info.camera.set_pos( 0, 0 );
 
     }    /* init_sim_resources_data */
 

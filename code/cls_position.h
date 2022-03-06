@@ -70,8 +70,8 @@ class Position
     void
     )
         {
-        x = 0;
-        y = 0;
+        x = rand() % WORLD_WIDTH;
+        y = rand() % WORLD_HEIGHT;
 
         update();
         }
@@ -321,7 +321,7 @@ class Position
             {
             x = 0;
             }
-        else if( i_xp <= 0 )
+        else if( i_xp < 0 )
             {
             x = WORLD_WIDTH;
             } 
@@ -359,7 +359,7 @@ class Position
             {
             x = 0;
             }
-        else if( i_xp <= 0 )
+        else if( i_xp < 0 )
             {
             x = WORLD_WIDTH - i_x_buff;
             } 
@@ -396,7 +396,7 @@ class Position
             {
             y = 0;
             }
-        else if( i_yp <= 0 )
+        else if( i_yp < 0 )
             {
             y = WORLD_HEIGHT;
             }            
@@ -433,7 +433,7 @@ class Position
             {
             y = 0;
             }
-        else if( i_yp <= 0 )
+        else if( i_yp < 0 )
             {
             y = WORLD_HEIGHT - i_y_buff;
             }            
