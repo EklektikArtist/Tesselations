@@ -190,6 +190,7 @@ int main
     ------------------------------------------------*/
     MPI_Init(NULL, NULL);
     mpi_test( &main_sim_data );
+        main_sim_data.statistics.max_fit = 0;
 
         debug_info();
         
@@ -299,27 +300,28 @@ void create_pop
     /*------------------------------------------------
     Set up hubs
     ------------------------------------------------*/
+    int one_piece = sizeof( Hub)/sizeof(char);
     int total_pieces = MAX_HUBS;
     int sub_pieces = MAX_HUBS/io_main_data->mpi_info.world_size;
     int root_pieces = sub_pieces + ( total_pieces - sub_pieces * io_main_data->mpi_info.world_size );
+        io_main_data->hub_info.hubs.resize( total_pieces );
     
-    cout << total_pieces << " : " << sub_pieces << " : " << root_pieces  << std::endl;
+    cout << one_piece << " : " << total_pieces << " : " << sub_pieces << " : " << root_pieces  << std::endl;
 
     if ( io_main_data->mpi_info.local.rank == 0)
         {
         loc_champs.resize( root_pieces );
-        io_main_data->hub_info.hubs.resize( total_pieces );
         }
     else
         {
         loc_champs.resize( sub_pieces );
         }
     int errclass,resultlen;
-    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces, MPI_CHAR , 
-                loc_champs.data(),            sub_pieces, MPI_CHAR, 
+    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
+                loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
                 io_main_data->mpi_info.root, MPI_COMM_WORLD); 
       char err_buffer[MPI_MAX_ERROR_STRING];
-    
+    cout << io_main_data->mpi_info.local.rank << " : " << loc_champs.size() <<std::endl;
     if( ierr != MPI_SUCCESS) 
         {
         MPI_Error_class(ierr,&errclass);
@@ -334,11 +336,11 @@ void create_pop
     for( i = 0; i < loc_champs.size(); i++ )
         {
         loc_champs.at(i).get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
-
+//    cout << io_main_data->mpi_info.local.rank << " : " << i <<std::endl;
         }
     
-    MPI_Gather( loc_champs.data(),            sub_pieces, MPI_INT , 
-                io_main_data->hub_info.hubs.data(), sub_pieces, MPI_INT , 
+    MPI_Gather( loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR , 
+                io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
                 io_main_data->mpi_info.root, MPI_COMM_WORLD);
 
     io_main_data->hub_info.selected_hub = 0;
