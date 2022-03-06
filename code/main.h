@@ -53,14 +53,14 @@ struct hub_data
     {
     
     std::vector<Hub>   hubs;               /* vector of hubs for sim            */
-    int                 hub_count;          /* count of hubs in use             */
+    //int                 hub_count;          /* count of hubs in use             */
     int                 selected_hub;       /* index of currently selected hub  */
     };
 
 struct item_data
     {
     std::vector<Item>   items;              /* vector of items for sim           */
-    int                 item_count;         /* count of items in use            */
+    //int                 item_count;         /* count of items in use            */
     };
 
 struct population_data

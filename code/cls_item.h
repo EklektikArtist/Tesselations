@@ -59,7 +59,8 @@ class Item
     void
     )
         {
-        sprite.init( 0, 0, 5 );
+        sprite = *new Circle();
+        sprite.init( sprite.get_pos(), 5 );
         sprite.set_color( 0xFF, 0xFF, 0x00, 0xFF );
         health_affect = 100;
         sprite.update();

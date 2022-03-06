@@ -190,79 +190,87 @@ int main
     ------------------------------------------------*/
     MPI_Init(NULL, NULL);
     mpi_test( &main_sim_data );
-    debug_info();
 
-    /*------------------------------------------------
-    Initialization
-    ------------------------------------------------*/
-    init_sim_resources_data( &main_sim_data );
-
-    /*------------------------------------------------
-    Initialize Environment
-    ------------------------------------------------*/
-    main_init( (char*)"Tesselations", &main_sim_data );
-    check_or_error( main_sim_data.sim_info.running, "Initialization Failed" );
-
-    /*------------------------------------------------
-    Load Images
-    ------------------------------------------------*/
-    load_all_images( &main_sim_data );
-    check_or_error( main_sim_data.sim_info.running, "Failed to get all images" );
-
-    /*------------------------------------------------
-    Load Fonts
-    ------------------------------------------------*/
-    load_all_fonts( &main_sim_data );
-    check_or_error( main_sim_data.sim_info.running, "Failed to get all fonts" );      
-    
-    /*------------------------------------------------
-    Open the starting genome file
-    ------------------------------------------------*/
-    //gene_loc = (char *)malloc( MAX_STR_LEN );
-    //snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
-    //iFile.open( gene_loc, std::ifstream::in );
-    
-    /*------------------------------------------------
-    Read in the start Genome
-    ------------------------------------------------*/
-    //cout<<"Reading in the start genome"<<endl;
-    //iFile>>curword;
-    //iFile>>id;
-    //cout<<"Reading in Genome id "<<id<<endl;
-    start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
-    //iFile.close();
-
-    create_pop( &main_sim_data, start_genome );
-
-    /*------------------------------------------------
-    Set up items
-    ------------------------------------------------*/
-    main_sim_data.item_info.items.resize( MAX_ITEMS );
-
-    for( auto item : main_sim_data.item_info.items  )
+        debug_info();
+        
+        start_genome = NULL;
+        /*------------------------------------------------
+        Initialization
+        ------------------------------------------------*/
+        init_sim_resources_data( &main_sim_data );
+        start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
+        create_pop( &main_sim_data, start_genome );
+        
+        
+    if( main_sim_data.mpi_info.local.rank == main_sim_data.mpi_info.root )
         {
-        item = *new Item();
-        item.handle_collision();  
+        /*------------------------------------------------
+        Initialize Environment
+        ------------------------------------------------*/
+        main_init( (char*)"Tesselations", &main_sim_data );
+        check_or_error( main_sim_data.sim_info.running, "Initialization Failed" );
+        
+        /*------------------------------------------------
+        Load Images
+        ------------------------------------------------*/
+        load_all_images( &main_sim_data );
+        check_or_error( main_sim_data.sim_info.running, "Failed to get all images" );
+
+        /*------------------------------------------------
+        Load Fonts
+        ------------------------------------------------*/
+        load_all_fonts( &main_sim_data );
+        check_or_error( main_sim_data.sim_info.running, "Failed to get all fonts" );      
+    
+        /*------------------------------------------------
+        Open the starting genome file
+        ------------------------------------------------*/
+        //gene_loc = (char *)malloc( MAX_STR_LEN );
+        //snprintf( gene_loc, MAX_STR_LEN, "%s/%s/%s", ROOT_PATH, "genes", "tessstartgenes" );
+        //iFile.open( gene_loc, std::ifstream::in );
+    
+        /*------------------------------------------------
+        Read in the start Genome
+        ------------------------------------------------*/
+        //cout<<"Reading in the start genome"<<endl;
+        //iFile>>curword;
+        //iFile>>id;
+        //cout<<"Reading in Genome id "<<id<<endl;
+        //iFile.close();
+
+        /*------------------------------------------------
+        Set up items
+        ------------------------------------------------*/
+        main_sim_data.item_info.items.resize( MAX_ITEMS );
+
+        for( i=0; i < main_sim_data.item_info.items.size();i++ )
+            {
+            main_sim_data.item_info.items.at( i ).handle_collision();
+            }
+        /*------------------------------------------------
+        Initialize Statistics
+        ------------------------------------------------*/
+        main_sim_data.statistics.max_fit = 0;
+
+        /*------------------------------------------------
+        Run Simulation
+        ------------------------------------------------*/
+        main_loop( &main_sim_data );
+
+        /*------------------------------------------------
+        Clean up Environment
+        ------------------------------------------------*/
+        main_close( &main_sim_data );
+
+        /*------------------------------------------------
+        Exit
+        ------------------------------------------------*/
+        return( 0 );
         }
-    /*------------------------------------------------
-    Initialize Statistics
-    ------------------------------------------------*/
-    main_sim_data.statistics.max_fit = 0;
-
-    /*------------------------------------------------
-    Run Simulation
-    ------------------------------------------------*/
-    main_loop( &main_sim_data );
-
-    /*------------------------------------------------
-    Clean up Environment
-    ------------------------------------------------*/
-    main_close( &main_sim_data );
-
-    /*------------------------------------------------
-    Exit
-    ------------------------------------------------*/
-    return( 0 );
+    else
+        {
+        MPI_Finalize();
+        }
 
     }    /* main */
 
@@ -286,6 +294,7 @@ void create_pop
     {
     std::vector<Hub> 
                         loc_champs;          /* champion list                    */
+    int i;
 
     /*------------------------------------------------
     Set up hubs
@@ -322,10 +331,9 @@ void create_pop
             }
         }
 
-    for( auto hub : loc_champs )
+    for( i = 0; i < loc_champs.size(); i++ )
         {
-        hub = *new Hub();
-        hub.get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
+        loc_champs.at(i).get_sprite()->set_pos( rand() % WORLD_WIDTH, rand() % WORLD_HEIGHT );
 
         }
     
@@ -333,7 +341,6 @@ void create_pop
                 io_main_data->hub_info.hubs.data(), sub_pieces, MPI_INT , 
                 io_main_data->mpi_info.root, MPI_COMM_WORLD);
 
-    io_main_data->hub_info.hub_count = MAX_HUBS;
     io_main_data->hub_info.selected_hub = 0;
 
     /*------------------------------------------------
@@ -382,7 +389,7 @@ void get_sensor_data
     /*------------------------------------------------
     Find the closest hub
     ------------------------------------------------*/
-    for( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+    for( i = 0; i < io_main_data->hub_info.hubs.size(); i++ )
         {
         p_hub = &io_main_data->hub_info.hubs[ i ];
 
@@ -403,22 +410,23 @@ void get_sensor_data
     Find the closest item
     ------------------------------------------------*/
     min_dist = 999999;
-    for( Item item : io_main_data->item_info.items  )
+    for( i = 0; i < io_main_data->item_info.items.size(); i++ )
         {
-        dist = i_hub->get_sprite()->get_pos()->dist_to( item.get_sprite()->get_pos() );
+        p_item = &io_main_data->item_info.items.at( i );
+        dist = i_hub->get_sprite()->get_pos()->dist_to( p_item->get_sprite()->get_pos() );
 
         if( abs( dist ) < abs( min_dist ) )
             {
             min_dist = dist;
-            nearest_item = &item;
+            nearest_item = p_item;
             }
         }
     
     /*------------------------------------------------
     Update hub related inputs
     ------------------------------------------------*/
-    io_sensvals[ INPUTS_NUM_ENEMIES ] = io_main_data->hub_info.hub_count - 1;
-    if( io_main_data->hub_info.hub_count > 1 )
+    io_sensvals[ INPUTS_NUM_ENEMIES ] = io_main_data->hub_info.hubs.size() - 1;
+    if( io_main_data->hub_info.hubs.size() > 1 )
         {
         io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x() / 10;
         io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y() / 10;
@@ -432,8 +440,8 @@ void get_sensor_data
     /*------------------------------------------------
     Update item related inputs
     ------------------------------------------------*/
-    io_sensvals[ INPUTS_NUM_ITEMS ] = io_main_data->item_info.item_count - 1;
-    if( io_main_data->item_info.item_count > 1 )
+    io_sensvals[ INPUTS_NUM_ITEMS ] = io_main_data->item_info.items.size() - 1;
+    if( io_main_data->item_info.items.size() > 1 )
         {
         io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x() / 10;
         io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y() / 10;
@@ -467,12 +475,12 @@ void handle_events
     Local Variables
     ------------------------------------------------*/
     SDL_Event           event;              /* SDL event information            */
-    Hub                *sel_hub;            /* selected hub pointer             */
+   // Hub                *sel_hub;            /* selected hub pointer             */
         
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
+    //sel_hub = &io_main_data->hub_info.hubs[ io_main_data->hub_info.selected_hub ];
 
     /*--------------------------------------------
     Check for events
@@ -494,7 +502,7 @@ void handle_events
             /*------------------------------------
             Forward the key event to the sprite
             ------------------------------------*/
-            sel_hub->handle_key( event.key.keysym.sym );                
+          //  sel_hub->handle_key( event.key.keysym.sym );                
             }
         }
 
@@ -528,13 +536,15 @@ void handle_tess_item_collisions
     /*------------------------------------------------
     Check Tess <-> Item Collisions
     ------------------------------------------------*/
-    for( auto hub : io_main_data->hub_info.hubs )
+    for ( i = 0; i < io_main_data->hub_info.hubs.size(); i++ )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        for( auto item : io_main_data->item_info.items  )
+        p_hub_1 = &io_main_data->hub_info.hubs.at( i );
+        for( j = 0; j < io_main_data->item_info.items.size(); j++ )
             {
+            p_item = &io_main_data->item_info.items.at( j );
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
@@ -543,17 +553,17 @@ void handle_tess_item_collisions
 	        /*------------------------------------
 	        Check for collision
 	        ------------------------------------*/
-            collision = SDL_HasIntersection( hub.get_sprite()->get_bbox(),
-                                             item.get_sprite()->get_bbox() );
+            collision = SDL_HasIntersection( p_hub_1->get_sprite()->get_bbox(),
+                                             p_item->get_sprite()->get_bbox() );
 
 	        /*------------------------------------
 	        Handle Collision
 	        ------------------------------------*/
             if( collision )
                 {
-                hub.items_collected++;
-                hub.handle_collision( &item );
-                item.handle_collision();
+                p_hub_1->items_collected++;
+                p_hub_1->handle_collision( p_item );
+                p_item->handle_collision();
                 }
             }
         }
@@ -600,14 +610,14 @@ void handle_tess_tess_collisions
     /*------------------------------------------------
     Check Tess <-> Tess Collisions
     ------------------------------------------------*/ 
-    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+    for ( i = 0; i < io_main_data->hub_info.hubs.size(); i++ )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
         p_hub_1 = &io_main_data->hub_info.hubs[ i ];
 
-        for ( j = 0; j < io_main_data->hub_info.hub_count; j++ )
+        for ( j = 0; j < io_main_data->hub_info.hubs.size(); j++ )
             {
             /*------------------------------------
             Initialize loop variables
@@ -669,7 +679,7 @@ void init_brains
     Spawn the Population from starter gene
     ------------------------------------------------*/
     //cout<<"Spawning Population off Genome"<<endl;
-    io_main_data->pop_info.population = new Population(gnome, io_main_data->hub_info.hub_count );
+    io_main_data->pop_info.population = new Population(gnome, io_main_data->hub_info.hubs.size() );
     io_main_data->pop_info.offspring_count = 0;
 
     //cout<<"Verifying Spawned Pop"<<endl;
@@ -925,9 +935,10 @@ void main_loop
         /*--------------------------------------------
         Update items
         --------------------------------------------*/
-        for( auto item : io_main_data->item_info.items  )
+        for ( i = 0; i < io_main_data->item_info.items.size(); i++ )
             {
-            item.render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
+            p_item = &io_main_data->item_info.items[ i ];
+            p_item->render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
             } 
 
         /*--------------------------------------------
@@ -944,7 +955,7 @@ void main_loop
         Get latest events
         --------------------------------------------*/
         handle_events( io_main_data );
-        if( io_main_data->hub_info.hub_count == 0 )
+        if( io_main_data->hub_info.hubs.size() == 0 )
             {                           
             /*------------------------------------
             Create the child brain
@@ -1003,12 +1014,12 @@ void remove_hub
     /*------------------------------------------------
     Remove selecte hub
     ------------------------------------------------*/
-    for( i = hub_idx; i < io_main_data->hub_info.hub_count - 1; i++ )
+    
+    for( i = hub_idx; i < io_main_data->hub_info.hubs.size() - 1; i++ )
         {
-        io_main_data->hub_info.hubs[ i ] = io_main_data->hub_info.hubs[ i + 1 ];
+        memcpy( &io_main_data->hub_info.hubs.at( i ), &io_main_data->hub_info.hubs.at( i + 1 ), sizeof( Hub ) );
         }
-    io_main_data->hub_info.hub_count -= 1;
-
+    io_main_data->hub_info.hubs.resize( io_main_data->hub_info.hubs.size() - 1 );
     }    /* remove_hub */
 
 
@@ -1045,12 +1056,12 @@ void update_hubs
     /*------------------------------------------------
     Update Hubs
     ------------------------------------------------*/
-    for ( i = 0; i < io_main_data->hub_info.hub_count; i++ )
+    for ( i = 0; i < io_main_data->hub_info.hubs.size(); i++ )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->hub_info.hubs[ i ];
+        p_hub_1 = &io_main_data->hub_info.hubs.at( i );
         p_org = io_main_data->pop_info.population->organisms.at( i );
         if( p_org->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
             {
@@ -1097,17 +1108,16 @@ void update_hubs
         create a new 'child' hub
         ----------------------------------------*/
         if( ( p_hub_1->health >= 1200 )
-         && ( io_main_data->hub_info.hub_count < MAX_HUBS ) )
+         && ( io_main_data->hub_info.hubs.size() < MAX_HUBS ) )
             {
             /*------------------------------------
             Create the child hub
             ------------------------------------*/
             cout << " A CHILD!" << std::endl;
-            io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ] = *new Hub();
-            p_hub_2 = &io_main_data->hub_info.hubs[ io_main_data->hub_info.hub_count ];
+            p_hub_2 = new Hub();            
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
             p_hub_2->set_generation( p_hub_1->get_generation() + 1 );
-            io_main_data->hub_info.hub_count++;
+            io_main_data->hub_info.hubs.push_back( *p_hub_2 );
                 
             /*------------------------------------
             Create the child brain
