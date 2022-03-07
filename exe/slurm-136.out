@@ -1,0 +1,59 @@
+Master node: p0
+Hello world from processor p0, rank 0 out of 5 processors
+Hello world from processor p0, rank 1 out of 5 processors
+Render Drivers
+Render Drivers
+  -opengl
+  -opengles2
+  -opengles
+  -opengl
+  -opengles2
+  -opengles
+  -software
+  -software
+264 : 50 : 10 : 10
+264 : 50 : 10 : 10
+1 : 10
+Hello world from processor p2, rank 3 out of 5 processors
+Hello world from processor p1, rank 2 out of 5 processors
+Hello world from processor p3, rank 4 out of 5 processors
+Call Gather 
+Render Drivers
+Render Drivers
+Render Drivers
+Gathered 
+  -opengl
+  -opengl
+  -opengl
+  -opengles2
+  -opengles2
+  -opengles2
+  -opengles
+  -opengles
+  -opengles
+  -software
+  -software
+  -software
+264 : 50 : 10 : 10
+264 : 50 : 10 : 10
+264 : 50 : 10 : 10
+2 : 10
+Call Gather 
+Gathered 
+3 : 10
+Call Gather 
+Gathered 
+0 : 10
+Call Gather 
+4 : 10
+Call Gather 
+Gathered 
+Gathered 
+Max Fit: 338.95, Health: 338.95, Items: 2
+Max Fit: 562.62, Health: 562.62, Items: 2
+Max Fit: 1404.85, Health: 404.85, Items: 3
+Max Fit: 2498.69, Health: 498.69, Items: 4
+Max Fit: 3548.69, Health: 548.69, Items: 5
+Max Fit: 3774.27, Health: 774.27, Items: 5
+mpirun: Forwarding signal 18 to job
+slurmstepd-p0: error: *** JOB 136 ON p0 CANCELLED AT 2022-03-06T20:45:13 ***
