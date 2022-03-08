@@ -316,22 +316,22 @@ void create_pop
         {
         loc_champs.resize( sub_pieces );
         }
-    int errclass,resultlen;
-    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
-                loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
-                io_main_data->mpi_info.root, MPI_COMM_WORLD); 
-      char err_buffer[MPI_MAX_ERROR_STRING];
-    cout << io_main_data->mpi_info.local.rank << " : " << loc_champs.size() <<std::endl;
-    if( ierr != MPI_SUCCESS) 
-        {
-        MPI_Error_class(ierr,&errclass);
-        if(errclass== MPI_ERR_RANK) 
-            {
-            fprintf(stderr,"Invalid rank used in MPI send call\n");
-            MPI_Error_string(ierr,err_buffer,&resultlen);
-            fprintf(stderr,err_buffer);
-            }
-        }
+//    int errclass,resultlen;
+//    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
+//                loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
+//                io_main_data->mpi_info.root, MPI_COMM_WORLD); 
+//      char err_buffer[MPI_MAX_ERROR_STRING];
+//    cout << io_main_data->mpi_info.local.rank << " : " << loc_champs.size() <<std::endl;
+//    if( ierr != MPI_SUCCESS) 
+//        {
+//        MPI_Error_class(ierr,&errclass);
+//        if(errclass== MPI_ERR_RANK) 
+//            {
+//            fprintf(stderr,"Invalid rank used in MPI send call\n");
+//            MPI_Error_string(ierr,err_buffer,&resultlen);
+//            fprintf(stderr,err_buffer);
+//            }
+//        }
 
     for( i = 0; i < loc_champs.size(); i++ )
         {
@@ -339,9 +339,11 @@ void create_pop
 //    cout << io_main_data->mpi_info.local.rank << " : " << i <<std::endl;
         }
     
+    cout << io_main_data->mpi_info.local.rank << " : Call Gather" <<std::endl;
     MPI_Gather( loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR , 
                 io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
                 io_main_data->mpi_info.root, MPI_COMM_WORLD);
+    cout << io_main_data->mpi_info.local.rank << " : Gathered" <<std::endl;
 
     io_main_data->hub_info.selected_hub = 0;
 
