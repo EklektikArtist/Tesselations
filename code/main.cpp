@@ -316,22 +316,22 @@ void create_pop
         {
         loc_champs.resize( sub_pieces );
         }
-//    int errclass,resultlen;
-//    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
-//                loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
-//                io_main_data->mpi_info.root, MPI_COMM_WORLD); 
-//      char err_buffer[MPI_MAX_ERROR_STRING];
-//    cout << io_main_data->mpi_info.local.rank << " : " << loc_champs.size() <<std::endl;
-//    if( ierr != MPI_SUCCESS) 
-//        {
-//        MPI_Error_class(ierr,&errclass);
-//        if(errclass== MPI_ERR_RANK) 
-//            {
-//            fprintf(stderr,"Invalid rank used in MPI send call\n");
-//            MPI_Error_string(ierr,err_buffer,&resultlen);
-//            fprintf(stderr,err_buffer);
-//            }
-//        }
+    int errclass,resultlen;
+    int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
+                loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
+                io_main_data->mpi_info.root, MPI_COMM_WORLD); 
+      char err_buffer[MPI_MAX_ERROR_STRING];
+    cout << io_main_data->mpi_info.local.rank << " : " << loc_champs.size() <<std::endl;
+    if( ierr != MPI_SUCCESS) 
+        {
+        MPI_Error_class(ierr,&errclass);
+        if(errclass== MPI_ERR_RANK) 
+            {
+            fprintf(stderr,"Invalid rank used in MPI send call\n");
+            MPI_Error_string(ierr,err_buffer,&resultlen);
+            fprintf(stderr,err_buffer);
+            }
+        }
 
     for( i = 0; i < loc_champs.size(); i++ )
         {
@@ -339,11 +339,9 @@ void create_pop
 //    cout << io_main_data->mpi_info.local.rank << " : " << i <<std::endl;
         }
     
-    cout << io_main_data->mpi_info.local.rank << " : Call Gather" <<std::endl;
     MPI_Gather( loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR , 
                 io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
                 io_main_data->mpi_info.root, MPI_COMM_WORLD);
-    cout << io_main_data->mpi_info.local.rank << " : Gathered" <<std::endl;
 
     io_main_data->hub_info.selected_hub = 0;
 
@@ -876,6 +874,7 @@ void main_loop
     Item               *p_item;             /* pointer to an item               */
     Uint32              this_update;        /* current time                     */
     float               time_step;          /* seconds since last update        */
+    Genome             *start_genome;       /* starting genome                  */
 
     /*------------------------------------------------
     Update timer
@@ -973,8 +972,10 @@ void main_loop
                 species    
             ------------------------------------*/    
             if( io_main_data->champions.size() == 0 )
-                {
-                create_pop( io_main_data, io_main_data->pop_info.population->choose_parent_species()->organisms.back()->gnome );
+                {  
+                start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
+                create_pop( io_main_data, start_genome );
+        
                 }
             else
                 {       
