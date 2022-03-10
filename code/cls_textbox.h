@@ -54,7 +54,7 @@ class TextBox
     Class Variables
     ------------------------------------------------*/
     SDL_Color           color;               /* textbox color                   */
-    std::string         text;                /* textbox contents                */
+    char                text[CHAR_MAX];
     SDL_Rect            textbox;             /* box containing the text         */
     
 
@@ -73,7 +73,7 @@ public:TextBox
     )
         {
         color = { 255, 255, 255, 0xFF };
-        text = "";
+        memset( text, 0, CHAR_MAX );
         textbox.x = 0;
         textbox.y = 0;
         textbox.w = 100;
@@ -93,7 +93,7 @@ public:TextBox
 
 public:TextBox
     (
-    std::string         i_textstr,          /* textbox string                   */
+    char               *i_textstr,          /* textbox string                   */
     int                 i_xpos,             /* x position                       */
     int                 i_ypos,             /* y position                       */
     int                 i_width,            /* width                            */
@@ -101,7 +101,7 @@ public:TextBox
     )
         {
         color = { 255, 255, 255, 0xFF };
-        text = i_textstr;
+        strcpy( text, i_textstr );
         textbox.x = i_xpos;
         textbox.y = i_ypos;
         textbox.w = i_width;
@@ -118,7 +118,7 @@ public:TextBox
 
     ----------------------------------------------------------------------------*/        
 
-    public: std::string get_text
+    public: char* get_text
     (
     void
     )
@@ -154,7 +154,7 @@ public:TextBox
         /*--------------------------------------------
         Create the textbox surface
         --------------------------------------------*/   
-        gTextSurface = TTF_RenderText_Solid( i_resource_data->fonts[ 0 ], text.c_str(), color );
+        gTextSurface = TTF_RenderText_Solid( i_resource_data->fonts[ 0 ], text, color );
         check_or_error( gTextSurface != NULL, "Could not render textbox", EH_SDL );
 
         gTextOutput = SDL_CreateTextureFromSurface( io_sim_data->renderer, gTextSurface );
@@ -209,10 +209,10 @@ public:TextBox
        
     public: void set_text
     (
-    std::string         i_new_str           /* new string                       */
+    char               *i_new_str           /* new string                       */
     )
         {
-        text = i_new_str;
+        strcpy( text, i_new_str );
         }    
     
 

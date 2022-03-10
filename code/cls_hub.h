@@ -67,7 +67,7 @@ class Hub
     Sint8               speedx;             /* speed in the x direction         */
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
-    TextBox            *text_pos;           /* textbox                          */
+    TextBox             text_pos;           /* textbox                          */
     
    /*---------------------------------------------------------------------------
 
@@ -86,11 +86,11 @@ public:Hub
         heading = 0;
         health = 1000;
         items_collected = 0;
-        sprite.init( 0, 0, 10 );
+        //sprite.s( 0, 0, 10 );
         generation = 0;
         speedx = 0;
         speedy = 0;
-        text_pos = new TextBox( "", sprite.get_pos()->get_x(), sprite.get_pos()->get_y(), 250, 15 );
+        text_pos.set_pos( sprite.get_pos() );
 
         update();
         }
@@ -399,7 +399,7 @@ public:Hub
     )
         {
         sprite.shift_pos_buff( ceil( speedx * timestep ), ceil( speedy * timestep ), sprite.get_radius() );
-        text_pos->set_pos( sprite.get_pos() );        
+        text_pos.set_pos( sprite.get_pos() );        
         handle_drag( timestep );
 
         update();
@@ -423,7 +423,7 @@ public:Hub
     )
         {
         sprite.render( io_sim_data, camera );
-        text_pos->render( i_resource_data, io_sim_data, camera );
+        text_pos.render( i_resource_data, io_sim_data, camera );
         }
     
 
@@ -462,6 +462,6 @@ public:Hub
     )
         {
         snprintf( buffer, MAX_STR_LEN, "Position: %s, Health: %f2", sprite.get_pos()->stringify(), health );
-        text_pos->set_text( buffer );
+        text_pos.set_text( buffer );
         }
 };

@@ -52,11 +52,10 @@ class Circle
     void
     )    
         {
-        pos = *new Position();
-        radius = 0;
-        color = *new Color( 0xFF, 0xFF, 0xFF, 0xFF );
+        radius = 10;
         update();
         }
+
     /*----------------------------------------------------------------------------
 
     Name:
