@@ -34,11 +34,9 @@ class Sector
     std::vector<Hub>    c_loc_hubs;               /* vector of hubs for sim            */
     std::vector<Item>   c_loc_items;              /* vector of items for sim           */
     
-    Uint8               c_lfrn_id;
     std::vector<Hub>    c_lfrn_hubs;               /* vector of hubs for sim            */
     std::vector<Item>   c_lfrn_items;              /* vector of items for sim           */
 
-    Uint8               c_ufrn_id;
     
     public: Sector 
     (
@@ -50,8 +48,6 @@ class Sector
         c_border_width = 50;
         c_loc_id = 0;
         c_world_sector_cnt = 1;
-        c_lfrn_id = get_lsector_id();        
-        c_lfrn_id = get_usector_id();
         }
     
     public: Sector 
@@ -68,8 +64,6 @@ class Sector
         i_total_height = i_total_height;
         c_border_width = i_border_width;
         c_loc_id = i_loc_id;
-        c_lfrn_id = get_lsector_id();        
-        c_lfrn_id = get_usector_id();
         }
 
     
@@ -89,7 +83,21 @@ class Sector
     void
     )
         {
-        return c_loc_id == 0 ? c_world_sector_cnt - 1 : c_loc_id - 1;
+        if( c_world_sector_cnt == 1 )
+            {
+            return( c_loc_id );
+            }
+        else
+            {
+            if ( c_loc_id == 0 )
+                { 
+                return( c_world_sector_cnt - 1 );
+                }
+            else
+                {
+                return( c_loc_id - 1 );
+                }
+            }
         }
           
 
@@ -108,7 +116,21 @@ class Sector
     void
     )
         {
-        return c_loc_id == c_world_sector_cnt - 1 ? 0 : c_loc_id + 1;
+        if( c_world_sector_cnt == 1 )
+            {
+            return( c_loc_id );
+            }
+        else
+            {
+            if ( c_loc_id == c_world_sector_cnt - 1 )
+                {
+                return( 0 );
+                }
+            else
+                {
+                return( c_loc_id + 1 );
+                }
+            }
         }
           
 
@@ -128,8 +150,6 @@ class Sector
     )
         {
         c_world_sector_cnt = i_world_sector_cnt;
-        c_lfrn_id = get_lsector_id();        
-        c_lfrn_id = get_usector_id();
         }
           
           
@@ -150,8 +170,6 @@ class Sector
     )
         {
         c_loc_id = i_id;
-        c_lfrn_id = get_lsector_id();        
-        c_lfrn_id = get_usector_id();
         }
 
 
@@ -190,5 +208,24 @@ class Sector
     )
         {
         return( &c_loc_hubs );
+        }
+          
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_items
+
+    Description:
+        Return the color's alpha hue
+
+    ----------------------------------------------------------------------------*/
+
+    public: std::vector<Hub>* get_lfrn_hubs
+    (
+    void
+    )
+        {
+        return( &c_lfrn_hubs );
         }
     };

@@ -42,6 +42,13 @@ Local Constants
                                             /* pi                               */
 
 
+struct coll_msg
+    {
+    float   damage;
+    float   boostx;
+    float   boosty;
+    };
+
 /*--------------------------------------------------------------------------------
 
     Name:
@@ -68,6 +75,7 @@ class Hub
     Sint8               speedy;             /* speed in the y direction         */
     Circle              sprite;             /* sprite                           */
     TextBox             text_pos;           /* textbox                          */
+    Uint8               id;                 /* identification number            */
     
    /*---------------------------------------------------------------------------
 
@@ -91,8 +99,45 @@ public:Hub
         speedx = 0;
         speedy = 0;
         text_pos.set_pos( sprite.get_pos() );
+        id = 0;
 
         update();
+        }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_id
+
+    Description:
+        Returns the hub's id
+
+    ----------------------------------------------------------------------------*/
+
+    public: int get_id
+    (
+    void
+    )
+        {
+        return id;
+        }
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        set_id
+
+    Description:
+        Returns the hub's id
+
+    ----------------------------------------------------------------------------*/
+
+    public: void set_id
+    (
+    int i_id
+    )
+        {
+        id = i_id;
         }
 
     /*----------------------------------------------------------------------------
@@ -163,14 +208,14 @@ public:Hub
 
     public: void handle_collision
     (
-    Hub                *hub                /* hub collided with                */
+    Hub                *hub,               /* hub collided with                */
+    coll_msg           *coll
     )
         {
         /*------------------------------------------------
         Local variables
         ------------------------------------------------*/
         float           angle;              /* angle between hubs               */
-        int             damage;             /* damage caused by collision       */
         float           heading;            /* heading of current hub           */
         float           min_dist;           /* minimum distance allowed         */
         Position       *new_pos;            /* new position for hub             */
@@ -180,9 +225,9 @@ public:Hub
         /*------------------------------------------------
         Apply collision damage
         ------------------------------------------------*/
-        damage = ( 50 + ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10 );
-        health -= damage;
-        hub->health -= damage;
+        coll->damage = ( 50.0 + ( abs( ( speedx - hub->speedx ) + (speedy - hub->speedy ) ) ) / 10.0 );
+        health -= coll->damage;
+        //hub->health -= damage;
         
         /*------------------------------------------------
         Calculate separation distance
@@ -220,17 +265,50 @@ public:Hub
         /*------------------------------------------------
         Update the speeds of the two hubs
         ------------------------------------------------*/
-        hub->speedx = hub->speedx + speedx / 2;
-        hub->speedy = hub->speedy + speedy / 2 ;
-
-        speedx = speedx / 2;
-        speedy = speedy / 2;
+        coll->boostx = speedx / 2;
+        coll->boosty = speedy / 2;
+        speedx -= coll->boostx;
+        speedy -= coll->boosty;
         
         /*------------------------------------------------
         Update dependent data
         ------------------------------------------------*/
         update();
 
+        }
+
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        handle_collision
+
+    Description:
+        Respond to a collision event with another hub
+
+    ----------------------------------------------------------------------------*/
+
+    public: void handle_collision
+    (
+    coll_msg        coll
+
+    )
+        {        
+        /*------------------------------------------------
+        Apply collision damage
+        ------------------------------------------------*/
+        health -= coll.damage;
+        
+        /*------------------------------------------------
+        Update the speeds of the two hubs
+        ------------------------------------------------*/
+        speedx += coll.boostx;
+        speedy += coll.boosty;
+        
+        /*------------------------------------------------
+        Update dependent data
+        ------------------------------------------------*/
+        update();
         }
 
 
