@@ -25,7 +25,7 @@ Local Constants
                                             /* initial width of screen          */
 #define             SCREEN_HEIGHT           500
                                             /* initial height of screen         */
-#define             WORLD_WIDTH             1600
+#define             WORLD_WIDTH             500
                                             /* initial width of world           */
 #define             WORLD_HEIGHT            1000
                                             /* initial height of world          */
@@ -51,6 +51,7 @@ class Position
     ------------------------------------------------*/
     char                buffer[ MAX_STR_LEN ];
                                             /* stringified buffer               */
+    int                 s;                  /* sector                           */
     int                 x;                  /* x position                       */
     int                 y;                  /* y position                       */
     

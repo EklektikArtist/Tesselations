@@ -33,6 +33,7 @@ Class Headers
 ------------------------------------------------*/
 #include "cls_hub.h"
 #include "cls_item.h"
+#include "cls_world.h"
 
 using namespace NEAT;
 
@@ -40,8 +41,9 @@ using namespace NEAT;
 Constants
 --------------------------------------------------------------------------------*/
 #define                 WINDOWS             true
-#define                 MAX_HUBS            50
-#define                 MAX_ITEMS           200
+#define                 MAX_SCT_HUBS            15
+#define                 START_SCT_HUBS            10
+#define                 START_SCT_ITEMS           40
 //#define                 ROOT_PATH           "T:/tesselations/"
 #define               ROOT_PATH           "."
 
@@ -54,7 +56,7 @@ struct hub_data
     
     std::vector<Hub>   hubs;               /* vector of hubs for sim            */
     //int                 hub_count;          /* count of hubs in use             */
-    int                 selected_hub;       /* index of currently selected hub  */
+    //int                 selected_hub;       /* index of currently selected hub  */
     };
 
 struct item_data
@@ -91,8 +93,9 @@ struct mpi_data
 struct main_data
     {
     sim_data            sim_info;           /* simulator data                   */
-    hub_data            hub_info;           /* hub data                         */
-    item_data           item_info;          /* item data                        */
+    World               world;
+    //hub_data            hub_info;           /* hub data                         */
+    //item_data           item_info;          /* item data                        */
     population_data     pop_info;           /* population data                  */
     std::vector<Genome*> 
                         champions;          /* champion list                    */
