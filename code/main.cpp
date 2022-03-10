@@ -190,21 +190,29 @@ int main
     ------------------------------------------------*/
     MPI_Init(NULL, NULL);
     mpi_test( &main_sim_data );
-        main_sim_data.statistics.max_fit = 0;
 
-        debug_info();
-        
-        start_genome = NULL;
-        /*------------------------------------------------
-        Initialization
-        ------------------------------------------------*/
-        init_sim_resources_data( &main_sim_data );
-        start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
-        create_pop( &main_sim_data, start_genome );
-        
-        
-    if( main_sim_data.mpi_info.local.rank == main_sim_data.mpi_info.root )
+    /*------------------------------------------------
+    Set up items
+    ------------------------------------------------*/
+    main_sim_data.item_info.items.resize( MAX_ITEMS );
+
+    for( i=0; i < main_sim_data.item_info.items.size();i++ )
         {
+        main_sim_data.item_info.items.at( i ).handle_collision();
+        }
+        
+    /*------------------------------------------------
+    Initialization
+    ------------------------------------------------*/
+    start_genome = NULL;
+    start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
+    create_pop( &main_sim_data, start_genome );        
+        
+    if( main_sim_data.mpi_info.local.rank == main_sim_data.mpi_info.ui )
+        {
+        init_sim_resources_data( &main_sim_data );
+        debug_info();
+
         /*------------------------------------------------
         Initialize Environment
         ------------------------------------------------*/
@@ -221,8 +229,8 @@ int main
         Load Fonts
         ------------------------------------------------*/
         load_all_fonts( &main_sim_data );
-        check_or_error( main_sim_data.sim_info.running, "Failed to get all fonts" );      
-    
+        check_or_error( main_sim_data.sim_info.running, "Failed to get all fonts" );     
+
         /*------------------------------------------------
         Open the starting genome file
         ------------------------------------------------*/
@@ -240,38 +248,25 @@ int main
         //iFile.close();
 
         /*------------------------------------------------
-        Set up items
-        ------------------------------------------------*/
-        main_sim_data.item_info.items.resize( MAX_ITEMS );
-
-        for( i=0; i < main_sim_data.item_info.items.size();i++ )
-            {
-            main_sim_data.item_info.items.at( i ).handle_collision();
-            }
-        /*------------------------------------------------
         Initialize Statistics
         ------------------------------------------------*/
         main_sim_data.statistics.max_fit = 0;
-
-        /*------------------------------------------------
-        Run Simulation
-        ------------------------------------------------*/
-        main_loop( &main_sim_data );
-
-        /*------------------------------------------------
-        Clean up Environment
-        ------------------------------------------------*/
-        main_close( &main_sim_data );
-
-        /*------------------------------------------------
-        Exit
-        ------------------------------------------------*/
-        return( 0 );
         }
-    else
-        {
-        MPI_Finalize();
-        }
+
+    /*------------------------------------------------
+    Run Simulation
+    ------------------------------------------------*/
+    main_loop( &main_sim_data );
+
+    /*------------------------------------------------
+    Clean up Environment
+    ------------------------------------------------*/
+    main_close( &main_sim_data );
+
+    /*------------------------------------------------
+    Exit
+    ------------------------------------------------*/
+    return( 0 );
 
     }    /* main */
 
@@ -316,6 +311,7 @@ void create_pop
         {
         loc_champs.resize( sub_pieces );
         }
+
     int errclass,resultlen;
     int ierr= MPI_Scatter( io_main_data->hub_info.hubs.data(), sub_pieces*one_piece, MPI_CHAR , 
                 loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
@@ -1335,6 +1331,7 @@ void mpi_test
     int name_len;
 
     io_main_data->mpi_info.root = 0;
+    io_main_data->mpi_info.ui = 0;
     // Get the number of processes
     MPI_Comm_size(MPI_COMM_WORLD, &io_main_data->mpi_info.world_size);
 

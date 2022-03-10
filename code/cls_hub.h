@@ -17,6 +17,7 @@ Includes
 External Headers
 ------------------------------------------------*/
 #include "SDL_timer.h"
+#include <math.h>
 
 /*------------------------------------------------
 Project Headers
@@ -336,7 +337,7 @@ public:Hub
             Handle up arrow press
             --------------------------------------------*/
             case SDLK_UP:
-                if( abs(speedy) < 13 )
+                if( speedy > -13 )
                     {
                     speedy -= 5;
                     heading = PI / 2.0f;
@@ -348,7 +349,7 @@ public:Hub
             Handle down arrow press
             --------------------------------------------*/
             case SDLK_DOWN:
-                if( abs(speedy) < 13 )
+                if( speedy < 13 )
                     {
                     speedy += 5;        
                     heading = 3.0f * PI / 2.0f;
@@ -360,7 +361,7 @@ public:Hub
             Handle left arrow press
             --------------------------------------------*/
             case SDLK_LEFT:
-                if( abs(speedx) < 13 )
+                if( speedx > -13 )
                     {
                     speedx -= 5;
                     heading = 0.0f;
@@ -372,7 +373,7 @@ public:Hub
             Handle right arrow press
             --------------------------------------------*/
             case SDLK_RIGHT:
-                if( abs(speedx) < 13 )
+                if( speedx < 13 )
                     {
                     speedx += 5;
                     heading = PI;
@@ -397,7 +398,7 @@ public:Hub
     float timestep
     )
         {
-        sprite.shift_pos_buff( (int)( speedx * timestep ), (int)( speedy * timestep ), sprite.get_radius() );
+        sprite.shift_pos_buff( ceil( speedx * timestep ), ceil( speedy * timestep ), sprite.get_radius() );
         text_pos->set_pos( sprite.get_pos() );        
         handle_drag( timestep );
 

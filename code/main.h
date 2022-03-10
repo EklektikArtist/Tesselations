@@ -84,6 +84,7 @@ struct mpi_data
     {    
     int                 world_size;
     int                 root;
+    int                 ui;
     local_rank_data     local;
     };
 
