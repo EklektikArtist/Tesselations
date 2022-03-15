@@ -202,10 +202,15 @@ int main
     /*------------------------------------------------
     Set up items
     ------------------------------------------------*/
+//    if( main_sim_data.mpi_info.local.rank == main_sim_data.mpi_info.ui )
+//{
+for( int j= 0; j < main_sim_data.mpi_info.world_size;j++)
+{
     main_sim_data.world.add_sector( new Sector() );
 
+}       
     main_sim_data.world.get_sector( main_sim_data.mpi_info.local.rank )->get_items()->resize( START_SCT_ITEMS );
-        
+//}
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
@@ -1034,17 +1039,17 @@ void main_loop
         /*--------------------------------------------
         Update hubs
         --------------------------------------------*/
-        update_hubs( io_main_data, time_step );
+//        update_hubs( io_main_data, time_step );
 
         /*--------------------------------------------
         Check Tess <-> Tess Collisions
         --------------------------------------------*/
-        handle_tess_tess_collisions( io_main_data );
+  //      handle_tess_tess_collisions( io_main_data );
         
         /*--------------------------------------------
         Check Tess <-> Item Collisions
         --------------------------------------------*/  
-        handle_tess_item_collisions( io_main_data );
+    //    handle_tess_item_collisions( io_main_data );
         }
 
     }    /* main_loop */

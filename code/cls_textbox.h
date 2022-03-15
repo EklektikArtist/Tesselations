@@ -47,7 +47,7 @@ Class Headers
         References from https://gamedev.stackexchange.com/questions/140294/what-is-the-most-efficient-way-to-render-a-textbox-in-c-sdl2
 
 --------------------------------------------------------------------------------*/
-
+#define CHAR_MAX 127
 class TextBox
     { 
     /*------------------------------------------------
