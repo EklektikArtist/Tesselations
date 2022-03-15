@@ -209,7 +209,6 @@ int main
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    start_genome = NULL;
     start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
     create_pop( &main_sim_data, start_genome );        
         
@@ -916,6 +915,7 @@ void main_loop
     ------------------------------------------------*/
     Uint8               i;                  /* loop counter                     */
     Item               *p_item;             /* pointer to an item               */
+    Hub                *p_hub;              /* pointer to a hub                 */
     Uint32              this_update;        /* current time                     */
     float               time_step;          /* seconds since last update        */
     Genome             *start_genome;       /* starting genome                  */
@@ -935,58 +935,106 @@ void main_loop
         /*--------------------------------------------
         Clear the screen
         --------------------------------------------*/
-        SDL_RenderCopy( io_main_data->sim_info.renderer, io_main_data->resources.images[ 0 ], NULL, NULL );
+        if( io_main_data->mpi_info.local.rank == io_main_data->mpi_info.ui )
+            {
+            SDL_RenderCopy( io_main_data->sim_info.renderer, io_main_data->resources.images[ 0 ], NULL, NULL );
 
+            SDL_Event e;
+
+            //Handle events on queue
+            while( SDL_PollEvent( &e ) != 0 )
+                {
+                //User requests quit
+                if( e.type == SDL_QUIT )
+                {
+                    //quit = true;
+                }
+                //User presses a key
+                else if( e.type == SDL_KEYDOWN )
+                    {
+                    //Select surfaces based on key press
+                    switch( e.key.keysym.sym )
+                        {
+                        case SDLK_COMMA:
+                            io_main_data->sim_info.camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
+                            break;
+
+                        case SDLK_o:
+                            io_main_data->sim_info.camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
+                            break;
+
+                        case SDLK_a:
+                            io_main_data->sim_info.camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
+                            break;
+
+                        case SDLK_e:
+                            io_main_data->sim_info.camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
+                            break;
+
+                        default:
+                        break;
+                        }
+                    }
+                }
+
+
+            /*--------------------------------------------
+            Update items
+            --------------------------------------------*/
+            for ( i = 0; i <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size(); i++ )
+                {
+                p_item = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->at( i );
+                p_item->render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
+                } 
+            
+            for ( i = 0; i <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+                {
+                p_hub = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
+                p_hub->render( &io_main_data->resources, &io_main_data->sim_info, &io_main_data->sim_info.camera );
+                } 
+            
+            /*--------------------------------------------
+            Get latest events
+            --------------------------------------------*/
+            handle_events( io_main_data );
+            if( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() == 0 )
+                {                           
+                /*------------------------------------
+                Create the child brain
+
+                Here we call two rtNEAT calls: 
+                1) choose_parent_species() decides 
+                    which species should produce the 
+                    next offspring
+                2) reproduce_one(...) creates a 
+                    single offspring from the chosen 
+                    species    
+                ------------------------------------*/    
+                if( io_main_data->champions.size() == 0 )
+                    {  
+                    start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
+                    create_pop( io_main_data, start_genome );
+        
+                    }
+                else
+                    {       
+                    create_pop( io_main_data, io_main_data->champions.back() );
+                    }
+                    continue;
+                
+                }
+
+            /*--------------------------------------------
+            Refresh the screen
+            --------------------------------------------*/
+            SDL_RenderSetClipRect( io_main_data->sim_info.renderer, NULL );
+            SDL_RenderPresent( io_main_data->sim_info.renderer );
+            }
+        
         /*--------------------------------------------
         Update hubs
         --------------------------------------------*/
         update_hubs( io_main_data, time_step );
-        SDL_Event e;
-
-        //Handle events on queue
-        while( SDL_PollEvent( &e ) != 0 )
-        {
-            //User requests quit
-            if( e.type == SDL_QUIT )
-            {
-                //quit = true;
-            }
-            //User presses a key
-            else if( e.type == SDL_KEYDOWN )
-            {
-                //Select surfaces based on key press
-                switch( e.key.keysym.sym )
-                {
-                    case SDLK_COMMA:
-                        io_main_data->sim_info.camera.shift_y_buff( -10, SCREEN_WIDTH / 2 );
-                        break;
-
-                    case SDLK_o:
-                        io_main_data->sim_info.camera.shift_y_buff( 10, SCREEN_WIDTH / 2 );
-                        break;
-
-                    case SDLK_a:
-                        io_main_data->sim_info.camera.shift_x_buff( 10, SCREEN_HEIGHT / 2);
-                        break;
-
-                    case SDLK_e:
-                        io_main_data->sim_info.camera.shift_x_buff( -10, SCREEN_HEIGHT / 2);
-                        break;
-
-                    default:
-                    break;
-                }
-            }
-        }
-
-        /*--------------------------------------------
-        Update items
-        --------------------------------------------*/
-        for ( i = 0; i <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size(); i++ )
-            {
-            p_item = & io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->at( i );
-            p_item->render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
-            } 
 
         /*--------------------------------------------
         Check Tess <-> Tess Collisions
@@ -997,43 +1045,6 @@ void main_loop
         Check Tess <-> Item Collisions
         --------------------------------------------*/  
         handle_tess_item_collisions( io_main_data );
-
-        /*--------------------------------------------
-        Get latest events
-        --------------------------------------------*/
-        handle_events( io_main_data );
-        if( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() == 0 )
-            {                           
-            /*------------------------------------
-            Create the child brain
-
-            Here we call two rtNEAT calls: 
-            1) choose_parent_species() decides 
-                which species should produce the 
-                next offspring
-            2) reproduce_one(...) creates a 
-                single offspring from the chosen 
-                species    
-            ------------------------------------*/    
-            if( io_main_data->champions.size() == 0 )
-                {  
-                start_genome=new Genome( INPUTS_CNT, OUTPUTS_CNT, 0, 0 );
-                create_pop( io_main_data, start_genome );
-        
-                }
-            else
-                {       
-                create_pop( io_main_data, io_main_data->champions.back() );
-                }
-                continue;
-                
-            }
-
-        /*--------------------------------------------
-        Refresh the screen
-        --------------------------------------------*/
-        SDL_RenderSetClipRect( io_main_data->sim_info.renderer, NULL );
-        SDL_RenderPresent( io_main_data->sim_info.renderer );
         }
 
     }    /* main_loop */
@@ -1266,7 +1277,6 @@ void update_hubs
         Move and render the current hub
         ----------------------------------------*/
         p_hub_1->move( time_step );
-        p_hub_1->render( &io_main_data->resources, &io_main_data->sim_info, &io_main_data->sim_info.camera );
         }
 
     }    /* update_hubs */
