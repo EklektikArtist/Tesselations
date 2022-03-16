@@ -204,12 +204,12 @@ int main
     ------------------------------------------------*/
 //    if( main_sim_data.mpi_info.local.rank == main_sim_data.mpi_info.ui )
 //{
-for( int j= 0; j < main_sim_data.mpi_info.world_size;j++)
-{
+//for( int j= 0; j < main_sim_data.mpi_info.world_size;j++)
+//{
     main_sim_data.world.add_sector( new Sector() );
 
-}       
-    main_sim_data.world.get_sector( main_sim_data.mpi_info.local.rank )->get_items()->resize( START_SCT_ITEMS );
+//}       
+    main_sim_data.world.get_sector( 0 )->get_items()->resize( START_SCT_ITEMS );
 //}
     /*------------------------------------------------
     Initialization
@@ -292,7 +292,7 @@ void create_pop
     int total_pieces = START_SCT_HUBS;
 //    int sub_pieces = MAX_HUBS/io_main_data->mpi_info.world_size;
 //    int root_pieces = sub_pieces + ( total_pieces - sub_pieces * io_main_data->mpi_info.world_size );
-        io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->resize( total_pieces );
+        io_main_data->world.get_sector( 0 )->get_hubs()->resize( total_pieces );
 //    
 //    cout << one_piece << " : " << total_pieces << " : " << sub_pieces << " : " << root_pieces  << std::endl;
 //
@@ -306,7 +306,7 @@ void create_pop
 //        }
 //
 //    int errclass,resultlen;
-//    int ierr= MPI_Scatter( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->data(), sub_pieces*one_piece, MPI_CHAR , 
+//    int ierr= MPI_Scatter( io_main_data->world.get_sector( 0 )->get_hubs()->data(), sub_pieces*one_piece, MPI_CHAR , 
 //                loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR, 
 //                io_main_data->mpi_info.root, MPI_COMM_WORLD); 
 //      char err_buffer[MPI_MAX_ERROR_STRING];
@@ -322,14 +322,14 @@ void create_pop
 //            }
 //        }
 //
-    for( i = 0; i < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+    for( i = 0; i < io_main_data->world.get_sector( 0 )->get_hubs()->size(); i++ )
         {
-         io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i ).set_id( i );
+         io_main_data->world.get_sector( 0 )->get_hubs()->at( i ).set_id( i );
 //    cout << io_main_data->mpi_info.local.rank << " : " << i <<std::endl;
         }
 //    
 //    MPI_Gather( loc_champs.data(),            sub_pieces*one_piece, MPI_CHAR , 
-//                io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->data(), sub_pieces*one_piece, MPI_CHAR , 
+//                io_main_data->world.get_sector( 0 )->get_hubs()->data(), sub_pieces*one_piece, MPI_CHAR , 
 //                io_main_data->mpi_info.root, MPI_COMM_WORLD);
 
     //io_main_data->hub_info.selected_hub = 0;
@@ -380,9 +380,9 @@ void get_sensor_data
     /*------------------------------------------------
     Find the closest hub
     ------------------------------------------------*/
-    for( i = 0; i < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+    for( i = 0; i < io_main_data->world.get_sector( 0 )->get_hubs()->size(); i++ )
         {
-        p_hub = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
+        p_hub = &io_main_data->world.get_sector( 0 )->get_hubs()->at( i );
 
         if( p_hub == i_hub )
             {
@@ -401,9 +401,9 @@ void get_sensor_data
     Find the closest item
     ------------------------------------------------*/
     min_dist = 999999;
-    for( i = 0; i <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size(); i++ )
+    for( i = 0; i <  io_main_data->world.get_sector( 0 )->get_items()->size(); i++ )
         {
-        p_item = & io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->at( i );
+        p_item = & io_main_data->world.get_sector( 0 )->get_items()->at( i );
         dist = i_hub->get_sprite()->get_pos()->dist_to( p_item->get_sprite()->get_pos() );
 
         if( abs( dist ) < abs( min_dist ) )
@@ -416,8 +416,8 @@ void get_sensor_data
     /*------------------------------------------------
     Update hub related inputs
     ------------------------------------------------*/
-    io_sensvals[ INPUTS_NUM_ENEMIES ] = io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() - 1;
-    if( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() > 1 )
+    io_sensvals[ INPUTS_NUM_ENEMIES ] = io_main_data->world.get_sector( 0 )->get_hubs()->size() - 1;
+    if( io_main_data->world.get_sector( 0 )->get_hubs()->size() > 1 )
         {
         io_sensvals[ INPUTS_X_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_hub->get_sprite()->get_pos()->get_x() / 10;
         io_sensvals[ INPUTS_Y_DIST_NRST_ENEMY ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_hub->get_sprite()->get_pos()->get_y() / 10;
@@ -431,8 +431,8 @@ void get_sensor_data
     /*------------------------------------------------
     Update item related inputs
     ------------------------------------------------*/
-    io_sensvals[ INPUTS_NUM_ITEMS ] =  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size() - 1;
-    if(  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size() > 1 )
+    io_sensvals[ INPUTS_NUM_ITEMS ] =  io_main_data->world.get_sector( 0 )->get_items()->size() - 1;
+    if(  io_main_data->world.get_sector( 0 )->get_items()->size() > 1 )
         {
         io_sensvals[ INPUTS_X_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_x() - nearest_item->get_sprite()->get_pos()->get_x() / 10;
         io_sensvals[ INPUTS_Y_DIST_NRST_ITEM ] = i_hub->get_sprite()->get_pos()->get_y() - nearest_item->get_sprite()->get_pos()->get_y() / 10;
@@ -471,7 +471,7 @@ void handle_events
     /*------------------------------------------------
     Initialization
     ------------------------------------------------*/
-    //sel_hub = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( io_main_data->hub_info.selected_hub ];
+    //sel_hub = &io_main_data->world.get_sector( 0 )->get_hubs()->at( io_main_data->hub_info.selected_hub ];
 
     /*--------------------------------------------
     Check for events
@@ -527,15 +527,15 @@ void handle_tess_item_collisions
     /*------------------------------------------------
     Check Tess <-> Item Collisions
     ------------------------------------------------*/
-    for ( i = 0; i < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+    for ( i = 0; i < io_main_data->world.get_sector( 0 )->get_hubs()->size(); i++ )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
-        for( j = 0; j <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size(); j++ )
+        p_hub_1 = &io_main_data->world.get_sector( 0 )->get_hubs()->at( i );
+        for( j = 0; j <  io_main_data->world.get_sector( 0 )->get_items()->size(); j++ )
             {
-            p_item = & io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->at( j );
+            p_item = & io_main_data->world.get_sector( 0 )->get_items()->at( j );
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
@@ -601,19 +601,19 @@ void handle_tess_tess_collisions
     /*------------------------------------------------
     Check Tess <-> Tess Collisions
     ------------------------------------------------*/ 
-    for ( i = 0; i < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+    for ( i = 0; i < io_main_data->world.get_sector( 0 )->get_hubs()->size(); i++ )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
+        p_hub_1 = &io_main_data->world.get_sector( 0 )->get_hubs()->at( i );
 
-        for ( j = 0; j < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); j++ )
+        for ( j = 0; j < io_main_data->world.get_sector( 0 )->get_hubs()->size(); j++ )
             {
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
-            p_hub_2 = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( j );
+            p_hub_2 = &io_main_data->world.get_sector( 0 )->get_hubs()->at( j );
             collision = false;
 
 	        /*------------------------------------
@@ -644,12 +644,12 @@ void handle_tess_tess_collisions
                 collided_hubs_count[ j ]++;
                 }
             }
-        for ( j = 0; j < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_lfrn_hubs()->size(); j++ )
+        for ( j = 0; j < io_main_data->world.get_sector( 0 )->get_lfrn_hubs()->size(); j++ )
             {
             /*------------------------------------
             Initialize loop variables
             ------------------------------------*/
-            p_hub_2 = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_lfrn_hubs()->at( j );
+            p_hub_2 = &io_main_data->world.get_sector( 0 )->get_lfrn_hubs()->at( j );
             collision = false;
 
 	        /*------------------------------------
@@ -675,7 +675,7 @@ void handle_tess_tess_collisions
                 {
                 coll_msg coll;
                 p_hub_1->handle_collision( p_hub_2, &coll );
-                send_collision_msg( io_main_data->mpi_info.local.rank, io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_lsector_id(), TESS_HUB_TYPE, p_hub_2->get_id(), coll );
+                send_collision_msg( io_main_data->mpi_info.local.rank, io_main_data->world.get_sector( 0 )->get_lsector_id(), TESS_HUB_TYPE, p_hub_2->get_id(), coll );
                 collided_hubs[ j ][ collided_hubs_count[ j ] ] = i;
                 collided_hubs_count[ j ]++;
                 }
@@ -729,7 +729,7 @@ void init_brains
     Spawn the Population from starter gene
     ------------------------------------------------*/
     //cout<<"Spawning Population off Genome"<<endl;
-    io_main_data->pop_info.population = new Population(gnome, io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() );
+    io_main_data->pop_info.population = new Population(gnome, io_main_data->world.get_sector( 0 )->get_hubs()->size() );
     io_main_data->pop_info.offspring_count = 0;
 
     //cout<<"Verifying Spawned Pop"<<endl;
@@ -986,15 +986,15 @@ void main_loop
             /*--------------------------------------------
             Update items
             --------------------------------------------*/
-            for ( i = 0; i <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->size(); i++ )
+            for ( i = 0; i <  io_main_data->world.get_sector( 0 )->get_items()->size(); i++ )
                 {
-                p_item = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_items()->at( i );
+                p_item = &io_main_data->world.get_sector( 0 )->get_items()->at( i );
                 p_item->render( &io_main_data->sim_info, &io_main_data->sim_info.camera );
                 } 
             
-            for ( i = 0; i <  io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+            for ( i = 0; i <  io_main_data->world.get_sector( 0 )->get_hubs()->size(); i++ )
                 {
-                p_hub = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
+                p_hub = &io_main_data->world.get_sector( 0 )->get_hubs()->at( i );
                 p_hub->render( &io_main_data->resources, &io_main_data->sim_info, &io_main_data->sim_info.camera );
                 } 
             
@@ -1002,7 +1002,7 @@ void main_loop
             Get latest events
             --------------------------------------------*/
             handle_events( io_main_data );
-            if( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() == 0 )
+            if( io_main_data->world.get_sector( 0 )->get_hubs()->size() == 0 )
                 {                           
                 /*------------------------------------
                 Create the child brain
@@ -1039,17 +1039,17 @@ void main_loop
         /*--------------------------------------------
         Update hubs
         --------------------------------------------*/
-//        update_hubs( io_main_data, time_step );
+        update_hubs( io_main_data, time_step );
 
         /*--------------------------------------------
         Check Tess <-> Tess Collisions
         --------------------------------------------*/
-  //      handle_tess_tess_collisions( io_main_data );
+      handle_tess_tess_collisions( io_main_data );
         
         /*--------------------------------------------
         Check Tess <-> Item Collisions
         --------------------------------------------*/  
-    //    handle_tess_item_collisions( io_main_data );
+    handle_tess_item_collisions( io_main_data );
         }
 
     }    /* main_loop */
@@ -1080,11 +1080,11 @@ void remove_hub
     Remove selecte hub
     ------------------------------------------------*/
     
-    for( i = hub_idx; i < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() - 1; i++ )
+    for( i = hub_idx; i < io_main_data->world.get_sector( 0 )->get_hubs()->size() - 1; i++ )
         {
-        memcpy( &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i ), &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i + 1 ), sizeof( Hub ) );
+        memcpy( &io_main_data->world.get_sector( 0 )->get_hubs()->at( i ), &io_main_data->world.get_sector( 0 )->get_hubs()->at( i + 1 ), sizeof( Hub ) );
         }
-    io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->resize( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() - 1 );
+    io_main_data->world.get_sector( 0 )->get_hubs()->resize( io_main_data->world.get_sector( 0 )->get_hubs()->size() - 1 );
     }    /* remove_hub */
 
 
@@ -1121,12 +1121,12 @@ void update_hubs
     /*------------------------------------------------
     Update Hubs
     ------------------------------------------------*/
-    for ( i = 0; i < io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size(); i++ )
+    for ( i = 0; i < io_main_data->world.get_sector( 0 )->get_hubs()->size(); i++ )
         {
         /*----------------------------------------
         Assign pointers
         ----------------------------------------*/
-        p_hub_1 = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
+        p_hub_1 = &io_main_data->world.get_sector( 0 )->get_hubs()->at( i );
         p_org = io_main_data->pop_info.population->organisms.at( i );
         if( p_org->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
             {
@@ -1173,7 +1173,7 @@ void update_hubs
         create a new 'child' hub
         ----------------------------------------*/
         if( ( p_hub_1->health >= 1200 )
-         && ( io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->size() < MAX_SCT_HUBS ) )
+         && ( io_main_data->world.get_sector( 0 )->get_hubs()->size() < MAX_SCT_HUBS ) )
             {
             /*------------------------------------
             Create the child hub
@@ -1182,8 +1182,8 @@ void update_hubs
             p_hub_2 = new Hub();            
             p_hub_2->get_sprite()->set_color( 0x00, 0xFF, 0x00, 0xFF );
             p_hub_2->set_generation( p_hub_1->get_generation() + 1 );
-            io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->push_back( *p_hub_2 );
-            p_hub_1 = &io_main_data->world.get_sector( io_main_data->mpi_info.local.rank )->get_hubs()->at( i );
+            io_main_data->world.get_sector( 0 )->get_hubs()->push_back( *p_hub_2 );
+            p_hub_1 = &io_main_data->world.get_sector( 0 )->get_hubs()->at( i );
                 
             /*------------------------------------
             Create the child brain
