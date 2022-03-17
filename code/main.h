@@ -99,7 +99,8 @@ struct mpi_data
 struct main_data
     {
     sim_data            sim_info;           /* simulator data                   */
-    World               world;
+    Sector              sector_info;
+    //World               world;
     //hub_data            hub_info;           /* hub data                         */
     //item_data           item_info;          /* item data                        */
     population_data     pop_info;           /* population data                  */

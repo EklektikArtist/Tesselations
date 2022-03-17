@@ -260,15 +260,19 @@ class Circle
 
     ----------------------------------------------------------------------------*/
 
-    public: void shift_pos_buff
+    public: sector_shift_t8 shift_pos_buff
     (
     int                 i_x_offset,         /* x offset                         */
     int                 i_y_offset,         /* y offset                         */
     int                 i_buff              /* buffer                           */
     )
         {
-        pos.shift_pos_buff( i_x_offset, i_y_offset, i_buff );
+        sector_shift_t8 ret_val;
+        ret_val = SECTOR_SHIFT_NONE;
+        ret_val = pos.shift_pos_buff( i_x_offset, i_y_offset, i_buff );
         update();
+
+        return( ret_val );
         }
     
 

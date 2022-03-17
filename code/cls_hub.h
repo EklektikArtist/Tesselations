@@ -471,16 +471,20 @@ public:Hub
 
     ----------------------------------------------------------------------------*/
 
-    public: void move
+    public: sector_shift_t8 move
     (
     float timestep
     )
         {
-        sprite.shift_pos_buff( ceil( speedx * timestep ), ceil( speedy * timestep ), sprite.get_radius() );
+        sector_shift_t8 ret_val;
+        ret_val = SECTOR_SHIFT_NONE;
+        ret_val = sprite.shift_pos_buff( ceil( speedx * timestep ), ceil( speedy * timestep ), sprite.get_radius() );
         text_pos.set_pos( sprite.get_pos() );        
         handle_drag( timestep );
 
         update();
+
+        return( ret_val );
         }
 
     /*----------------------------------------------------------------------------

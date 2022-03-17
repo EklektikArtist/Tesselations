@@ -30,6 +30,14 @@ Local Constants
 #define             WORLD_HEIGHT            1000
                                             /* initial height of world          */
 
+typedef Uint8 sector_shift_t8;
+enum
+    {
+    SECTOR_SHIFT_NONE,
+    SECTOR_SHIFT_UP,
+    SECTOR_SHIFT_DN
+    };
+
 
 /*--------------------------------------------------------------------------------
 
@@ -287,15 +295,20 @@ class Position
 
     ----------------------------------------------------------------------------*/
 
-    public: void set_pos_buff
+    public: sector_shift_t8 set_pos_buff
     (
     int                 i_xp,               /* x position                       */
     int                 i_yp,               /* y position                       */
     int                 i_buff              /* buffer                           */
     )
         {
-        set_x_buff( i_xp, i_buff );
+
+        sector_shift_t8 ret_val;
+        ret_val = SECTOR_SHIFT_NONE;
+        ret_val = set_x_buff( i_xp, i_buff );
         set_y_buff( i_yp, i_buff );
+
+        return( ret_val );
         }
     
 
@@ -309,11 +322,14 @@ class Position
 
     ----------------------------------------------------------------------------*/
 
-    public: void set_x
+    public: sector_shift_t8 set_x
     (
     int                 i_xp                /* x position                       */
     )
         {
+        sector_shift_t8 ret_val;
+        ret_val = SECTOR_SHIFT_NONE;
+
         /*--------------------------------------------
         If the new position is past the edge of the
         screen, set the position to the closest edge
@@ -321,10 +337,12 @@ class Position
         if( i_xp >= WORLD_WIDTH )
             {
             x = 0;
+            ret_val = SECTOR_SHIFT_UP;
             }
         else if( i_xp < 0 )
             {
             x = WORLD_WIDTH;
+            ret_val = SECTOR_SHIFT_DN;
             } 
         else
             {
@@ -333,6 +351,7 @@ class Position
 
         update();
 
+        return( ret_val );
         }
     
 
@@ -346,12 +365,15 @@ class Position
 
     ----------------------------------------------------------------------------*/
 
-    public: void set_x_buff
+    public: sector_shift_t8 set_x_buff
     (
     int                 i_xp,               /* x position                       */
     int                 i_x_buff            /* x buffer                         */
     )
         {
+        sector_shift_t8 ret_val;
+        ret_val = SECTOR_SHIFT_NONE;
+
         /*--------------------------------------------
         If the new position is past the edge of the
         screen, set the position to the closest edge
@@ -359,10 +381,12 @@ class Position
         if( i_xp >= WORLD_WIDTH - i_x_buff )
             {
             x = 0;
+            ret_val = SECTOR_SHIFT_UP;
             }
         else if( i_xp < 0 )
             {
             x = WORLD_WIDTH - i_x_buff;
+            ret_val = SECTOR_SHIFT_DN;
             } 
         else
             {
@@ -371,6 +395,7 @@ class Position
 
         update();
 
+        return( ret_val );
         }
     
 
@@ -457,14 +482,18 @@ class Position
 
     ----------------------------------------------------------------------------*/
 
-    public: void shift_pos_buff
+    public: sector_shift_t8 shift_pos_buff
     (
     int                 i_x_offset,         /* x offset                         */
     int                 i_y_offset,         /* y offset                         */
     int                 i_buff              /* buffer                           */
     )
         {
-        set_pos_buff( x + i_x_offset, y + i_y_offset, i_buff );
+        sector_shift_t8 ret_val;
+        ret_val = SECTOR_SHIFT_NONE;
+        ret_val = set_pos_buff( x + i_x_offset, y + i_y_offset, i_buff );
+
+        return( ret_val );
         }
     
 
