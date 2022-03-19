@@ -60,7 +60,7 @@ Types
 struct hub_data
     {
     
-    std::vector<Hub>   hubs;               /* vector of hubs for sim            */
+    //std::vector<Hub>   hubs;               /* vector of hubs for sim            */
     //int                 hub_count;          /* count of hubs in use             */
     //int                 selected_hub;       /* index of currently selected hub  */
     };
@@ -103,7 +103,6 @@ struct main_data
     //World               world;
     //hub_data            hub_info;           /* hub data                         */
     //item_data           item_info;          /* item data                        */
-    population_data     pop_info;           /* population data                  */
     std::vector<Genome*> 
                         champions;          /* champion list                    */
     resource_data       resources;          /* resource data                    */

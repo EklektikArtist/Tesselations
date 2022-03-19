@@ -8,6 +8,7 @@
         Header for sector class
 
 --------------------------------------------------------------------------------*/
+#include "cls_population.h"
 
 /*--------------------------------------------------------------------------------
 
@@ -31,10 +32,12 @@ class Sector
     int                 c_border_width;
 
     Uint8               c_loc_id;
-    std::vector<Hub>    c_loc_hubs;               /* vector of hubs for sim            */
+    Population          c_loc_hubs;           /* population data                  */
+    //std::vector<Hub>    c_loc_hubs;               /* vector of hubs for sim            */
     std::vector<Item>   c_loc_items;              /* vector of items for sim           */
     
-    std::vector<Hub>    c_lfrn_hubs;               /* vector of hubs for sim            */
+    Population          c_lfrn_hubs;           /* population data                  */
+    //std::vector<Hub>    c_lfrn_hubs;               /* vector of hubs for sim            */
     std::vector<Item>   c_lfrn_items;              /* vector of items for sim           */
 
     
@@ -43,6 +46,8 @@ class Sector
         void
     )
         {
+        c_loc_hubs = *new Population();
+        c_lfrn_hubs = *new Population();
         c_total_width = 500;
         c_total_height = 1000;
         c_border_width = 50;
@@ -207,7 +212,7 @@ class Sector
     void
     )
         {
-        return( &c_loc_hubs );
+        return( c_loc_hubs.hubs );
         }
           
 
@@ -226,6 +231,6 @@ class Sector
     void
     )
         {
-        return( &c_lfrn_hubs );
+        return( &c_lfrn_hubs.hubs );
         }
     };

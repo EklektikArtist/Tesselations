@@ -23,6 +23,13 @@
 
 using namespace NEAT;
 
+Population::Population(void) {
+	winnergen=0;
+	highest_fitness=0.0;
+	highest_last_changed=0;
+	spawn(NULL,0);
+}
+
 Population::Population(Genome *g,int size) {
 	winnergen=0;
 	highest_fitness=0.0;
@@ -31,12 +38,12 @@ Population::Population(Genome *g,int size) {
 }
 
 bool Population::verify() {
-	std::vector<Hub*>::iterator curorg;
+	std::vector<Hub>::iterator curorg;
 
 	bool verification;
 
 	for(curorg=hubs.begin();curorg!=hubs.end();++curorg) {
-		verification=((*curorg)->gnome)->verify();
+		verification=((curorg)->gnome)->verify();
 	}
 
 	return verification;
@@ -44,25 +51,25 @@ bool Population::verify() {
 
 bool Population::spawn(Genome *g,int size) {
 	int count;
-	Genome *new_genome;
-	Hub *new_hub;
+	Genome new_genome;
+	Hub new_hub;
 
 	//Create size copies of the Genome
 	//Start with perturbed linkweights
 	for(count=1;count<=size;count++) {
 		//cout<<"CREATING ORGANISM "<<count<<endl;
 
-		new_genome=g->duplicate(count); 
+		new_genome=*g->duplicate(count); 
 		//new_genome->mutate_link_weights(1.0,1.0,GAUSSIAN);
-		new_genome->mutate_link_weights(1.0,1.0,COLDGAUSSIAN);
-		new_genome->randomize_traits();
-		new_hub=new Hub(new_genome);
+		new_genome.mutate_link_weights(1.0,1.0,COLDGAUSSIAN);
+		new_genome.randomize_traits();
+		new_hub=*new Hub(&new_genome);
 		hubs.push_back(new_hub);
 	}
 
 	//Keep a record of the innovation and node number we are on
-	cur_node_id=new_genome->get_last_node_id();
-	cur_innov_num=new_genome->get_last_gene_innovnum();
+	cur_node_id=new_genome.get_last_node_id();
+	cur_innov_num=new_genome.get_last_gene_innovnum();
 
 	//Separate the new Population into species
 	speciate();
@@ -71,10 +78,10 @@ bool Population::spawn(Genome *g,int size) {
 }
 
 bool Population::speciate() {
-	std::vector<Hub*>::iterator curorg;  //For stepping through Population
-	std::vector<Species*>::iterator curspecies; //Steps through species
-	Hub *comporg=0;  //Hub for comparison 
-	Species *newspecies; //For adding a new species
+	std::vector<Hub>::iterator curorg;  //For stepping through PopulationJ
+	std::vector<Species>::iterator curspecies; //Steps through species
+	Hub *comporg;  //Hub for comparison 
+	Species newspecies; //For adding a new species
 
 	int counter=0; //Species counter
 
@@ -85,21 +92,21 @@ bool Population::speciate() {
 		curspecies=species.begin();
 		if (curspecies==species.end()){
 			//Create the first species
-			newspecies=new Species(++counter);
+			newspecies=*new Species(++counter);
 			species.push_back(newspecies);
-			newspecies->add_Organism((Organism*)*curorg);  //Add the current hub
-			(*curorg)->species=newspecies;  //Point hub to its species
+			newspecies.add_Organism((Organism*)*curorg);  //Add the current hub
+			curorg->species=&newspecies;  //Point hub to its species
 		} 
 		else {
-			comporg=(Hub*)(*curspecies)->first();
+			comporg=(Hub*)(curspecies)->first();
 			while((comporg!=0)&&
 				(curspecies!=species.end())) {
 
-					if ((((*curorg)->gnome)->compatibility(comporg->gnome))<NEAT::compat_threshold) {
+					if ((((curorg)->gnome)->compatibility(comporg->gnome))<NEAT::compat_threshold) {
 
 						//Found compatible species, so add this hub to it
-						(*curspecies)->add_Organism(*curorg);
-						(*curorg)->species=(*curspecies);  //Point hub to its species
+						(curspecies)->add_Organism(*curorg);
+						(curorg)->species=(*curspecies);  //Point hub to its species
 						comporg=0;  //Note the search is over
 					}
 					else {
@@ -107,16 +114,16 @@ bool Population::speciate() {
 						//Keep searching for a matching species
 						++curspecies;
 						if (curspecies!=species.end()) 
-							comporg=(Hub*)(*curspecies)->first();
+							comporg=(Hub)(*curspecies)->first();
 					}
 				}
 
 				//If we didn't find a match, create a new species
 				if (comporg!=0) {
-					newspecies=new Species(++counter);
+					newspecies=*new Species(++counter);
 					species.push_back(newspecies);
-					newspecies->add_Organism(*curorg);  //Add the current hub
-					(*curorg)->species=newspecies;  //Point hub to its species
+					newspecies.add_Organism(&curorg);  //Add the current hub
+					(curorg)->species=*newspecies;  //Point hub to its species
 				}
 
 		} //end else 
@@ -153,7 +160,7 @@ bool Population::print_to_file_by_species(const char *filename) {
 }
 
 bool Population::rank_within_species() {
-	std::vector<Species*>::iterator curspecies;
+	std::vector<Species>::iterator curspecies;
 
 	//Add each Species in this generation to the snapshot
 	for(curspecies=species.begin();curspecies!=species.end();++curspecies) {
@@ -164,10 +171,10 @@ bool Population::rank_within_species() {
 }
 
 void Population::estimate_all_averages() {
-	std::vector<Species*>::iterator curspecies;
+	std::vector<Species>::iterator curspecies;
 
 	for(curspecies=species.begin();curspecies!=species.end();++curspecies) {
-		(*curspecies)->estimate_average();
+		(curspecies)->estimate_average();
 	}
 
 }
@@ -175,7 +182,7 @@ void Population::estimate_all_averages() {
 Species *Population::choose_parent_species() {  
 
 	double total_fitness=0;
-	std::vector<Species*>::iterator curspecies;  
+	std::vector<Species>::iterator curspecies;  
 	double marble; //The roulette marble
 	double spin; //Spins until the marble reaches its chosen point
 
@@ -243,13 +250,13 @@ bool Population::remove_species(Species *spec) {
 	}
 }
 
-Hub* Population::remove_worst() {
+Hub Population::remove_worst() {
 
 	double adjusted_fitness;
 	double min_fitness=999999;
-	std::vector<Hub*>::iterator curorg;
+	std::vector<Hub>::iterator curorg;
 	Hub *org_to_kill = 0;
-	std::vector<Hub*>::iterator deadorg;
+	std::vector<Hub>::iterator deadorg;
 	Species *orgs_species; //The species of the dead hub
 
 	//Make sure the hub is deleted from its species and the population
@@ -289,14 +296,14 @@ void Population::reassign_species(Hub *org) {
 
 		curspecies=(species).begin();
 
-		comporg=(Hub*)(*curspecies)->first();
+		comporg=(Hub)(*curspecies)->first();
 		while((curspecies!=(species).end()) && (!found)) 
 		{	
 			if (comporg==0) {
 				//Keep searching for a matching species
 				++curspecies;
 				if (curspecies!=(species).end())
-					comporg=(Hub*)(*curspecies)->first();
+					comporg=(Hub)(*curspecies)->first();
 			}
 			else if (((org->gnome)->compatibility(comporg->gnome))<NEAT::compat_threshold) {
 				//If we found the same species it's already in, return 0
@@ -314,7 +321,7 @@ void Population::reassign_species(Hub *org) {
 				//Keep searching for a matching species
 				++curspecies;
 				if (curspecies!=(species).end()) 
-					comporg=(Hub*)(*curspecies)->first();
+					comporg=(Hub)(*curspecies)->first();
 			}
 		}
 
@@ -335,7 +342,7 @@ void Population::reassign_species(Hub *org) {
 //Remove the hub from its species and the population
 void Population::remove_org(Hub *org_to_kill) {
 	
-	std::vector<Hub*>::iterator deadorg;
+	std::vector<Hub>::iterator deadorg;
 
 	Species *orgs_species; //The species of the dead hub
 	orgs_species=(org_to_kill)->species;

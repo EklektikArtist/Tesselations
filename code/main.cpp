@@ -1158,10 +1158,10 @@ void remove_hub
     Remove selecte hub
     ------------------------------------------------*/
     
-    for( i = hub_idx; i < io_main_data->sector_info.get_hubs()->size() - 1; i++ )
-        {
-        memcpy( &io_main_data->sector_info.get_hubs()->at( i ), &io_main_data->sector_info.get_hubs()->at( i + 1 ), sizeof( Hub ) );
-        }
+    //for( i = hub_idx; i < io_main_data->sector_info.get_hubs()->size() - 1; i++ )
+    //    {
+    //    memcpy( &io_main_data->sector_info.get_hubs()->at( i ), &io_main_data->sector_info.get_hubs()->at( i + 1 ), sizeof( Hub ) );
+    //    }
     io_main_data->sector_info.get_hubs()->resize( io_main_data->sector_info.get_hubs()->size() - 1 );
     }    /* remove_hub */
 

@@ -48,12 +48,12 @@ namespace NEAT {
 
 	public:
 
-        std::vector<Hub*> hubs; //The hubs in the Population
+        std::vector<Hub> hubs; //The hubs in the Population
 
-        std::vector<Species*> species;  // Species in the Population. Note that the species should comprise all the genomes 
+        std::vector<Species> species;  // Species in the Population. Note that the species should comprise all the genomes 
 
 		// ******* Member variables used during reproduction *******
-        std::vector<Innovation*> innovations;  // For holding the genetic innovations of the newest generation
+        std::vector<Innovation> innovations;  // For holding the genetic innovations of the newest generation
 		int cur_node_id;  //Current label number available
 		double cur_innov_num;
 
@@ -135,6 +135,7 @@ namespace NEAT {
 		void switch_species(Hub *org, Species *orig_species, Species *new_species);
 
 		// Construct off of a single spawning Genome 
+		Population(void);
 		Population(Genome *g,int size);
 
 		// Construct off of a single spawning Genome without mutation
