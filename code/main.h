@@ -18,7 +18,6 @@ Includes
 External Libraries
 ------------------------------------------------*/
 #include <SDL_ttf.h>
-#include "population.h"
 #include "species.h"
 #include "mpi.h"
 
@@ -34,6 +33,7 @@ Class Headers
 #include "cls_hub.h"
 #include "cls_item.h"
 #include "cls_world.h"
+#include "cls_population.h"
 
 using namespace NEAT;
 

@@ -28,10 +28,16 @@ Project Headers
 /*------------------------------------------------
 Class Headers
 ------------------------------------------------*/
+#include "organism.h"
 #include "cls_circle.h"
 #include "cls_item.h"
 #include "cls_position.h"
 #include "cls_textbox.h"
+
+/*--------------------------------------------------------------------------------
+Namespace markers
+--------------------------------------------------------------------------------*/
+namespace NEAT {
 
 /*--------------------------------------------------------------------------------
 Local Constants
@@ -59,7 +65,7 @@ struct coll_msg
 
 --------------------------------------------------------------------------------*/
 
-class Hub
+class Hub : public Organism
     {
     /*------------------------------------------------
     Class Variables
@@ -87,7 +93,35 @@ class Hub
 public:Hub 
     (
     void
-    )
+    ) : Organism()
+        {
+        memset( buffer, 0, sizeof(char) * MAX_STR_LEN );
+        drag_ratio = .001f;
+        heading = 0;
+        health = 1000;
+        items_collected = 0;
+        //sprite.s( 0, 0, 10 );
+        generation = 0;
+        speedx = 0;
+        speedy = 0;
+        text_pos.set_pos( sprite.get_pos() );
+        id = 0;
+
+        update();
+        }
+      
+    
+   /*---------------------------------------------------------------------------
+
+    Description:
+        Creates a hub object
+
+    ----------------------------------------------------------------------------*/
+
+public:Hub 
+    (
+        Genome *g
+    ) : Organism( 0, g, 0, "")
         {
         memset( buffer, 0, sizeof(char) * MAX_STR_LEN );
         drag_ratio = .001f;
@@ -547,3 +581,4 @@ public:Hub
         text_pos.set_text( buffer );
         }
 };
+}

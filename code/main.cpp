@@ -30,7 +30,7 @@ External Libraries
 #include <iostream>
 #include <iomanip>
 #include "genome.h"
-#include "population.h"
+#include "cls_population.h"
 
 /*------------------------------------------------
 File Header
@@ -1205,7 +1205,7 @@ void update_hubs
         Assign pointers
         ----------------------------------------*/
         p_hub_1 = &io_main_data->sector_info.get_hubs()->at( i );
-        p_org = io_main_data->pop_info.population->organisms.at( i );
+        p_org = io_main_data->pop_info.population->hubs.at( i );
         if( p_org->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
             {
             p_org->fitness = p_hub_1->items_collected * 1000 + p_hub_1->health - 2000;
@@ -1241,7 +1241,7 @@ void update_hubs
         if( p_hub_1->health <= 0 )
             {
             remove_hub( io_main_data, i );
-            io_main_data->pop_info.population->remove_org( io_main_data->pop_info.population->organisms.at( i ) );
+            io_main_data->pop_info.population->remove_org( io_main_data->pop_info.population->hubs.at( i ) );
             i--;
             continue;
             }            
@@ -1274,7 +1274,7 @@ void update_hubs
                 single offspring from the chosen 
                 species    
             ------------------------------------*/    
-            new_org=( io_main_data->pop_info.population->organisms.at( i )->species )->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
+            new_org=( io_main_data->pop_info.population->hubs.at( i )->species )->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
             io_main_data->pop_info.offspring_count++;
 
             /*------------------------------------
@@ -1392,7 +1392,7 @@ void update_species
                                             /* frequency of compatibility       */
                                             /*  adjustment                      */
     double              compat_mod;         /* speciation control threshold     */
-    vector<Organism*>::iterator 
+    vector<Hub*>::iterator 
                         curorg;             /* current organisim               */
     int                 num_species;        /* current number of species       */
     int                 num_species_target; /* target number of species        */
@@ -1446,7 +1446,7 @@ void update_species
     Go through entire population, reassigning 
     organisms to new species       
     ------------------------------------------------*/                                           
-    for (curorg = (io_main_data->pop_info.population->organisms).begin(); curorg != io_main_data->pop_info.population->organisms.end(); ++curorg) 
+    for (curorg = io_main_data->pop_info.population->hubs.begin(); curorg != io_main_data->pop_info.population->hubs.end(); ++curorg) 
         {
 	    io_main_data->pop_info.population->reassign_species(*curorg);
         }

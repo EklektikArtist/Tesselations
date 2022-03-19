@@ -18,7 +18,7 @@
         Storage for sector data
 
 --------------------------------------------------------------------------------*/
-
+using namespace NEAT;
 
 class Sector
     {
