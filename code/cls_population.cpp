@@ -43,7 +43,7 @@ bool Population::verify() {
 	bool verification;
 
 	for(curorg=hubs.begin();curorg!=hubs.end();++curorg) {
-		verification=((curorg)->gnome)->verify();
+		verification=((curorg)->gnome).verify();
 	}
 
 	return verification;
@@ -95,7 +95,7 @@ bool Population::speciate() {
 			newspecies=*new Species(++counter);
 			species.push_back(newspecies);
 			newspecies.add_Organism((Organism*)*curorg);  //Add the current hub
-			curorg->species=&newspecies;  //Point hub to its species
+			curorg->species=newspecies;  //Point hub to its species
 		} 
 		else {
 			comporg=(Hub*)(curspecies)->first();
@@ -105,8 +105,8 @@ bool Population::speciate() {
 					if ((((curorg)->gnome)->compatibility(comporg->gnome))<NEAT::compat_threshold) {
 
 						//Found compatible species, so add this hub to it
-						(curspecies)->add_Organism(*curorg);
-						(curorg)->species=(*curspecies);  //Point hub to its species
+						curspecies->add_Organism(curorg);
+						curorg.species=(curspecies);  //Point hub to its species
 						comporg=0;  //Note the search is over
 					}
 					else {
