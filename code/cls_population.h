@@ -109,19 +109,19 @@ namespace NEAT {
 		// to their average fitness, which approximates the generational
 		// method of producing the next generation of the species en masse
 		// based on its average (shared) fitness.  
-		Species *choose_parent_species();
+		Species choose_parent_species();
 
 		//Remove a species from the species list (sometimes called by remove_worst when a species becomes empty)
-		bool remove_species(Species *spec);
+		bool remove_species(Species spec);
 
 		// Removes worst member of population that has been around for a minimum amount of time and returns
 		// a pointer to the Hub that was removed (note that the pointer will not point to anything at all,
 		// since the Hub it was pointing to has been deleted from memory)
-		Hub* remove_worst();
+		Hub remove_worst();
 
 		//Warning: rtNEAT does not behave like regular NEAT if you remove the worst probabilistically   
 		//You really should just use "remove_worst," which removes the org with worst adjusted fitness. 
-		Hub* remove_worst_probabilistic();
+		Hub remove_worst_probabilistic();
 
 		//KEN: New 2/17/04
 		//This method takes an Hub and reassigns what Species it belongs to
@@ -129,23 +129,23 @@ namespace NEAT {
 		//as the speciation threshold changes.
         void reassign_species(Hub *org);
         
-        void remove_org(Hub *org);
+        void remove_org(Hub org);
 
 		//Move an Hub from one Species to another (called by reassign_species)
-		void switch_species(Hub *org, Species *orig_species, Species *new_species);
+		void switch_species(Hub org, Species orig_species, Species new_species);
 
 		// Construct off of a single spawning Genome 
 		Population(void);
-		Population(Genome *g,int size);
+		Population(Genome *Ng,int size);
 
 		// Construct off of a single spawning Genome without mutation
-		Population(Genome *g,int size, float power);
+		Population(Genome g,int size, float power);
 		
 		//MSC Addition
 		// Construct off of a vector of genomes with a mutation rate of "power"
-		Population(std::vector<Genome*> genomeList, float power);
+		Population(std::vector<Genome> genomeList, float power);
 
-		bool clone(Genome *g,int size, float power);
+		bool clone(Genome g,int size, float power);
 
 		//// Special constructor to create a population of random topologies     
 		//// uses Genome(int i, int o, int n,int nmax, bool r, double linkprob) 
