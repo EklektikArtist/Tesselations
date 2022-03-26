@@ -212,7 +212,7 @@ class Sector
     void
     )
         {
-        return( c_loc_hubs.hubs );
+        return( &c_loc_hubs.hubs );
         }
           
 
