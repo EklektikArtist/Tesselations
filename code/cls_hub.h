@@ -28,7 +28,7 @@ Project Headers
 /*------------------------------------------------
 Class Headers
 ------------------------------------------------*/
-#include "organism.h"
+#include "libraries/neat/include/NEAT/organism.h"
 #include "cls_circle.h"
 #include "cls_item.h"
 #include "cls_position.h"
@@ -120,7 +120,7 @@ public:Hub
 
 public:Hub 
     (
-        Genome g
+        Genome *g
     ) : Organism( 0, g, 0, "")
         {
         memset( buffer, 0, sizeof(char) * MAX_STR_LEN );

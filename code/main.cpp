@@ -30,7 +30,7 @@ External Libraries
 #include <iostream>
 #include <iomanip>
 #include "genome.h"
-#include "cls_population.h"
+#include "population.h"
 
 /*------------------------------------------------
 File Header
@@ -807,11 +807,11 @@ void init_brains
     Spawn the Population from starter gene
     ------------------------------------------------*/
     //cout<<"Spawning Population off Genome"<<endl;
-    io_main_data->pop_info.population = new Population(gnome, io_main_data->sector_info.get_hubs()->size() );
-    io_main_data->pop_info.offspring_count = 0;
+    //io_main_data->sector_info. = new Population(gnome, io_main_data->sector_info.get_hubs()->size() );
+    io_main_data->statistics.offspring_count = 0;
 
     //cout<<"Verifying Spawned Pop"<<endl;
-    io_main_data->pop_info.population->verify();
+    //io_main_data->pop_info.population->verify();
 
     update_species( io_main_data );
 
@@ -1194,7 +1194,7 @@ void update_hubs
     Position           *new_pos;            /* new position                     */
     Hub                *p_hub_1;            /* first pointer to a hub           */
     Hub                *p_hub_2;            /* second pointer to a hub          */
-    Organism           *p_org;              /* pointer to an organism           */    
+  //  Organism           *p_org;              /* pointer to an organism           */    
     
     /*------------------------------------------------
     Update Hubs
@@ -1205,19 +1205,19 @@ void update_hubs
         Assign pointers
         ----------------------------------------*/
         p_hub_1 = &io_main_data->sector_info.get_hubs()->at( i );
-        p_org = io_main_data->pop_info.population->hubs.at( i );
-        if( p_org->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
+       // p_org = io_main_data->sector_info.get_hubs().at( i );
+        if( p_hub_1->fitness < p_hub_1->items_collected * 1000 + p_hub_1->health - 2000 )
             {
-            p_org->fitness = p_hub_1->items_collected * 1000 + p_hub_1->health - 2000;
+            p_hub_1->fitness = p_hub_1->items_collected * 1000 + p_hub_1->health - 2000;
             }
         
         /*----------------------------------------
         Save genome if this organism is the most
         superior discovered
         ----------------------------------------*/
-        if( io_main_data->statistics.max_fit < p_org->fitness )
+        if( io_main_data->statistics.max_fit < p_hub_1->fitness )
             {
-            io_main_data->statistics.max_fit = p_org->fitness;
+            io_main_data->statistics.max_fit = p_hub_1->fitness;
             
             file = ROOT_PATH;
             file += "output//";
@@ -1226,8 +1226,8 @@ void update_hubs
             file += to_string( p_hub_1->health );
             file += ".txt";
             cout<<"Max Fit: " << io_main_data->statistics.max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
-            print_Genome_tofile( p_org->gnome, file.c_str() );
-            io_main_data->champions.push_back( (p_org->gnome)->duplicate( 0 ) );
+            print_Genome_tofile( &p_hub_1->gnome, file.c_str() );
+            io_main_data->champions.push_back( (p_hub_1->gnome).duplicate( 0 ) );
             }
 
         /*----------------------------------------
@@ -1241,7 +1241,7 @@ void update_hubs
         if( p_hub_1->health <= 0 )
             {
             remove_hub( io_main_data, i );
-            io_main_data->pop_info.population->remove_org( io_main_data->pop_info.population->hubs.at( i ) );
+            //MJRNEEDFUNCTION io_main_data->sector_info.remove_org( io_main_data->pop_info.population->hubs.at( i ) );
             i--;
             continue;
             }            
@@ -1274,8 +1274,8 @@ void update_hubs
                 single offspring from the chosen 
                 species    
             ------------------------------------*/    
-            new_org=( io_main_data->pop_info.population->hubs.at( i )->species )->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
-            io_main_data->pop_info.offspring_count++;
+            //MJRNEEDFUNCTION new_org=( io_main_data->pop_info.population->hubs.at( i )->species )->reproduce_one(io_main_data->pop_info.offspring_count, io_main_data->pop_info.population, io_main_data->pop_info.population->species);
+            io_main_data->statistics.offspring_count++;
 
             /*------------------------------------
             Place the child below the parent
@@ -1301,7 +1301,7 @@ void update_hubs
             file += to_string( p_hub_1->health );
             file += ".txt";
             cout<<"Max Fit: " << io_main_data->statistics.max_fit << ", Health: " << p_hub_1->health << ", Items: " << p_hub_1->items_collected << std::endl;
-            print_Genome_tofile( p_org->gnome, file.c_str() );
+            print_Genome_tofile( &p_hub_1->gnome, file.c_str() );
             }
         
         /*----------------------------------------
@@ -1309,8 +1309,8 @@ void update_hubs
         ----------------------------------------*/
         double sensvals[ INPUTS_CNT ];
         get_sensor_data( io_main_data, p_hub_1, sensvals );
-        p_org->net->load_sensors( sensvals );
-        p_org->net->activate();
+        p_hub_1->net.load_sensors( sensvals );
+        p_hub_1->net.activate();
 
         /*----------------------------------------
         Read the weights of the horizontal and 
@@ -1319,12 +1319,12 @@ void update_hubs
         outputs_t8 max = OUTPUTS_CNT;
         double max_weight = 0;
         j = 0;
-        for( auto & otp : p_org->net->outputs )
+        for( auto & otp : p_hub_1->net.outputs )
             {
-            if( otp->activation > max_weight )
+            if( otp.activation > max_weight )
                 {
                 max = j;
-                max_weight = otp->activation;
+                max_weight = otp.activation;
                 }
             j++;
             }
@@ -1418,9 +1418,9 @@ void update_species
     num_species_target and reassign the population to
     new species                                            
     ------------------------------------------------*/  
-    if (io_main_data->pop_info.offspring_count % compat_adjust_frequency == 0) 
-        {
-        num_species = io_main_data->pop_info.population->species.size();
+   //MJRNEEDFUNCTION  if (io_main_data->pop_info.offspring_count % compat_adjust_frequency == 0) 
+   //     {
+   //MJRNEEDFUNCTION      num_species = io_main_data->pop_info.population->species.size();
         compat_mod=0.1;                                            
         
     /*------------------------------------------------
@@ -1446,17 +1446,17 @@ void update_species
     Go through entire population, reassigning 
     organisms to new species       
     ------------------------------------------------*/                                           
-    for (curorg = io_main_data->pop_info.population->hubs.begin(); curorg != io_main_data->pop_info.population->hubs.end(); ++curorg) 
+  //MJRNEEDFUNCTION   for (curorg = io_main_data->pop_info.population->hubs.begin(); curorg != io_main_data->pop_info.population->hubs.end(); ++curorg) 
         {
-	    io_main_data->pop_info.population->reassign_species(*curorg);
+	//MJRNEEDFUNCTION     io_main_data->pop_info.population->reassign_species(*curorg);
         }
-    }                                                                          
+  //  }                                                                          
      
     /*------------------------------------------------
     Rank all the organisms from best to worst in each 
     species
     ------------------------------------------------*/
-    io_main_data->pop_info.population->rank_within_species();  
+  //MJRNEEDFUNCTION   io_main_data->pop_info.population->rank_within_species();  
     
     /*------------------------------------------------
     Assign each species an average fitness 
@@ -1465,7 +1465,7 @@ void update_species
     in order to select species probabailistically for
     reproduction
     ------------------------------------------------*/
-    io_main_data->pop_info.population->estimate_all_averages();   
+  //MJRNEEDFUNCTION   io_main_data->pop_info.population->estimate_all_averages();   
 
 }    /* update_species */
 

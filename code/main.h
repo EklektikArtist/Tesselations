@@ -33,7 +33,7 @@ Class Headers
 #include "cls_hub.h"
 #include "cls_item.h"
 #include "cls_world.h"
-#include "cls_population.h"
+#include "population.h"
 
 using namespace NEAT;
 
@@ -80,6 +80,7 @@ struct population_data
 struct statistic_data
     {
     double              max_fit;            /* highest achieved fitness         */
+    int                 offspring_count;    /* total children                   */
     };
 
 struct local_rank_data

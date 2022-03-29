@@ -21,7 +21,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/src)
 
 file(GLOB SOURCES "code/*")
 file(GLOB NEAT_LIB "libraries/neat/src/*")
-list(REMOVE_ITEM NEAT_LIB ${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/src/population.cpp)
+#list(REMOVE_ITEM NEAT_LIB ${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/src/population.cpp)
 
 add_executable(Tesselations ${SOURCES} ${NEAT_LIB})
 target_link_libraries(Tesselations ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} MPI::MPI_CXX)
@@ -47,7 +47,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/CMAKE_MODULE_PATH)
 
 file(GLOB SOURCES "code/*")
 file(GLOB NEAT_LIB "libraries/neat/src/*")
-list(REMOVE_ITEM NEAT_LIB ${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/src/population.cpp)
+#list(REMOVE_ITEM NEAT_LIB ${CMAKE_CURRENT_SOURCE_DIR}/libraries/neat/src/population.cpp)
 
 add_executable(Tesselations ${SOURCES} ${NEAT_LIB})
 target_link_libraries(Tesselations ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES} MPI::MPI_CXX)
