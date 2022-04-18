@@ -471,16 +471,18 @@ public:Hub
 
     ----------------------------------------------------------------------------*/
 
-    public: void move
+    public: sector_state move
     (
     float timestep
     )
         {
-        sprite.shift_pos_buff( ceil( speedx * timestep ), ceil( speedy * timestep ), sprite.get_radius() );
+        sector_state ret_val;
+        ret_val = sprite.shift_pos_buff( ceil( speedx * timestep ), ceil( speedy * timestep ), sprite.get_radius() );
         text_pos.set_pos( sprite.get_pos() );        
         handle_drag( timestep );
 
         update();
+        return( ret_val );
         }
 
     /*----------------------------------------------------------------------------
@@ -541,5 +543,33 @@ public:Hub
         {
         snprintf( buffer, MAX_STR_LEN, "Position: %s, Health: %f2", sprite.get_pos()->stringify(), health );
         text_pos.set_text( buffer );
+        }
+    
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        
+
+    Description:
+
+    ----------------------------------------------------------------------------*/
+          
+    public: void to_array( vector<Uint8>* res_vec) 
+        {
+    
+        std::vector<Uint8> tmp_vec;
+        res_vec->push_back( drag_ratio * 100 );
+        res_vec->push_back( generation );
+        res_vec->push_back( heading );
+        res_vec->push_back( items_collected );
+        res_vec->push_back( speedx );
+        res_vec->push_back( speedy );
+        sprite.to_array( &tmp_vec );
+	    for( Uint8 vec : tmp_vec )
+		    {
+		    res_vec->push_back( vec );
+		    }
+        res_vec->push_back( id );
         }
 };

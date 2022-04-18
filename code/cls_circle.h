@@ -260,15 +260,17 @@ class Circle
 
     ----------------------------------------------------------------------------*/
 
-    public: void shift_pos_buff
+    public: sector_state shift_pos_buff
     (
     int                 i_x_offset,         /* x offset                         */
     int                 i_y_offset,         /* y offset                         */
     int                 i_buff              /* buffer                           */
     )
         {
-        pos.shift_pos_buff( i_x_offset, i_y_offset, i_buff );
+        sector_state ret_val;
+        ret_val = pos.shift_pos_buff( i_x_offset, i_y_offset, i_buff );
         update();
+        return( ret_val );
         }
     
 
@@ -316,5 +318,21 @@ class Circle
                  radius * 2 };
 
         return( ret_rect );
+        }
+
+   public: void to_array( vector<Uint8>* res_vec) 
+        {
+        std::vector<Uint8> tmp_vec;
+        color.to_array( &tmp_vec );
+	    for( Uint8 vec : tmp_vec )
+		    {
+		    res_vec->push_back( vec );
+		    }
+        pos.to_array( &tmp_vec );
+	    for( Uint8 vec : tmp_vec )
+		    {
+		    res_vec->push_back( vec );
+		    }
+        res_vec->push_back( radius );
         }
     };

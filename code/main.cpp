@@ -675,7 +675,7 @@ void handle_tess_tess_collisions
                 {
                 coll_msg coll;
                 p_hub_1->handle_collision( p_hub_2, &coll );
-                send_collision_msg( io_main_data->mpi_info.local.rank, io_main_data->world.get_sector( 0 )->get_lsector_id(), TESS_HUB_TYPE, p_hub_2->get_id(), coll );
+                io_main_data->world.get_sector( 0 )->send_collision_msg( TESS_HUB_TYPE, p_hub_2->get_id(), coll );
                 collided_hubs[ j ][ collided_hubs_count[ j ] ] = i;
                 collided_hubs_count[ j ]++;
                 }
@@ -683,28 +683,6 @@ void handle_tess_tess_collisions
         }
 
     }    /* handle_tess_tess_collisions */
-
-
-/*--------------------------------------------------------------------------------
-
-    Name:
-        send_collision_msg
-
-    Description:
-        Initialize brains
-
---------------------------------------------------------------------------------*/
-
-void send_collision_msg
-(
-   int      from,
-    int     to,
-    int     type,
-    int     hub_id,
-    coll_msg coll
-)
-    {    
-    }
 
 /*--------------------------------------------------------------------------------
 
@@ -1281,7 +1259,12 @@ void update_hubs
         /*----------------------------------------
         Move and render the current hub
         ----------------------------------------*/
-        p_hub_1->move( time_step );
+        sector_state ret_val;
+        ret_val = p_hub_1->move( time_step );
+        if( ret_val != IN_SECTOR )
+            {
+            io_main_data->world.get_sector( 0 )->send_hub( p_hub_1, ret_val );
+            }
         }
 
     }    /* update_hubs */

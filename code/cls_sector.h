@@ -228,4 +228,59 @@ class Sector
         {
         return( &c_lfrn_hubs );
         }
+          
+
+    /*----------------------------------------------------------------------------
+
+    Name:
+        get_items
+
+    Description:
+
+    ----------------------------------------------------------------------------*/
+
+    public: void send_hub
+    (
+    Hub * i_hub,
+    sector_state dir
+    )
+        {
+    int errclass,resultlen;
+    vector<Uint8>hub_data;
+    i_hub->to_array( &hub_data );
+    uint8_t trg_sec = dir == OUT_OF_SECTOR_POS ? get_usector_id() : dir == OUT_OF_SECTOR_NEG ? get_lsector_id() : c_loc_id;
+    int ierr= MPI_Send( &hub_data, hub_data.size(), MPI_BYTE, trg_sec, 0, MPI_COMM_WORLD); 
+      char err_buffer[MPI_MAX_ERROR_STRING];
+    if( ierr != MPI_SUCCESS) 
+        {
+        MPI_Error_class(ierr,&errclass);
+        if(errclass== MPI_ERR_RANK) 
+            {
+            fprintf(stderr,"Invalid rank used in MPI send call\n");
+            MPI_Error_string(ierr,err_buffer,&resultlen);
+            fprintf(stderr,err_buffer);
+            }
+        }
+        
+        }
+
+
+/*--------------------------------------------------------------------------------
+
+    Name:
+        send_collision_msg
+
+    Description:
+        Initialize brains
+
+--------------------------------------------------------------------------------*/
+
+void send_collision_msg
+(
+    int     type,
+    int     hub_id,
+    coll_msg coll
+)
+    {    
+    }
     };
