@@ -320,19 +320,20 @@ class Circle
         return( ret_rect );
         }
 
-   public: void to_array( vector<Uint8>* res_vec) 
+   public: void to_array(std::vector<Uint8>& res_vec)
         {
         std::vector<Uint8> tmp_vec;
-        color.to_array( &tmp_vec );
+        color.to_array( tmp_vec );
 	    for( Uint8 vec : tmp_vec )
 		    {
-		    res_vec->push_back( vec );
+		    res_vec.push_back( vec );
 		    }
-        pos.to_array( &tmp_vec );
+        tmp_vec.clear();
+        pos.to_array( tmp_vec );
 	    for( Uint8 vec : tmp_vec )
 		    {
-		    res_vec->push_back( vec );
+		    res_vec.push_back( vec );
 		    }
-        res_vec->push_back( radius );
+        res_vec.push_back( radius );
         }
     };

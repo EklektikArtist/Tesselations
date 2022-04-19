@@ -173,11 +173,11 @@ class Color
         alpha = i_alpha;
         }
 
-   public: void to_array( vector<Uint8>* res_vec ) 
+   public: void to_array( std::vector<Uint8> &res_vec ) 
         {
-        res_vec->push_back( red );
-        res_vec->push_back( green );
-        res_vec->push_back( blue );
-        res_vec->push_back( alpha );
+        res_vec.push_back( red );
+        res_vec.push_back( green );
+        res_vec.push_back( blue );
+        res_vec.push_back( alpha );
         }
     };

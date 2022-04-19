@@ -246,10 +246,11 @@ class Sector
     )
         {
     int errclass,resultlen;
-    vector<Uint8>hub_data;
-    i_hub->to_array( &hub_data );
+    std::vector<Uint8>hub_data;
+    i_hub->to_array( hub_data );
+
     uint8_t trg_sec = dir == OUT_OF_SECTOR_POS ? get_usector_id() : dir == OUT_OF_SECTOR_NEG ? get_lsector_id() : c_loc_id;
-    int ierr= MPI_Send( &hub_data, hub_data.size(), MPI_BYTE, trg_sec, 0, MPI_COMM_WORLD); 
+    int ierr= MPI_Send( hub_data.data(), hub_data.size(), MPI_CHAR, trg_sec, 0, MPI_COMM_WORLD);
       char err_buffer[MPI_MAX_ERROR_STRING];
     if( ierr != MPI_SUCCESS) 
         {

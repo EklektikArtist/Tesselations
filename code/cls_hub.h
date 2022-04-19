@@ -554,22 +554,21 @@ public:Hub
     Description:
 
     ----------------------------------------------------------------------------*/
-          
-    public: void to_array( vector<Uint8>* res_vec) 
-        {
-    
+
+   public: void to_array(std::vector<Uint8>& res_vec)
+        {    
         std::vector<Uint8> tmp_vec;
-        res_vec->push_back( drag_ratio * 100 );
-        res_vec->push_back( generation );
-        res_vec->push_back( heading );
-        res_vec->push_back( items_collected );
-        res_vec->push_back( speedx );
-        res_vec->push_back( speedy );
-        sprite.to_array( &tmp_vec );
+        res_vec.push_back( drag_ratio * 100 );
+        res_vec.push_back( generation );
+        res_vec.push_back( heading );
+        res_vec.push_back( items_collected );
+        res_vec.push_back( speedx );
+        res_vec.push_back( speedy );
+        sprite.to_array( tmp_vec );
 	    for( Uint8 vec : tmp_vec )
 		    {
-		    res_vec->push_back( vec );
+		    res_vec.push_back( vec );
 		    }
-        res_vec->push_back( id );
+        res_vec.push_back( id );
         }
 };
