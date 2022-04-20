@@ -1263,7 +1263,9 @@ void update_hubs
         ret_val = p_hub_1->move( time_step );
         if( ret_val != IN_SECTOR )
             {
-            io_main_data->world.get_sector( 0 )->send_hub( p_hub_1, ret_val );
+            int tmp = 157;
+            io_main_data->world.get_sector( 0 )->send_hub( &tmp, p_hub_1, ret_val );
+            io_main_data->world.get_sector(0)->recv_hub();
             }
         }
 
