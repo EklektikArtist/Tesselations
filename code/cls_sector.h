@@ -240,19 +240,15 @@ class Sector
     ----------------------------------------------------------------------------*/
 
     public: void send_hub
-          (
-              int* tmp,
-    Hub * i_hub,
+          (std::vector<uint8_t>* hub_data,
     sector_state dir
     )
         {
     int errclass,resultlen;
-    std::vector<Uint8>hub_data;
     MPI_Status status;
     MPI_Request request;
-    i_hub->to_array( hub_data );
     uint8_t trg_sec = dir == OUT_OF_SECTOR_POS ? get_usector_id() : dir == OUT_OF_SECTOR_NEG ? get_lsector_id() : c_loc_id;
-    int ierr= MPI_Isend( tmp, 1/*hub_data.size()*/, MPI_INT, trg_sec, 0, MPI_COMM_WORLD, &request);
+    int ierr= MPI_Isend(hub_data->data(), hub_data->size(), MPI_CHAR, trg_sec, 0, MPI_COMM_WORLD, &request);
       char err_buffer[MPI_MAX_ERROR_STRING];
     if( ierr != MPI_SUCCESS) 
         {
@@ -284,9 +280,8 @@ class Sector
         int errclass, resultlen;
         std::vector<Uint8>hub_data;
         MPI_Status status;
-        hub_data.resize(1);
-        int tst = 2;
-        int ierr = MPI_Recv( &tst, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+        hub_data.resize(14);
+        int ierr = MPI_Recv( hub_data.data(), 14, MPI_CHAR, 0, 0, MPI_COMM_WORLD, &status);
         char err_buffer[MPI_MAX_ERROR_STRING];
         if (ierr != MPI_SUCCESS)
         {

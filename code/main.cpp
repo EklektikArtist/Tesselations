@@ -1261,10 +1261,11 @@ void update_hubs
         ----------------------------------------*/
         sector_state ret_val;
         ret_val = p_hub_1->move( time_step );
+        std::vector<Uint8> tmp_vec;
+        p_hub_1->to_array(tmp_vec);
         if( ret_val != IN_SECTOR )
             {
-            int tmp = 157;
-            io_main_data->world.get_sector( 0 )->send_hub( &tmp, p_hub_1, ret_val );
+            io_main_data->world.get_sector( 0 )->send_hub( &tmp_vec, ret_val);
             io_main_data->world.get_sector(0)->recv_hub();
             }
         }
