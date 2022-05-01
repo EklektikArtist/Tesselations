@@ -58,15 +58,15 @@ class Color
           
     public: Color
     (
-    std::vector<Uint8>& inpt_vec,
+    std::vector<Uint8> *inpt_vec,
     Uint8              *offset
     )    
         {
         Uint8 loc_offset = *offset;
-        red = inpt_vec.at( loc_offset++ );
-        green = inpt_vec.at( loc_offset++ );
-        blue = inpt_vec.at( loc_offset++ );
-        alpha = inpt_vec.at( loc_offset++ );
+        red = inpt_vec->at( loc_offset++ );
+        green = inpt_vec->at( loc_offset++ );
+        blue = inpt_vec->at( loc_offset++ );
+        alpha = inpt_vec->at( loc_offset++ );
         *offset = loc_offset;
         }
 

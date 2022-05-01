@@ -294,7 +294,7 @@ class Sector
             }
         }
         Uint8 offset = 0;
-        c_loc_hubs.push_back( *new Hub( hub_data, &offset ) );
+        c_loc_hubs.push_back( *new Hub( &hub_data, &offset ) );
 
     }
 
