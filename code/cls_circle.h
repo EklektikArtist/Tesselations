@@ -56,6 +56,21 @@ class Circle
         update();
         }
 
+          
+    public: Circle
+    (
+    std::vector<Uint8>& inpt_vec,
+    Uint8              *offset
+    )    
+        {
+        Uint8 loc_offset = *offset;
+        color = *new Color( inpt_vec, &loc_offset );
+        pos = *new Position( inpt_vec, &loc_offset );
+        radius = inpt_vec.at( loc_offset++ );
+        *offset = loc_offset;
+        update();
+        }
+
     /*----------------------------------------------------------------------------
 
     Name:

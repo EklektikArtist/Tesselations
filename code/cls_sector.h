@@ -280,8 +280,8 @@ class Sector
         int errclass, resultlen;
         std::vector<Uint8>hub_data;
         MPI_Status status;
-        hub_data.resize(14);
-        int ierr = MPI_Recv( hub_data.data(), 14, MPI_CHAR, 0, 0, MPI_COMM_WORLD, &status);
+        hub_data.resize(100);
+        int ierr = MPI_Recv( hub_data.data(), 15, MPI_CHAR, 0, 0, MPI_COMM_WORLD, &status);
         char err_buffer[MPI_MAX_ERROR_STRING];
         if (ierr != MPI_SUCCESS)
         {
@@ -293,6 +293,8 @@ class Sector
                 fprintf(stderr, err_buffer);
             }
         }
+        Uint8 offset = 0;
+        c_loc_hubs.push_back( *new Hub( hub_data, &offset ) );
 
     }
 

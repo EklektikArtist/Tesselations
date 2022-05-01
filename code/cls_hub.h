@@ -104,6 +104,28 @@ public:Hub
         update();
         }
 
+public:Hub 
+    (
+    std::vector<Uint8>& inpt_vec,
+    Uint8               *offset
+    )
+        {
+        Uint8 loc_offset = *offset;
+        memset(buffer, 0, sizeof(char) * MAX_STR_LEN);
+        drag_ratio  = inpt_vec.at( loc_offset++ ) * 1000;
+        generation  = inpt_vec.at( loc_offset++ );
+        heading     = inpt_vec.at( loc_offset++ );
+        health      = inpt_vec.at( loc_offset++ );
+        items_collected = inpt_vec.at( loc_offset++ );
+        speedx      = inpt_vec.at( loc_offset++ );
+        speedy      = inpt_vec.at( loc_offset++ );
+        sprite = *new Circle( inpt_vec, &loc_offset );
+        text_pos.set_pos(sprite.get_pos());
+        id = inpt_vec.at( loc_offset++ );
+        *offset = loc_offset;
+        update();
+        }
+
     /*----------------------------------------------------------------------------
 
     Name:
@@ -558,9 +580,10 @@ public:Hub
    public: void to_array(std::vector<Uint8>& res_vec)
         {    
         std::vector<Uint8> tmp_vec;
-        res_vec.push_back( drag_ratio * 100 );
+        res_vec.push_back( drag_ratio * 1000 );
         res_vec.push_back( generation );
         res_vec.push_back( heading );
+        res_vec.push_back( health );
         res_vec.push_back( items_collected );
         res_vec.push_back( speedx );
         res_vec.push_back( speedy );

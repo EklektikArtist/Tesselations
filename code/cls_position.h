@@ -81,6 +81,21 @@ class Position
 
         update();
         }
+
+          
+    public: Position
+    (
+    std::vector<Uint8>& inpt_vec,
+    Uint8               *offset
+    )    
+        {
+        Uint8 loc_offset = *offset;
+        x = inpt_vec.at( loc_offset++ );
+        y = inpt_vec.at( loc_offset++ );
+        *offset = loc_offset;
+
+        update();
+        }
     
 
     /*----------------------------------------------------------------------------
